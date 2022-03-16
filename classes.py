@@ -46,6 +46,9 @@ class Rider:
         self.destination = destination
         self.curr_floor = curr_floor
 
+    def __repr__(self):
+        return f"{self.name} is on {self.curr_floor} and wants to go to {self.destination}"
+
     def step_in(self,elev):
         if elev.capacity == len(elev.riders):
             print(f"Rider {self.name} can't enter elevator since it is full")
