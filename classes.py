@@ -18,10 +18,10 @@ class Elevator:
         self.floor = floor
         self.capacity = capacity   
         self.direction = 0          # 0 for stationary, 1 for up, -1 for down
-        self.destinations = ()      # set of Floors
+        self.internal_destinations = ()      # set of Floors
         self.door_speed = 1
         self.elevator_speed = 10
-        self.riders = []
+        self.riders = ()                    # set of Riders
 
     def find_next_floor(self,destinations):
         up_floor = 10000000
@@ -46,6 +46,7 @@ class Rider:
         self.destination = destination
         self.start_floor = start_floor
         self.curr_floor = start_floor
+        self.is_in_elevator = False
 
     def __repr__(self):
         return f"{self.name} began on {self.start_floor}, is now on {self.curr_floor} and wants to go to {self.destination}"
@@ -55,9 +56,6 @@ class Rider:
             print(f"Rider {self.name} can't enter elevator since it is full")
         else:
             elev.riders.append(self)
-
-    def remove_rider(self,rider,elev):
-        elev.riders.remove(self)
 
     def press_button(self,destination):
         pass
