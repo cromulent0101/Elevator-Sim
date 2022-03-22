@@ -41,13 +41,14 @@ class Elevator:
                 pass
 
 class Rider:
-    def __init__(self,name,destination,curr_floor):
+    def __init__(self,name,destination,start_floor):
         self.name = name 
         self.destination = destination
-        self.curr_floor = curr_floor
+        self.start_floor = start_floor
+        self.curr_floor = start_floor
 
     def __repr__(self):
-        return f"{self.name} is on {self.curr_floor} and wants to go to {self.destination}"
+        return f"{self.name} began on {self.start_floor}, is now on {self.curr_floor} and wants to go to {self.destination}"
 
     def step_in(self,elev):
         if elev.capacity == len(elev.riders):
