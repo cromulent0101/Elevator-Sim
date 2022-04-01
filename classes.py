@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 def find_next_floor(curr_floor,destinations):
     up_floor = 1
     down_floor = 1
@@ -12,13 +13,13 @@ def find_next_floor(curr_floor,destinations):
                             
                             
 
-
+# @dataclass
 class Elevator: 
-    def __init__(self,capacity,floor):
+    def __init__(self,capacity: int,floor):
         self.floor = floor
         self.capacity = capacity   
         self.direction = 0          # 0 for stationary, 1 for up, -1 for down
-        self.internal_destinations = ()      # set of Floors
+        self.destinations = ()      # set of Floors
         self.door_speed = 1
         self.elevator_speed = 10
         self.riders = ()                    # set of Riders
@@ -61,7 +62,7 @@ class Rider:
         pass
 
 class Floor:
-    def __init__(self,number):
+    def __init__(self,number: int):
         self.number = number
         self.riders = []
         self.has_elevator = False
