@@ -19,10 +19,10 @@ class Elevator:
         self.floor = floor
         self.capacity = capacity   
         self.direction = 0          # 0 for stationary, 1 for up, -1 for down
-        self.destinations = ()      # set of Floors
+        self.destinations = []      # list of ints      
         self.door_speed = 1
         self.elevator_speed = 10
-        self.riders = ()                    # set of Riders
+        self.riders = []                   # list of Riders
 
     def find_next_floor(self,destinations):
         up_floor = 10000000
@@ -61,18 +61,18 @@ class Rider:
     def press_button(self,destination):
         pass
 
-class Floor:
-    def __init__(self,number: int):
-        self.number = number
-        self.riders = []
-        self.has_elevator = False
-        self.up_request = False
-        self.down_request = False
+# class Floor:
+#     def __init__(self,number: int):
+#         self.number = number
+#         self.riders = []
+#         self.has_elevator = False
+#         self.up_request = False
+#         self.down_request = False
 
-        def call_up(self,elev):
-            elev.destinations.add(self.number)
+#         def call_up(self,elev):
+#             elev.destinations.add(self.number)
 
-        def call_down(self,elev):
-            elev.destinations.add(self.number)
+#         def call_down(self,elev):
+#             elev.destinations.add(self.number)
 
 

@@ -60,10 +60,6 @@ while True:
             break               # while one rider is not at his floor, do elevator things
         print("everyone is at their destination floor")
         break                   # break entire loop of elevator things once everyone is at their desired floor
-    for rider in rider_list:
-        if rider.curr_floor == rider.destination:
-            continue            # do something here
-        # if rider.is_in_elevator
 
 
 ## elevator-centric algorithm - this should update every time elevator moves a floor
@@ -76,17 +72,22 @@ while True:
 
 # we're at a new floor - remove old riders' destinations
 
+# update riders' current floors
 
-# see if any rider needs to get off
+# check if we're stopping at this floor
+if any(e.floor = dest for dest in e.destinations):
+    
+
+# see who should get off
 for rider in e.riders:
-    if rider.destination == e.floor.number:
-        e.destinations.remove(rider.destination)
+    if rider.destination == e.floor:
+        e.destinations.remove(rider.destination)            # destinations are floors
         e.riders.remove(rider)
         print(f"rider {rider.name} arrived at destination {rider.destination} and is at floor {e.floor.number}")
 
 # see if anyone needs to get on
 for rider in rider_list:
-    if rider.start_floor == e.floor.number:
+    if rider.start_floor == e.floor.number and rider.start_floor != rider.curr_floor:
         e.riders.add(rider)
         print(f"rider {rider.name} got on at floor {e.floor.number} going to {rider.destination}")
 
