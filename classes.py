@@ -19,7 +19,7 @@ class Elevator:
         self.floor = floor
         self.capacity = capacity   
         self.direction = 0          # 0 for stationary, 1 for up, -1 for down
-        self.destinations = ()      # Set of ints      
+        self.destinations = set()      # Set of ints      
         self.door_speed = 1
         self.elevator_speed = 10
         self.riders = []                   # list of Riders

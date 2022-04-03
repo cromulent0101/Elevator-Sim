@@ -1,5 +1,6 @@
 # pylint: disable=import-error
-from classes import Elevator,Rider,Floor
+from classes import Elevator,Rider
+from time import sleep
 
 no_floor = 123456789        # a very high number
 
@@ -39,73 +40,66 @@ while True:
         print('EOF!')
         break
 
-# create all floors in between min and max # of the floors - one per Floor
-print(f"creating floors {lowest_rider_floor} through {highest_rider_floor}")
-floor_list = []
-for floor in range(lowest_rider_floor,highest_rider_floor):
-    floor_list.append(Floor(floor))
+# # create all floors in between min and max # of the floors - one per Floor
+# print(f"creating floors {lowest_rider_floor} through {highest_rider_floor}")
+# floor_list = []
+# for floor in range(lowest_rider_floor,highest_rider_floor):
+#     floor_list.append(Floor(floor))
 
-# create an elevator at bottom floor
-e = Elevator(3,1)
+# create an elevator at some floor
+e = Elevator(3,3)
 
 
 for rider in rider_list:
     print(rider)
 
+# to begin, all riders call an elevator to their start_floor at once
+# this gotta change once I add more than one elevator
+for rider in rider_list:
+    e.destinations.add(rider.start_floor)
 
-# have the riders call the elevator and try to get to their destination
+# arbitrarily choose elevator to go up first
+e.direction = 1
+
+## elevator-centric algorithm - this should update every time elevator moves a floor
 while True:
+    # update elevator's riders' floors
+    for rider in e.riders:
+        rider.curr_floor = e.floor
+    
     for rider in rider_list:
         if rider.destination != rider.curr_floor:
             break               # while one rider is not at his floor, do elevator things
         print("everyone is at their destination floor")
         break                   # break entire loop of elevator things once everyone is at their desired floor
 
+    # update elevator's direction if there are no more destinations higher/lower than current floor
+    if all(e.floor > dest for dest in e.destinations) or all(e.floor < dest for dest in e.destinations):
+        e.direction * -1
+        print(f"elevator reached floor {e.floor}, turned around, and is now going {e.direction}")
+        sleep(1)
 
-## elevator-centric algorithm - this should update every time elevator moves a floor
+# I'm pretty sure I can combine the two following loops...
+    # see if anyone should get off, remove the destination from elevator destinations, and kill rider
+    for rider in e.riders:
+        if rider.destination == e.floor:
+            e.destinations.remove(rider.destination)            
+            e.riders.remove(rider)
+            rider_list.remove(rider)
+            print(f"rider {rider.name} arrived at destination {rider.destination} and is at floor {e.floor}")
+            sleep(1)
 
-# # we're at a new floor - remove current floor's requests
-# if e.direction == 1 and all(e.floor > destfloor for destfloor in e.destinations):
-#     e.floor.up_request = False
-# if e.direction == -1:
-#     e.floor.down_request = False
+    # see if anyone needs to get on (in the elevator's direction), and add their destinations
+    for rider in rider_list:
+        if rider.start_floor == e.floor:
+            if (rider.destination > e.floor and e.direction == 1) or (rider.destination < e.floor and e.direction == -1):
+                e.riders.append(rider)
+                e.destinations.remove(rider.start_floor)
+                e.destinations.add(rider.destination)
+                print(f"rider {rider.name} got on at floor {e.floor} going to {rider.destination}")
+                sleep(1)
 
-# we're at a new floor - remove old riders' destinations
-
-# update riders' current floors
-
-# check if we're stopping at this floor
-if any(e.floor = dest for dest in e.destinations):
-    
-
-# see who should get off
-for rider in e.riders:
-    if rider.destination == e.floor:
-        e.destinations.remove(rider.destination)            # destinations are floors
-        e.riders.remove(rider)
-        print(f"rider {rider.name} arrived at destination {rider.destination} and is at floor {e.floor.number}")
-
-# see if anyone needs to get on
-for rider in rider_list:
-    if rider.start_floor == e.floor.number and rider.start_floor != rider.curr_floor:
-        e.riders.add(rider)
-        print(f"rider {rider.name} got on at floor {e.floor.number} going to {rider.destination}")
-
-# add new destinations for elevator
-# for floor in floor_list:
-#     if floor.up_request or floor.down_request:
-#         e.destinations.add(floor.number)
-for rider in e.riders:
-    e.destinations.add(rider.destination)       # rider destinations are only scalars?
-
-# find nearest destinations
-
-down_dest,up_dest = find_next_floor(e.floor.number,e.destinations)
-
-# close doors
-
-# move elevator either up or down
-
-# update elevator's Floor
-
-
+    # at this point, doors close and we move again
+    e.floor += e.direction
+    print(f"elevator moved to floor {e.floor}")
+    sleep(1)
