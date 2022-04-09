@@ -47,7 +47,7 @@ while True:
 #     floor_list.append(Floor(floor))
 
 # create an elevator at some floor
-e = Elevator(3,3)
+e = Elevator(3,1)
 
 
 for rider in rider_list:
@@ -67,37 +67,56 @@ while True:
     for rider in e.riders:
         rider.curr_floor = e.floor
     
-    for rider in rider_list:
-        if rider.destination != rider.curr_floor:
-            break               # while one rider is not at his floor, do elevator things
-        print("everyone is at their destination floor")
-        break                   # break entire loop of elevator things once everyone is at their desired floor
+    print(f"rider_list is {len(rider_list)}")
 
-    # update elevator's direction if there are no more destinations higher/lower than current floor
-    if all(e.floor > dest for dest in e.destinations) or all(e.floor < dest for dest in e.destinations):
-        e.direction * -1
-        print(f"elevator reached floor {e.floor}, turned around, and is now going {e.direction}")
-        sleep(1)
+
 
 # I'm pretty sure I can combine the two following loops...
     # see if anyone should get off, remove the destination from elevator destinations, and kill rider
-    for rider in e.riders:
-        if rider.destination == e.floor:
-            e.destinations.remove(rider.destination)            
-            e.riders.remove(rider)
-            rider_list.remove(rider)
-            print(f"rider {rider.name} arrived at destination {rider.destination} and is at floor {e.floor}")
-            sleep(1)
+    # if the current floor is a destinaton, we MUST stop
+    # riders with that destination get off
+    riders_to_remove = []
+    if e.floor in e.destinations:
+        for rider in e.riders:
+            if rider.destination == e.floor:
+                riders_to_remove.append(rider)
+                rider_list.remove(rider)
+                print(f"rider {rider.name} arrived at destination {rider.destination} and is at floor {e.floor}")
+                sleep(1)
+        e.destinations.remove(e.floor) # we can't remove a destination twice if it's someone's final floor and someone's starting floor
+    for rider in riders_to_remove:
+        e.riders.remove(rider)
+        
+    if not rider_list: break
+    if not e.destinations:
+        e.direction = 0
+    # update elevator's direction if there are no more destinations higher/lower than current floor
+    # having this here solves case where elebator needs to turn around at the top,
+    # but fails to get the top person when every passenger wants to go only one up
 
+    # we don't know the direction of the elevator until the new rider's destination is added
+    # imple solution: concept of a stationary elevator
     # see if anyone needs to get on (in the elevator's direction), and add their destinations
     for rider in rider_list:
         if rider.start_floor == e.floor:
-            if (rider.destination > e.floor and e.direction == 1) or (rider.destination < e.floor and e.direction == -1):
+            if (rider.destination > e.floor and e.direction > -1) or (rider.destination < e.floor and e.direction < 1): # this line is wrong
                 e.riders.append(rider)
-                e.destinations.remove(rider.start_floor)
+                if rider.start_floor in e.destinations:
+                    e.destinations.remove(rider.start_floor) # how to handle when one person gets off and another gets in/
                 e.destinations.add(rider.destination)
                 print(f"rider {rider.name} got on at floor {e.floor} going to {rider.destination}")
                 sleep(1)
+    
+    if (all(e.floor > dest for dest in e.destinations) and e.direction>-1):
+        e.direction = -1
+        print(f"elevator reached floor {e.floor}, turned around, and is now going {e.direction}")
+        sleep(1)
+    elif (all(e.floor < dest for dest in e.destinations) and e.direction<1):
+        e.direction = 1
+        print(f"elevator reached floor {e.floor}, turned around, and is now going {e.direction}")
+        sleep(1)
+
+    
 
     # at this point, doors close and we move again
     e.floor += e.direction
