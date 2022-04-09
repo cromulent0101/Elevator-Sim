@@ -29,6 +29,28 @@ def find_nearest_available_elevator(rider, elevator_bank):
     meaning has the proper direction and has a destination past the Rider's
     floor.
     """
+    available_elevators = []
+    for e in elevator_bank:
+        if e.direction == 0:
+            available_elevators.append(e)
+        if any(rider.destination < dest for dest in e.destinations) and ( # elevator going up
+            e.direction == 1) and (
+            e.floor < rider.start_floor
+        ):
+            available_elevators.append(e)
+        if any(rider.destination > dest for dest in e.destinations) and ( # elevator going down
+            e.direction == -1)  and (
+            e.floor > rider.start_floor
+        ):
+            available_elevators.append(e)
+    min(available_elevators, key=lambda x:abs(x-rider.start_floor))
+
+e1 = Elevator(3, 10)
+e1.destinations = set(5)
+e2 = Elevator(3, 20)
+e2.destinations = set(15, 1)
+e3 = Elevator(3, 13)
+e3.destinations = set(13,30,40)
 
 
 # prompt user to create a few riders, tracking highest and lowest floors of all types (dest and start)
