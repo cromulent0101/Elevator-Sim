@@ -1,19 +1,21 @@
 from dataclasses import dataclass
 from time import sleep
+from sys import maxsize
+import csv
 
-def find_next_floor(curr_floor,destinations):
-    up_floor = 1
-    down_floor = 1
+
+def find_next_floor(curr_floor, destinations):
+    up_floor = maxsize
+    down_floor = maxsize
     for floor in destinations:
-        if floor > curr_floor: # find closest floor above
+        if floor > curr_floor:  # find closest floor above
             if abs(floor - curr_floor) < abs(up_floor - curr_floor):
                 up_floor = floor
-        if floor < curr_floor: # find closest floor below
+        if floor < curr_floor:  # find closest floor below
             if abs(floor - curr_floor) < abs(down_floor - curr_floor):
                 down_floor = floor
-    return down_floor,up_floor
-                            
-                        
+    return down_floor, up_floor
+                                        
 # @dataclass
 class Elevator: 
     def __init__(self,capacity: int,floor):
@@ -43,66 +45,70 @@ class Elevator:
                 pass
 
     def run(self,rider_list) -> str:
-        for rider in self.riders:
-            rider.curr_floor = self.floor
-
-        # I'm pretty sure I can combine the two following loops...
-        # if the current floor is a destinaton, we MUST stop
-        # riders with that destination get off
-        riders_to_remove = []
-        if self.floor in self.destinations:
+        while True:
             for rider in self.riders:
-                if rider.destination == self.floor:
-                    riders_to_remove.append(rider)
-                    rider_list.remove(rider)
-                    print(
-                        f"rider {rider.name} arrived at destination {rider.destination} and is at floor {self.floor}"
-                    )
-                    sleep(1)
-            self.destinations.remove(self.floor)
-        for rider in riders_to_remove:
-            self.riders.remove(rider)
+                rider.curr_floor = self.floor
 
-        if not rider_list:
-            return
+            # to log what elevator does for testing
+            starting_floor = self.floor
+            starting_direction = self.direction
+            riders_to_remove = []
+            riders_to_add = []
 
-        # we don't know the direction of the  static elevator until the new rider's destination is added
-        if not self.destinations:
-            self.direction = 0
+            if self.floor in self.destinations:
+                for rider in self.riders:
+                    if rider.destination == self.floor:
+                        riders_to_remove.append(rider)
+                        rider_list.remove(rider)
+                        print(
+                            f"rider {rider.name} arrived at destination {rider.destination} and is at floor {self.floor}"
+                        )
+                        sleep(1)
+                self.destinations.remove(self.floor)
+            for rider in riders_to_remove:
+                self.riders.remove(rider)
 
-        # see if anyone needs to get on (in the elevator's direction), and add their destinations
-        for rider in rider_list:
-            if rider.start_floor == self.floor:
-                if (rider.destination > self.floor and self.direction > -1) or (
-                    rider.destination < self.floor and self.direction < 1
-                ):
-                    self.riders.append(rider)
-                    if rider.start_floor in self.destinations:
-                        self.destinations.remove(rider.start_floor)
-                    self.destinations.add(rider.destination)
-                    print(
-                        f"rider {rider.name} got on at floor {self.floor} going to {rider.destination}"
-                    )
-                    sleep(1)
+            if not rider_list:
+                return
 
-        # update elevator's direction if there are no more destinations higher/lower than current floor
-        if all(self.floor > dest for dest in self.destinations) and self.direction > -1:
-            self.direction = -1
-            print(
-                f"elevator reached floor {self.floor}, turned around, and is now going {self.direction}"
-            )
+            # we don't know the direction of the  static elevator until the new rider's destination is added
+            if not self.destinations:
+                self.direction = 0
+
+            # see if anyone needs to get on (in the elevator's direction), and add their destinations
+            for rider in rider_list:
+                if rider.start_floor == self.floor:
+                    if (rider.destination > self.floor and self.direction > -1) or (
+                        rider.destination < self.floor and self.direction < 1
+                    ):
+                        self.riders.append(rider)
+                        riders_to_add.append(rider)
+                        if rider.start_floor in self.destinations:
+                            self.destinations.remove(rider.start_floor)
+                        self.destinations.add(rider.destination)
+                        print(
+                            f"rider {rider.name} got on at floor {self.floor} going to {rider.destination}"
+                        )
+                        sleep(1)
+
+            # update elevator's direction if there are no more destinations higher/lower than current floor
+            if all(self.floor > dest for dest in self.destinations) and self.direction > -1:
+                self.direction = -1
+                print(
+                    f"elevator reached floor {self.floor}, turned around, and is now going {self.direction}"
+                )
+                sleep(1)
+            elif all(self.floor < dest for dest in self.destinations) and self.direction < 1:
+                self.direction = 1
+                print(
+                    f"elevator reached floor {self.floor}, turned around, and is now going {self.direction}"
+                )
+                sleep(1)
+
+            # at this point, doors close and we move again
+            self.floor += self.direction
+            print(f"elevator moved to floor {self.floor}")
             sleep(1)
-        elif all(self.floor < dest for dest in self.destinations) and self.direction < 1:
-            self.direction = 1
-            print(
-                f"elevator reached floor {self.floor}, turned around, and is now going {self.direction}"
-            )
-            sleep(1)
-
-        # at this point, doors close and we move again
-        self.floor += self.direction
-        print(f"elevator moved to floor {self.floor}")
-        sleep(1)
 
 class Rider:
     def __init__(self,name,destination,start_floor):

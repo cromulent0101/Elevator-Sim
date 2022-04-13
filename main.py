@@ -4,23 +4,6 @@ from time import sleep
 from sys import maxsize
 import random
 
-
-def find_next_floor(curr_floor, destinations):
-    up_floor = maxsize
-    down_floor = maxsize
-    for floor in destinations:
-        if floor > curr_floor:  # find closest floor above
-            if abs(floor - curr_floor) < abs(up_floor - curr_floor):
-                up_floor = floor
-        if floor < curr_floor:  # find closest floor below
-            if abs(floor - curr_floor) < abs(down_floor - curr_floor):
-                down_floor = floor
-    return down_floor, up_floor
-
-
-print(find_next_floor(1, (1, 500, 3, 5, 4)))
-
-
 def find_nearest_available_elevator(rider, elevator_bank) -> Elevator:
     """
     Returns an Elevator object that is the nearest (in terms of floors)
