@@ -21,7 +21,7 @@ def find_next_floor(curr_floor, destinations):
 print(find_next_floor(1, (1, 500, 3, 5, 4)))
 
 
-def find_nearest_available_elevator(rider, elevator_bank):
+def find_nearest_available_elevator(rider, elevator_bank) -> Elevator:
     """
     Returns an Elevator object that is the nearest (in terms of floors)
     elevator that can pick up a rider. Elevator will probably be stationary,
