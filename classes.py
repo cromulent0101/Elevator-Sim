@@ -15,36 +15,37 @@ def find_next_floor(curr_floor, destinations):
             if abs(floor - curr_floor) < abs(down_floor - curr_floor):
                 down_floor = floor
     return down_floor, up_floor
-                                        
+
+
 # @dataclass
-class Elevator: 
-    def __init__(self,capacity: int,floor):
+class Elevator:
+    def __init__(self, capacity: int, floor):
         self.floor = floor
-        self.capacity = capacity   
-        self.direction = 0          # 0 for stationary, 1 for up, -1 for down
-        self.destinations = set()      # Set of ints      
+        self.capacity = capacity
+        self.direction = 0  # 0 for stationary, 1 for up, -1 for down
+        self.destinations = set()  # Set of ints
         self.door_speed = 1
         self.elevator_speed = 10
-        self.riders = []                   # list of Riders
+        self.riders = []  # list of Riders
 
-    def find_next_floor(self,destinations):
+    def find_next_floor(self, destinations):
         up_floor = 10000000
         down_floor = 10000000
         for floor in destinations:
-            if floor > self.floor: # find closest floor above
+            if floor > self.floor:  # find closest floor above
                 if abs(floor - self.floor) < abs(up_floor - self.floor):
                     up_floor = floor
-            if floor < self.floor: # find closest floor below
+            if floor < self.floor:  # find closest floor below
                 if abs(floor - self.floor) < abs(down_floor - self.floor):
                     down_floor = floor
-        return down_floor,up_floor
+        return down_floor, up_floor
 
-    def stop_at_floor(self):
-        for floor in self.destinations:
-            if (self.floor > floor) and (self.direction < 1):  # going down
-                pass
+    # def stop_at_floor(self):
+    #     for floor in self.destinations:
+    #         if (self.floor > floor) and (self.direction < 1):  # going down
+    #             pass
 
-    def run(self,rider_list) -> str:
+    def run(self, rider_list) -> str:
         while True:
             for rider in self.riders:
                 rider.curr_floor = self.floor
@@ -92,13 +93,19 @@ class Elevator:
                         sleep(1)
 
             # update elevator's direction if there are no more destinations higher/lower than current floor
-            if all(self.floor > dest for dest in self.destinations) and self.direction > -1:
+            if (
+                all(self.floor > dest for dest in self.destinations)
+                and self.direction > -1
+            ):
                 self.direction = -1
                 print(
                     f"elevator reached floor {self.floor}, turned around, and is now going {self.direction}"
                 )
                 sleep(1)
-            elif all(self.floor < dest for dest in self.destinations) and self.direction < 1:
+            elif (
+                all(self.floor < dest for dest in self.destinations)
+                and self.direction < 1
+            ):
                 self.direction = 1
                 print(
                     f"elevator reached floor {self.floor}, turned around, and is now going {self.direction}"
@@ -110,9 +117,10 @@ class Elevator:
             print(f"elevator moved to floor {self.floor}")
             sleep(1)
 
+
 class Rider:
-    def __init__(self,name,destination,start_floor):
-        self.name = name 
+    def __init__(self, name, destination, start_floor):
+        self.name = name
         self.destination = destination
         self.start_floor = start_floor
         self.curr_floor = start_floor
@@ -121,15 +129,14 @@ class Rider:
     def __repr__(self):
         return f"{self.name} began on {self.start_floor}, is now on {self.curr_floor} and wants to go to {self.destination}"
 
-    def step_in(self,elev):
+    def step_in(self, elev):
         if elev.capacity == len(elev.riders):
             print(f"Rider {self.name} can't enter elevator since it is full")
         else:
             elev.riders.append(self)
 
-    def press_button(self,destination):
+    def press_button(self, destination):
         pass
-
 
 
 # class Floor:
@@ -145,5 +152,3 @@ class Rider:
 
 #         def call_down(self,elev):
 #             elev.destinations.add(self.number)
-
-
