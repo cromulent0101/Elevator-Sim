@@ -27,6 +27,7 @@ class Elevator:
         self.door_speed = 1
         self.elevator_speed = 10
         self.riders = []  # list of Riders
+        self.log = []  # list of strs to log what elevator did
 
     def find_next_floor(self, destinations):
         up_floor = 10000000
@@ -46,6 +47,12 @@ class Elevator:
     #             pass
 
     def run(self, rider_list) -> str:
+        """
+        Tells and elevator to pick up and drop off passengers
+        given a rider list.
+        Returns a string that represents the actions taken by
+        the elevator.
+        """
         while True:
             for rider in self.riders:
                 rider.curr_floor = self.floor
@@ -53,17 +60,19 @@ class Elevator:
             # to log what elevator does for testing
             starting_floor = self.floor
             starting_direction = self.direction
-            riders_to_remove = []
-            riders_to_add = []
+            rider_names_to_remove = []
+            rider_names_to_add = []
 
+            riders_to_remove = []
             if self.floor in self.destinations:
                 for rider in self.riders:
                     if rider.destination == self.floor:
-                        riders_to_remove.append(rider)
-                        rider_list.remove(rider)
                         print(
                             f"rider {rider.name} arrived at destination {rider.destination} and is at floor {self.floor}"
                         )
+                        riders_to_remove.append(rider)
+                        rider_names_to_remove.append(str(rider))
+                        rider_list.remove(rider)
                         sleep(1)
                 self.destinations.remove(self.floor)
             for rider in riders_to_remove:
@@ -72,7 +81,7 @@ class Elevator:
             if not rider_list:
                 return
 
-            # we don't know the direction of the  static elevator until the new rider's destination is added
+            # we don't know the direction of the  static elevator until the new riders' destinations are added
             if not self.destinations:
                 self.direction = 0
 
@@ -83,7 +92,7 @@ class Elevator:
                         rider.destination < self.floor and self.direction < 1
                     ):
                         self.riders.append(rider)
-                        riders_to_add.append(rider)
+                        rider_names_to_add.append(str(rider))
                         if rider.start_floor in self.destinations:
                             self.destinations.remove(rider.start_floor)
                         self.destinations.add(rider.destination)
@@ -91,7 +100,14 @@ class Elevator:
                             f"rider {rider.name} got on at floor {self.floor} going to {rider.destination}"
                         )
                         sleep(1)
-
+            rider_names_to_add.sort()
+            rider_names_to_remove.sort()
+            log = []
+            log.append(starting_floor)
+            log.append(starting_direction)
+            log.append(rider_names_to_add)
+            log.append(rider_names_to_remove)
+            self.log = "".join([log_element for log_element in log])
             # update elevator's direction if there are no more destinations higher/lower than current floor
             if (
                 all(self.floor > dest for dest in self.destinations)
@@ -115,6 +131,8 @@ class Elevator:
             # at this point, doors close and we move again
             self.floor += self.direction
             print(f"elevator moved to floor {self.floor}")
+            print("here is the log for this floor")
+            print(self.log)
             sleep(1)
 
 
@@ -125,6 +143,9 @@ class Rider:
         self.start_floor = start_floor
         self.curr_floor = start_floor
         self.is_in_elevator = False
+
+    def __str__(self):
+        return self.name  # for logging
 
     def __repr__(self):
         return f"{self.name} began on {self.start_floor}, is now on {self.curr_floor} and wants to go to {self.destination}"
