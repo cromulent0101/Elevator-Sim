@@ -105,9 +105,9 @@ class Elevator:
             log = []
             log.append(starting_floor)
             log.append(starting_direction)
-            log.append(rider_names_to_add)
-            log.append(rider_names_to_remove)
-            self.log = "".join([log_element for log_element in log])
+            log.append(",".join(rider_names_to_add))
+            log.append(",".join(rider_names_to_remove))
+            self.log = ";".join([str(log_element) for log_element in log])
             # update elevator's direction if there are no more destinations higher/lower than current floor
             if (
                 all(self.floor > dest for dest in self.destinations)
@@ -131,7 +131,7 @@ class Elevator:
             # at this point, doors close and we move again
             self.floor += self.direction
             print(f"elevator moved to floor {self.floor}")
-            print("here is the log for this floor")
+            # print("here is the log for this floor")
             print(self.log)
             sleep(1)
 
