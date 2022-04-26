@@ -12,6 +12,8 @@ def find_nearest_available_elevator(rider, elevator_bank) -> Elevator:
     but can also return an Elevator that is on its way to the Rider's floor,
     meaning has the proper direction and has a destination past the Rider's
     floor.
+
+    Used for an elevator bank.
     """
     available_elevators = []
     for e in elevator_bank:
@@ -30,14 +32,6 @@ def find_nearest_available_elevator(rider, elevator_bank) -> Elevator:
         ):
             available_elevators.append(e)
     return min(available_elevators, key=lambda x: abs(x - rider.start_floor))
-
-
-# e1 = Elevator(3, 10)
-# e1.destinations = set(5)
-# e2 = Elevator(3, 20)
-# e2.destinations = set(15, 1)
-# e3 = Elevator(3, 13)
-# e3.destinations = set(13,30,40)
 
 
 # prompt user to create a few riders, tracking highest and lowest floors of all types (dest and start)
@@ -71,9 +65,6 @@ print(rider_list[0])
 # create an elevator at a random valid floor
 e = Elevator(3, random.randint(lowest_rider_floor, highest_rider_floor))
 
-
-for rider in rider_list:
-    print(rider)
 
 # to begin, all riders call an elevator to their start_floor at once
 # this gotta change once I add more than one elevator
@@ -147,4 +138,5 @@ e.direction = 1
 #     e.floor += e.direction
 #     print(f"elevator moved to floor {e.floor}")
 #     sleep(1)
-e.run(rider_list)
+place = e.run(rider_list)
+print(place)
