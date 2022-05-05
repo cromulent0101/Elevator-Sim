@@ -1,13 +1,14 @@
 # pylint: disable=import-error
 from classes import Elevator, Rider
+import utils
 from time import sleep
 from sys import maxsize
 import random
 
+rider_list = utils.get_riders()
 
-print(rider_list[0])
-# create an elevator at a random valid floor
-e = Elevator(3, random.randint(lowest_rider_floor, highest_rider_floor))
+# create an elevator at a random floor
+e = Elevator(3, random.randint(1, 10))
 
 
 # to begin, all riders call an elevator to their start_floor at once
