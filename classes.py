@@ -80,7 +80,9 @@ class Elevator:
                     if (
                         (rider.destination > self.floor and self.direction > -1)
                         or (rider.destination < self.floor and self.direction < 1)
-                        or ()
+                        or (
+                            rider.destination == self.floor
+                        )  # this is causing Jane to not be picked up...we need elevator to turn around before this
                     ):
                         self.riders.append(rider)
                         rider_names_to_add.append(str(rider))
