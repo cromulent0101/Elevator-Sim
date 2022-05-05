@@ -29,23 +29,6 @@ class Elevator:
         self.riders = []  # list of Riders
         self.log = []  # list of strs to log what elevator did
 
-    def find_next_floor(self, destinations):
-        up_floor = 10000000
-        down_floor = 10000000
-        for floor in destinations:
-            if floor > self.floor:  # find closest floor above
-                if abs(floor - self.floor) < abs(up_floor - self.floor):
-                    up_floor = floor
-            if floor < self.floor:  # find closest floor below
-                if abs(floor - self.floor) < abs(down_floor - self.floor):
-                    down_floor = floor
-        return down_floor, up_floor
-
-    # def stop_at_floor(self):
-    #     for floor in self.destinations:
-    #         if (self.floor > floor) and (self.direction < 1):  # going down
-    #             pass
-
     def run(self, rider_list) -> str:
         """
         Tells and elevator to pick up and drop off passengers
@@ -68,13 +51,9 @@ class Elevator:
             if self.floor in self.destinations:
                 for rider in self.riders:
                     if rider.destination == self.floor:
-                        # print(
-                        #     f"rider {rider.name} arrived at destination {rider.destination} and is at floor {self.floor}"
-                        # )
                         riders_to_remove.append(rider)
                         rider_names_to_remove.append(str(rider))
                         rider_list.remove(rider)
-                        # sleep(1)
                 self.destinations.remove(self.floor)
             for rider in riders_to_remove:
                 self.riders.remove(rider)
@@ -82,12 +61,12 @@ class Elevator:
             if not rider_list:
                 rider_names_to_add.sort()
                 rider_names_to_remove.sort()
-                log = []
-                log.append(starting_floor)
-                log.append(starting_direction)
-                log.append(",".join(rider_names_to_add))
-                log.append(",".join(rider_names_to_remove))
-                self.log = ";".join([str(log_element) for log_element in log])
+                self.log = self.log_movement(
+                    starting_floor,
+                    starting_direction,
+                    rider_names_to_add,
+                    rider_names_to_remove,
+                )
                 full_log.append(self.log)
                 return full_log
 
@@ -98,8 +77,10 @@ class Elevator:
             # see if anyone needs to get on (in the elevator's direction), and add their destinations
             for rider in rider_list:
                 if rider.start_floor == self.floor:
-                    if (rider.destination > self.floor and self.direction > -1) or (
-                        rider.destination < self.floor and self.direction < 1
+                    if (
+                        (rider.destination > self.floor and self.direction > -1)
+                        or (rider.destination < self.floor and self.direction < 1)
+                        or ()
                     ):
                         self.riders.append(rider)
                         rider_names_to_add.append(str(rider))
@@ -112,35 +93,27 @@ class Elevator:
                         # sleep(1)
             rider_names_to_add.sort()
             rider_names_to_remove.sort()
-            log = []
-            log.append(starting_floor)
-            log.append(starting_direction)
-            log.append(",".join(rider_names_to_add))
-            log.append(",".join(rider_names_to_remove))
-            self.log = ";".join(
-                [str(log_element) for log_element in log]
-            )  # currfloor;dir;riders_added;riders_removed
+            self.log = self.log_movement(
+                starting_floor,
+                starting_direction,
+                rider_names_to_add,
+                rider_names_to_remove,
+            )
+
             # update elevator's direction if there are no more destinations higher/lower than current floor
             if (
                 all(self.floor > dest for dest in self.destinations)
                 and self.direction > -1
             ):
                 self.direction = -1
-                # print(
-                #     f"elevator reached floor {self.floor}, turned around, and is now going {self.direction}"
-                # )
-                # sleep(1)
+
             elif (
                 all(self.floor < dest for dest in self.destinations)
                 and self.direction < 1
             ):
                 self.direction = 1
-                # print(
-                #     f"elevator reached floor {self.floor}, turned around, and is now going {self.direction}"
-                # )
-                # sleep(1)
 
-            # at this point, doors close and we move again
+            ## at this point, doors close and we move again
             self.floor += self.direction
             # print(f"elevator moved to floor {self.floor}")
             # print("here is the log for this floor")
@@ -148,6 +121,20 @@ class Elevator:
             # print(self.log)
             # sleep(0.1)
         # print(full_log)
+
+    def log_movement(
+        self,
+        starting_floor,
+        starting_direction,
+        rider_names_to_add,
+        rider_names_to_remove,
+    ):
+        log = []
+        log.append(starting_floor)
+        log.append(starting_direction)
+        log.append(",".join(rider_names_to_add))
+        log.append(",".join(rider_names_to_remove))
+        return ";".join([str(log_element) for log_element in log])
 
 
 class Rider:
