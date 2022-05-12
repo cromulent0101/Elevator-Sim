@@ -33,7 +33,7 @@ def find_nearest_available_elevator(rider, elevator_bank: list[Elevator]) -> Ele
 
 
 def get_riders() -> list[Rider]:
-    """Returns a list of Riders on multiple Floors."""
+    """Returns a list of Riders on multiple floors."""
     rider_list = []
     while True:
         try:

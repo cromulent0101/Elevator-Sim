@@ -54,11 +54,11 @@ class Elevator:
                         riders_to_remove.append(rider)
                         rider_names_to_remove.append(str(rider))
                         rider_list.remove(rider)
-                self.destinations.remove(self.floor)
+                        self.destinations.remove(self.floor)
             for rider in riders_to_remove:
                 self.riders.remove(rider)
 
-            if not rider_list:
+            if not rider_list:  ## this can go right after line 55
                 rider_names_to_add.sort()
                 rider_names_to_remove.sort()
                 self.log = self.log_movement(
@@ -70,39 +70,6 @@ class Elevator:
                 full_log.append(self.log)
                 return full_log
 
-            # we don't know the direction of the  static elevator until the new riders' destinations are added
-            if not self.destinations:
-                self.direction = 0
-
-            # see if anyone needs to get on (in the elevator's direction), and add their destinations
-            for rider in rider_list:
-                if rider.start_floor == self.floor:
-                    if (
-                        (rider.destination > self.floor and self.direction > -1)
-                        or (rider.destination < self.floor and self.direction < 1)
-                        or (
-                            rider.destination == self.floor
-                        )  # this is causing Jane to not be picked up...we need elevator to turn around before this
-                    ):
-                        self.riders.append(rider)
-                        rider_names_to_add.append(str(rider))
-                        if rider.start_floor in self.destinations:
-                            self.destinations.remove(rider.start_floor)
-                        self.destinations.add(rider.destination)
-                        # print(
-                        #     f"rider {rider.name} got on at floor {self.floor} going to {rider.destination}"
-                        # )
-                        # sleep(1)
-            rider_names_to_add.sort()
-            rider_names_to_remove.sort()
-            self.log = self.log_movement(
-                starting_floor,
-                starting_direction,
-                rider_names_to_add,
-                rider_names_to_remove,
-            )
-
-            # update elevator's direction if there are no more destinations higher/lower than current floor
             if (
                 all(self.floor > dest for dest in self.destinations)
                 and self.direction > -1
@@ -114,6 +81,26 @@ class Elevator:
                 and self.direction < 1
             ):
                 self.direction = 1
+
+            # see if anyone needs to get on (in the elevator's direction), and add their destinations
+            for rider in rider_list:
+                if rider.start_floor == self.floor:
+                    if (rider.destination > self.floor and self.direction > -1) or (
+                        rider.destination < self.floor and self.direction < 1
+                    ):
+                        self.riders.append(rider)
+                        rider_names_to_add.append(str(rider))
+                        if rider.start_floor in self.destinations:
+                            self.destinations.remove(rider.start_floor)
+                        self.destinations.add(rider.destination)
+            rider_names_to_add.sort()
+            rider_names_to_remove.sort()
+            self.log = self.log_movement(
+                starting_floor,
+                starting_direction,
+                rider_names_to_add,
+                rider_names_to_remove,
+            )
 
             ## at this point, doors close and we move again
             self.floor += self.direction
