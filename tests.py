@@ -14,7 +14,7 @@ def first_floor_elevator():
 
 @pytest.fixture
 def middle_floor_elevator():
-    e = InefficientElevator(3, 5)
+    e = InefficientElevator(3, 3)
     e.direction = 1
     return e
 
@@ -78,4 +78,34 @@ def test_first_descending(first_floor_elevator, descending_riders):
         "4;-1;;Bob",
         "3;-1;;Jane",
         "2;-1;;Joe",
+    ]
+
+
+def test_middle_classic(middle_floor_elevator, classic_riders):
+    for rider in classic_riders:
+        middle_floor_elevator.destinations.add(rider.start_floor)
+    assert middle_floor_elevator.run(classic_riders) == [
+        "3;1;;",
+        "4;1;Bob;",
+        "5;1;;Bob",
+        "6;1;;",
+        "7;1;;",
+        "8;1;;",
+        "9;-1;Jane;",
+        "8;-1;;",
+        "7;-1;;",
+        "6;-1;;",
+        "5;-1;;",
+        "4;-1;;",
+        "3;-1;;",
+        "2;-1;;",
+        "1;-1;;Jane",
+        "2;1;Joe;",
+        "3;1;;",
+        "4;1;;",
+        "5;1;;",
+        "6;1;;",
+        "7;1;;",
+        "8;1;;",
+        "9;1;;Joe",
     ]

@@ -8,7 +8,7 @@ import random
 # rider_list = utils.get_riders()
 rider_list = [Rider("Joe", 9, 2), Rider("Bob", 5, 4), Rider("Jane", 1, 9)]
 # create an elevator at a random floor
-e = InefficientElevator(3, 4)
+e = InefficientElevator(3, 3)
 
 
 # to begin, all riders call an elevator to their start_floor at once

@@ -3,10 +3,6 @@ from time import sleep
 from sys import maxsize
 import csv
 
-# todo:
-# add way of adding riders while elevator is in transit
-#
-
 
 def find_next_floor(curr_floor, destinations):
     up_floor = maxsize
@@ -21,8 +17,6 @@ def find_next_floor(curr_floor, destinations):
     return down_floor, up_floor
 
 
-# this elevator cannot be efficient without some concept of riders
-# calling it up or down...use a list of "up" destinations and "down"?
 # @dataclass
 class InefficientElevator:
     def __init__(self, capacity: int, floor):
@@ -54,14 +48,18 @@ class InefficientElevator:
             rider_names_to_add = []
 
             riders_to_remove = []
-            if self.floor in self.destinations:  # we must stop and remove destination
+            if self.floor in self.destinations:
+                self.destinations.remove(self.floor)  # ding
                 for rider in self.riders:
                     if rider.destination == self.floor:
                         riders_to_remove.append(rider)
                         rider_names_to_remove.append(str(rider))
                         rider_list.remove(rider)
-                        self.destinations.remove(self.floor)
-                # self.destinations.remove(self.floor)
+                for (
+                    rider
+                ) in rider_list:  # hacky way of re-adding floors we need to go back to
+                    if rider.start_floor == self.floor:
+                        self.destinations.add(self.floor)
             for rider in riders_to_remove:
                 self.riders.remove(rider)
 
@@ -80,13 +78,13 @@ class InefficientElevator:
             # direction update if we're at top/bottom
             if (
                 all(self.floor > dest for dest in self.destinations)
-                and self.direction == 1
+                and self.direction > -1
             ):  # maybe also check if car is empty and has reached a destination?
                 self.direction = 0
 
             elif (
                 all(self.floor < dest for dest in self.destinations)
-                and self.direction == -1
+                and self.direction < 1
             ):
                 self.direction = 0
 
@@ -103,16 +101,12 @@ class InefficientElevator:
                         self.destinations.add(rider.destination)
 
             # direction check if anyone got on
-            if (
-                all(self.floor > dest for dest in self.destinations)
-                and self.direction == 0
-            ):
+            if all(
+                self.floor > dest for dest in self.destinations
+            ):  # and check if stationary?
                 self.direction = -1
 
-            elif (
-                all(self.floor < dest for dest in self.destinations)
-                and self.direction == 0
-            ):
+            elif all(self.floor < dest for dest in self.destinations):
                 self.direction = 1
 
             rider_names_to_add.sort()
@@ -123,10 +117,7 @@ class InefficientElevator:
                 rider_names_to_add,
                 rider_names_to_remove,
             )
-            print(self.floor)
-            sleep(0.1)
             self.floor += self.direction
-
             full_log.append(self.log)
 
     def log_movement(
