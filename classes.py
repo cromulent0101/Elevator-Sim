@@ -3,6 +3,10 @@ from time import sleep
 from sys import maxsize
 import csv
 
+# todo:
+# add way of adding riders while elevator is in transit
+#
+
 
 def find_next_floor(curr_floor, destinations):
     up_floor = maxsize
@@ -17,8 +21,10 @@ def find_next_floor(curr_floor, destinations):
     return down_floor, up_floor
 
 
+# this elevator cannot be efficient without some concept of riders
+# calling it up or down...use a list of "up" destinations and "down"?
 # @dataclass
-class Elevator:
+class InefficientElevator:
     def __init__(self, capacity: int, floor):
         self.floor = floor
         self.capacity = capacity
@@ -48,17 +54,18 @@ class Elevator:
             rider_names_to_add = []
 
             riders_to_remove = []
-            if self.floor in self.destinations:
+            if self.floor in self.destinations:  # we must stop and remove destination
                 for rider in self.riders:
                     if rider.destination == self.floor:
                         riders_to_remove.append(rider)
                         rider_names_to_remove.append(str(rider))
                         rider_list.remove(rider)
                         self.destinations.remove(self.floor)
+                # self.destinations.remove(self.floor)
             for rider in riders_to_remove:
                 self.riders.remove(rider)
 
-            if not rider_list:  ## this can go right after line 55
+            if not rider_list:
                 rider_names_to_add.sort()
                 rider_names_to_remove.sort()
                 self.log = self.log_movement(
@@ -70,29 +77,44 @@ class Elevator:
                 full_log.append(self.log)
                 return full_log
 
+            # direction update if we're at top/bottom
             if (
                 all(self.floor > dest for dest in self.destinations)
-                and self.direction > -1
+                and self.direction == 1
+            ):  # maybe also check if car is empty and has reached a destination?
+                self.direction = 0
+
+            elif (
+                all(self.floor < dest for dest in self.destinations)
+                and self.direction == -1
+            ):
+                self.direction = 0
+
+            # see if anyone needs to get on (in the elevator's direction), and add their destinations
+            for rider in rider_list:
+                if rider.start_floor == self.floor:
+                    if (
+                        (rider.destination > self.floor and self.direction == 1)
+                        or (rider.destination < self.floor and self.direction == -1)
+                        or (self.direction == 0)
+                    ):
+                        self.riders.append(rider)
+                        rider_names_to_add.append(str(rider))
+                        self.destinations.add(rider.destination)
+
+            # direction check if anyone got on
+            if (
+                all(self.floor > dest for dest in self.destinations)
+                and self.direction == 0
             ):
                 self.direction = -1
 
             elif (
                 all(self.floor < dest for dest in self.destinations)
-                and self.direction < 1
+                and self.direction == 0
             ):
                 self.direction = 1
 
-            # see if anyone needs to get on (in the elevator's direction), and add their destinations
-            for rider in rider_list:
-                if rider.start_floor == self.floor:
-                    if (rider.destination > self.floor and self.direction > -1) or (
-                        rider.destination < self.floor and self.direction < 1
-                    ):
-                        self.riders.append(rider)
-                        rider_names_to_add.append(str(rider))
-                        if rider.start_floor in self.destinations:
-                            self.destinations.remove(rider.start_floor)
-                        self.destinations.add(rider.destination)
             rider_names_to_add.sort()
             rider_names_to_remove.sort()
             self.log = self.log_movement(
@@ -101,15 +123,11 @@ class Elevator:
                 rider_names_to_add,
                 rider_names_to_remove,
             )
-
-            ## at this point, doors close and we move again
+            print(self.floor)
+            sleep(0.1)
             self.floor += self.direction
-            # print(f"elevator moved to floor {self.floor}")
-            # print("here is the log for this floor")
+
             full_log.append(self.log)
-            # print(self.log)
-            # sleep(0.1)
-        # print(full_log)
 
     def log_movement(
         self,

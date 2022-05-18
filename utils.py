@@ -1,9 +1,11 @@
 # pylint: disable=import-error
-from classes import Elevator, Rider
+from classes import InefficientElevator, Rider
 from sys import maxsize
 
 
-def find_nearest_available_elevator(rider, elevator_bank: list[Elevator]) -> Elevator:
+def find_nearest_available_elevator(
+    rider, elevator_bank: list[InefficientElevator]
+) -> InefficientElevator:
     """
     Returns an Elevator object that is the nearest (in terms of floors)
     elevator that can pick up a rider. Elevator will probably be stationary,
