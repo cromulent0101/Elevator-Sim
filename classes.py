@@ -46,19 +46,26 @@ class InefficientElevator:
             starting_direction = self.direction
             rider_names_to_remove = []
             rider_names_to_add = []
-
             riders_to_remove = []
+            ## decision: implement an up destinatoin list and a down one
             if self.floor in self.destinations:
-                # self.destinations.remove(self.floor)  # ding
+                self.destinations.remove(self.floor)  # ding
                 for rider in self.riders:
                     if rider.destination == self.floor:
                         riders_to_remove.append(rider)
                         rider_names_to_remove.append(str(rider))
                         rider_list.remove(rider)
-                        self.destinations.remove(self.floor)
-                # for rider in rider_list:  # hacky way of re-adding floors we need to go back to
-                #     if rider.start_floor == self.floor:
-                #         self.destinations.add(self.floor)
+                        # try:
+                        #     self.destinations.remove(self.floor)
+                        # except: pass
+                for (
+                    rider
+                ) in rider_list:  # hacky way of re-adding floors we need to go back to
+                    if rider.start_floor == self.floor and (
+                        (rider.destination > self.floor and self.direction == -1)
+                        or (rider.destination < self.floor and self.direction == 1)
+                    ):
+                        self.destinations.add(self.floor)
             for rider in riders_to_remove:
                 self.riders.remove(rider)
 
@@ -97,7 +104,6 @@ class InefficientElevator:
                     self.riders.append(rider)
                     rider_names_to_add.append(str(rider))
                     self.destinations.add(rider.destination)
-
                 # direction check if anyone got on -- priority to first person on
                 if all(self.floor > dest for dest in self.destinations):
                     self.direction = -1
