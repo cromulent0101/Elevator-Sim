@@ -49,17 +49,16 @@ class InefficientElevator:
 
             riders_to_remove = []
             if self.floor in self.destinations:
-                self.destinations.remove(self.floor)  # ding
+                # self.destinations.remove(self.floor)  # ding
                 for rider in self.riders:
                     if rider.destination == self.floor:
                         riders_to_remove.append(rider)
                         rider_names_to_remove.append(str(rider))
                         rider_list.remove(rider)
-                for (
-                    rider
-                ) in rider_list:  # hacky way of re-adding floors we need to go back to
-                    if rider.start_floor == self.floor:
-                        self.destinations.add(self.floor)
+                        self.destinations.remove(self.floor)
+                # for rider in rider_list:  # hacky way of re-adding floors we need to go back to
+                #     if rider.start_floor == self.floor:
+                #         self.destinations.add(self.floor)
             for rider in riders_to_remove:
                 self.riders.remove(rider)
 
@@ -75,39 +74,36 @@ class InefficientElevator:
                 full_log.append(self.log)
                 return full_log
 
-            # direction update if we're at top/bottom
+            # direction update if we're at top
             if (
                 all(self.floor > dest for dest in self.destinations)
-                and self.direction > -1
+                and self.direction == 1
             ):  # maybe also check if car is empty and has reached a destination?
                 self.direction = 0
-
+            # if we're at bottom
             elif (
                 all(self.floor < dest for dest in self.destinations)
-                and self.direction < 1
+                and self.direction == -1
             ):
                 self.direction = 0
 
             # see if anyone needs to get on (in the elevator's direction), and add their destinations
             for rider in rider_list:
-                if rider.start_floor == self.floor:
-                    if (
-                        (rider.destination > self.floor and self.direction == 1)
-                        or (rider.destination < self.floor and self.direction == -1)
-                        or (self.direction == 0)
-                    ):
-                        self.riders.append(rider)
-                        rider_names_to_add.append(str(rider))
-                        self.destinations.add(rider.destination)
+                if rider.start_floor == self.floor and (
+                    (rider.destination > self.floor and self.direction == 1)
+                    or (rider.destination < self.floor and self.direction == -1)
+                    or (self.direction == 0)
+                ):
+                    self.riders.append(rider)
+                    rider_names_to_add.append(str(rider))
+                    self.destinations.add(rider.destination)
 
-            # direction check if anyone got on
-            if all(
-                self.floor > dest for dest in self.destinations
-            ):  # and check if stationary?
-                self.direction = -1
+                # direction check if anyone got on -- priority to first person on
+                if all(self.floor > dest for dest in self.destinations):
+                    self.direction = -1
 
-            elif all(self.floor < dest for dest in self.destinations):
-                self.direction = 1
+                elif all(self.floor < dest for dest in self.destinations):
+                    self.direction = 1
 
             rider_names_to_add.sort()
             rider_names_to_remove.sort()
