@@ -101,7 +101,7 @@ class InefficientElevator:
                     or (rider.destination < self.floor and self.direction == -1)
                     or (self.direction == 0)
                 ):
-                    self.riders.append(rider)
+                    rider.step_in(self)
                     rider_names_to_add.append(str(rider))
                     self.destinations.add(rider.destination)
                 # direction check if anyone got on -- priority to first person on
@@ -161,16 +161,13 @@ class Rider:
         pass
 
 
-# class Floor:
-#     def __init__(self,number: int):
-#         self.number = number
-#         self.riders = []
-#         self.has_elevator = False
-#         self.up_request = False
-#         self.down_request = False
+class Floor:
+    def __init__(self, number: int):
+        self.number = number  # is this necessary if we have a dict of floors?
+        self.riders = []
+        self.has_elevator = False
+        self.up_request = False
+        self.down_request = False
 
-#         def call_up(self,elev):
-#             elev.destinations.add(self.number)
-
-#         def call_down(self,elev):
-#             elev.destinations.add(self.number)
+    def __repr__(self):
+        return f"Floor {self.number} has riders {[str(rider) for rider in self.riders]} and has {self.up_request} up request and {self.down_request} down request"
