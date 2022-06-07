@@ -29,7 +29,7 @@ class InefficientElevator:
         self.riders = []  # list of Riders
         self.log = []  # list of strs to log what elevator did
 
-    def run(self, rider_list) -> str:
+    def run(self, rider_list, floor_dict) -> str:
         """
         Tells and elevator to pick up and drop off passengers
         given a rider list.
@@ -47,25 +47,16 @@ class InefficientElevator:
             rider_names_to_remove = []
             rider_names_to_add = []
             riders_to_remove = []
-            ## decision: implement an up destinatoin list and a down one
+            ## decision: implement floors again
+            # if we are at an internal stop (someone wants to get off)
             if self.floor in self.destinations:
-                self.destinations.remove(self.floor)  # ding
-                for rider in self.riders:
+                self.destinations.remove(self.floor)  # ding, we stop beca
+                for rider in self.riders:  # can we DRY?
                     if rider.destination == self.floor:
                         riders_to_remove.append(rider)
                         rider_names_to_remove.append(str(rider))
                         rider_list.remove(rider)
-                        # try:
-                        #     self.destinations.remove(self.floor)
-                        # except: pass
-                for (
-                    rider
-                ) in rider_list:  # hacky way of re-adding floors we need to go back to
-                    if rider.start_floor == self.floor and (
-                        (rider.destination > self.floor and self.direction == -1)
-                        or (rider.destination < self.floor and self.direction == 1)
-                    ):
-                        self.destinations.add(self.floor)
+
             for rider in riders_to_remove:
                 self.riders.remove(rider)
 
@@ -81,35 +72,24 @@ class InefficientElevator:
                 full_log.append(self.log)
                 return full_log
 
-            # direction update if we're at top
-            if (
-                all(self.floor > dest for dest in self.destinations)
-                and self.direction == 1
-            ):  # maybe also check if car is empty and has reached a destination?
-                self.direction = 0
-            # if we're at bottom
-            elif (
-                all(self.floor < dest for dest in self.destinations)
-                and self.direction == -1
-            ):
-                self.direction = 0
-
             # see if anyone needs to get on (in the elevator's direction), and add their destinations
-            for rider in rider_list:
-                if rider.start_floor == self.floor and (
-                    (rider.destination > self.floor and self.direction == 1)
-                    or (rider.destination < self.floor and self.direction == -1)
-                    or (self.direction == 0)
-                ):
+            for rider in floor_dict[self.floor].riders:
+                if (
+                    floor_dict[self.floor].up_request and self.direction == 1
+                ):  # going up
                     rider.step_in(self)
                     rider_names_to_add.append(str(rider))
                     self.destinations.add(rider.destination)
-                # direction check if anyone got on -- priority to first person on
-                if all(self.floor > dest for dest in self.destinations):
-                    self.direction = -1
+                    floor_dict[self.floor].up_request = False
+                elif (
+                    floor_dict[self.floor].down_request and self.direction == -1
+                ):  # going down
+                    rider.step_in(self)
+                    rider_names_to_add.append(str(rider))
+                    self.destinations.add(rider.destination)
+                    floor_dict[self.floor].down_request = False
 
-                elif all(self.floor < dest for dest in self.destinations):
-                    self.direction = 1
+            # change direction if necessary
 
             rider_names_to_add.sort()
             rider_names_to_remove.sort()
