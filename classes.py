@@ -31,8 +31,9 @@ class InefficientElevator:
 
     def run(self, rider_list, floor_dict) -> str:
         """
-        Tells and elevator to pick up and drop off passengers
+        Tells an elevator to pick up and drop off passengers
         given a rider list.
+
         Returns a string that represents the actions taken by
         the elevator.
         """
@@ -48,14 +49,16 @@ class InefficientElevator:
             rider_names_to_add = []
             riders_to_remove = []
             ## decision: implement floors again
-            # if we are at an internal stop (someone wants to get off)
+            # if we are at an internal stop (someone inside wants to get off)
             if self.floor in self.destinations:
-                self.destinations.remove(self.floor)  # ding, we stop beca
+                self.destinations.remove(self.floor)  # ding, we stop
                 for rider in self.riders:  # can we DRY?
                     if rider.destination == self.floor:
                         riders_to_remove.append(rider)
                         rider_names_to_remove.append(str(rider))
-                        rider_list.remove(rider)
+                        rider_list.remove(
+                            rider
+                        )  # this person has reached their destination
 
             for rider in riders_to_remove:
                 self.riders.remove(rider)
@@ -76,11 +79,12 @@ class InefficientElevator:
             for rider in floor_dict[self.floor].riders:
                 if (
                     floor_dict[self.floor].up_request and self.direction == 1
-                ):  # going up
+                ):  # going up, rider goes from floor into elevator and adds destination
                     rider.step_in(self)
                     rider_names_to_add.append(str(rider))
                     self.destinations.add(rider.destination)
                     floor_dict[self.floor].up_request = False
+                    floor_dict[self.floor].riders.remove(rider)
                 elif (
                     floor_dict[self.floor].down_request and self.direction == -1
                 ):  # going down
@@ -88,8 +92,15 @@ class InefficientElevator:
                     rider_names_to_add.append(str(rider))
                     self.destinations.add(rider.destination)
                     floor_dict[self.floor].down_request = False
+                    floor_dict[self.floor].riders.remove(rider)
+                else:
+                    pass
 
-            # change direction if necessary
+            ## change direction if necessary
+            # if there is an internal dest on the way, continue
+            # if there not an internal dest on the way
+            if not self.destinations:
+                self.direction = self.direction * -1
 
             rider_names_to_add.sort()
             rider_names_to_remove.sort()

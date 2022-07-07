@@ -20,6 +20,7 @@ min_floor = min([min__start_floor, min_destination])
 max_floor = max([max_start_floor, max_destination])
 
 floor_dict = {}
+# populate dict of floors with each floor traversable and press up or down buttons on those floors
 for floor_num in range(min_floor, max_floor + 1):
     floor_dict[floor_num] = Floor(floor_num)
     for rider in rider_list:
@@ -30,14 +31,8 @@ for floor_num in range(min_floor, max_floor + 1):
             else:
                 floor_dict[floor_num].up_request = True
 
-
-# to begin, all riders call an elevator to their start_floor at once
-# this gotta change once I add more than one elevator
-for rider in rider_list:
-    e.destinations.add(rider.start_floor)
-
 # arbitrarily choose elevator to go up first
 e.direction = 1
 
-place = e.run(rider_list)
+place = e.run(rider_list, floor_dict)
 print(place)
