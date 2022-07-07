@@ -97,10 +97,40 @@ class InefficientElevator:
                     pass
 
             ## change direction if necessary
-            # if there is an internal dest on the way, continue
-            # if there not an internal dest on the way
-            if not self.destinations:
+            # if there is an internal dest on the way, continue in that dir
+            # if there not an internal dest on the way, turn around or stop
+            # keep_going_up = any([floor.up_request for floor in list(floor_dict.values())])
+            # keep_going_down = any([floor.down_request for floor in list(floor_dict.values())])
+            keep_going_down = False
+            keep_going_up = False
+            for floor in floor_dict.values():
+                if floor.up_request:
+                    keep_going_up = True
+                elif floor.down_request:
+                    keep_going_down = True
+                else:
+                    continue
+            if self.destinations:
+                continue
+            elif (keep_going_down and self.direction == -1) or (
+                keep_going_up and self.direction == 1
+            ):
+                continue
+            elif (keep_going_down and self.direction == 1) or (
+                keep_going_up and self.direction == -1
+            ):
                 self.direction = self.direction * -1
+            else:
+                rider_names_to_add.sort()
+                rider_names_to_remove.sort()
+                self.log = self.log_movement(
+                    starting_floor,
+                    starting_direction,
+                    rider_names_to_add,
+                    rider_names_to_remove,
+                )
+                full_log.append(self.log)
+                return full_log
 
             rider_names_to_add.sort()
             rider_names_to_remove.sort()

@@ -33,6 +33,9 @@ for floor_num in range(min_floor, max_floor + 1):
 
 # arbitrarily choose elevator to go up first
 e.direction = 1
+floors = floor_dict.values()
+# keep_going_up = any(floor.up_request for floor in floors)
+
 
 place = e.run(rider_list, floor_dict)
 print(place)
