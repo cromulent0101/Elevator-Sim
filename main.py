@@ -6,7 +6,12 @@ from sys import maxsize
 import random
 
 # rider_list = utils.get_riders()
-rider_list = [Rider("Joe", 9, 2), Rider("Bob", 5, 4), Rider("Jane", 1, 9)]
+rider_list = [
+    Rider("Joe", 9, 2),
+    Rider("Bob", 5, 4),
+    Rider("Jane", 1, 9),
+    Rider("John", 12, 9),
+]
 
 # create an elevator at a random floor
 e = InefficientElevator(3, 3)
