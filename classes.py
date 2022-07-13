@@ -56,9 +56,7 @@ class InefficientElevator:
                     if rider.destination == self.floor:
                         riders_to_remove.append(rider)
                         rider_names_to_remove.append(str(rider))
-                        rider_list.remove(
-                            rider
-                        )  # this person has reached their destination
+                        rider_list.remove(rider)
 
             for rider in riders_to_remove:
                 self.riders.remove(rider)
@@ -75,27 +73,6 @@ class InefficientElevator:
                 full_log.append(self.log)
                 return full_log
 
-            # see if anyone needs to get on (in the elevator's direction), and add their destinations
-            for rider in floor_dict[self.floor].riders:
-                if (
-                    floor_dict[self.floor].up_request and self.direction == 1
-                ):  # going up, rider goes from floor into elevator and adds destination
-                    rider.step_in(self)
-                    rider_names_to_add.append(str(rider))
-                    self.destinations.add(rider.destination)
-                    floor_dict[self.floor].up_request = False
-                    floor_dict[self.floor].riders.remove(rider)
-                elif (
-                    floor_dict[self.floor].down_request and self.direction == -1
-                ):  # going down
-                    rider.step_in(self)
-                    rider_names_to_add.append(str(rider))
-                    self.destinations.add(rider.destination)
-                    floor_dict[self.floor].down_request = False
-                    floor_dict[self.floor].riders.remove(rider)
-                else:
-                    pass
-
             ## change direction if necessary
             # if there is an internal dest on the way, continue in that dir
             # if there not an internal dest on the way, turn around or stop
@@ -104,18 +81,25 @@ class InefficientElevator:
             keep_going_down = False
             keep_going_up = False
             for floor in floor_dict.values():
-                if floor.up_request:
+                if keep_going_down and keep_going_up:
+                    break
+                if floor.number > self.floor and (
+                    floor.up_request or floor.down_request
+                ):
                     keep_going_up = True
-                elif floor.down_request:
+                elif floor.number > self.floor and (
+                    floor.up_request or floor.down_request
+                ):
                     keep_going_down = True
                 else:
                     continue
+
             if self.destinations:
-                continue
+                pass
             elif (keep_going_down and self.direction == -1) or (
                 keep_going_up and self.direction == 1
             ):
-                continue
+                pass
             elif (keep_going_down and self.direction == 1) or (
                 keep_going_up and self.direction == -1
             ):
@@ -131,6 +115,39 @@ class InefficientElevator:
                 )
                 full_log.append(self.log)
                 return full_log
+
+            # see if anyone needs to get on (in the elevator's direction), and add their destinations
+            clear_up_button = False
+            clear_down_button = False
+            for rider in floor_dict[self.floor].riders:
+                if (
+                    floor_dict[self.floor].up_request
+                    and self.direction == 1
+                    and rider.destination > self.floor
+                ):  # going up, rider goes from floor into elevator and adds destination
+                    rider.step_in(self)
+                    rider_names_to_add.append(str(rider))
+                    self.destinations.add(
+                        rider.destination
+                    )  # should be greater than self.floor
+                    floor_dict[self.floor].riders.remove(rider)
+                    clear_up_button = True
+                elif (
+                    floor_dict[self.floor].down_request
+                    and self.direction == -1
+                    and rider.destination < self.floor
+                ):  # going down
+                    rider.step_in(self)
+                    rider_names_to_add.append(str(rider))
+                    self.destinations.add(
+                        rider.destination
+                    )  # should be less than self.floor
+                    floor_dict[self.floor].riders.remove(rider)
+                    clear_down_button = True
+                else:
+                    pass
+            floor_dict[self.floor].up_request = not clear_up_button
+            floor_dict[self.floor].down_request = not clear_down_button
 
             rider_names_to_add.sort()
             rider_names_to_remove.sort()

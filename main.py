@@ -12,16 +12,16 @@ rider_list = [Rider("Joe", 9, 2), Rider("Bob", 5, 4), Rider("Jane", 1, 9)]
 e = InefficientElevator(3, 3)
 
 # create Floors and populate with Riders
-min__start_floor = min([rider.start_floor for rider in rider_list])
+min_start_floor = min([rider.start_floor for rider in rider_list])
 min_destination = min([rider.destination for rider in rider_list])
 max_start_floor = max([rider.start_floor for rider in rider_list])
 max_destination = max([rider.destination for rider in rider_list])
-min_floor = min([min__start_floor, min_destination])
+min_floor = min([min_start_floor, min_destination])
 max_floor = max([max_start_floor, max_destination])
 
 floor_dict = {}
 # populate dict of floors with each floor traversable and press up or down buttons on those floors
-for floor_num in range(min_floor, max_floor + 1):
+for floor_num in range(min_floor - 1, max_floor + 2):
     floor_dict[floor_num] = Floor(floor_num)
     for rider in rider_list:
         if rider.start_floor == floor_num:
