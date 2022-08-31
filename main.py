@@ -11,6 +11,7 @@ rider_list = [
     Rider("Bob", 5, 4),
     Rider("Jane", 1, 9),
     Rider("John", 12, 9),
+    Rider("poop", 10, 9),
 ]
 
 # create an elevator at a random floor
