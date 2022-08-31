@@ -91,6 +91,14 @@ class InefficientElevator:
                     floor.up_request or floor.down_request
                 ):
                     keep_going_down = True
+                elif floor.number == self.floor and (
+                    self.direction == 1 and floor.up_request
+                ):
+                    keep_going_up = True
+                elif floor.number == self.floor and (
+                    self.direction == -1 and floor.down_request
+                ):
+                    keep_going_down = True
                 else:
                     continue
 
