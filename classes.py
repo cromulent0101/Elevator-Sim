@@ -127,6 +127,7 @@ class InefficientElevator:
             # see if anyone needs to get on (in the elevator's direction), and add their destinations
             clear_up_button = False
             clear_down_button = False
+            riders_to_step_in = []
             for rider in floor_dict[self.floor].riders:
                 if (
                     floor_dict[self.floor].up_request
@@ -138,7 +139,7 @@ class InefficientElevator:
                     self.destinations.add(
                         rider.destination
                     )  # should be greater than self.floor
-                    floor_dict[self.floor].riders.remove(rider)
+                    riders_to_step_in.append(rider)
                     clear_up_button = True
                 elif (
                     floor_dict[self.floor].down_request
@@ -150,10 +151,18 @@ class InefficientElevator:
                     self.destinations.add(
                         rider.destination
                     )  # should be less than self.floor
-                    floor_dict[self.floor].riders.remove(rider)
+                    riders_to_step_in.append(rider)
                     clear_down_button = True
                 else:
                     pass
+            try:
+                floor_dict[self.floor].riders = [
+                    e
+                    for e in floor_dict[self.floor].riders
+                    if e not in riders_to_step_in
+                ]
+            except:
+                pass
             floor_dict[self.floor].up_request = not clear_up_button
             floor_dict[self.floor].down_request = not clear_down_button
 
