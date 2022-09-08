@@ -1,5 +1,5 @@
 # pylint: disable=import-error
-import pytest
+import pytest, utils
 from classes import InefficientElevator, Rider
 
 # https://stackoverflow.com/questions/29627341/pytest-where-to-store-expected-data
@@ -34,10 +34,14 @@ def descending_riders():
     return [Rider("Joe", 2, 9), Rider("Bob", 4, 5), Rider("Jane", 3, 7)]
 
 
+# @pytest.fixure(autouse=True)
+# def get_floors():
+#     return
+
+
 def test_first_classic(first_floor_elevator, classic_riders):
-    for rider in classic_riders:
-        first_floor_elevator.destinations.add(rider.start_floor)
-    assert first_floor_elevator.run(classic_riders) == [
+    floor_dict = utils.create_floors(classic_riders)
+    assert first_floor_elevator.run(classic_riders, floor_dict) == [
         "1;1;;",
         "2;1;Joe;",
         "3;1;;",
@@ -59,9 +63,8 @@ def test_first_classic(first_floor_elevator, classic_riders):
 
 
 def test_first_descending(first_floor_elevator, descending_riders):
-    for rider in descending_riders:
-        first_floor_elevator.destinations.add(rider.start_floor)
-    assert first_floor_elevator.run(descending_riders) == [
+    floor_dict = utils.create_floors(descending_riders)
+    assert first_floor_elevator.run(descending_riders, floor_dict) == [
         "1;1;;",
         "2;1;;",
         "3;1;;",
@@ -82,16 +85,15 @@ def test_first_descending(first_floor_elevator, descending_riders):
 
 
 def test_middle_classic(middle_floor_elevator, classic_riders):
-    for rider in classic_riders:
-        middle_floor_elevator.destinations.add(rider.start_floor)
-    assert middle_floor_elevator.run(classic_riders) == [
+    floor_dict = utils.create_floors(classic_riders)
+    assert middle_floor_elevator.run(classic_riders, floor_dict) == [
         "3;1;;",
         "4;1;Bob;",
         "5;1;;Bob",
         "6;1;;",
         "7;1;;",
         "8;1;;",
-        "9;-1;Jane;",
+        "9;1;Jane;",
         "8;-1;;",
         "7;-1;;",
         "6;-1;;",
