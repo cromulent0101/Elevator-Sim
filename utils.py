@@ -1,11 +1,9 @@
 # pylint: disable=import-error
-from classes import InefficientElevator, Rider, Floor
+from classes import Elevator, Rider, Floor
 from sys import maxsize
 
 
-def find_nearest_available_elevator(
-    rider, elevator_bank: list[InefficientElevator]
-) -> InefficientElevator:
+def find_nearest_available_elevator(rider, elevator_bank: list[Elevator]) -> Elevator:
     """
     Returns an Elevator object that is the nearest (in terms of Floors)
     elevator that can pick up a rider. Elevator will probably be stationary,
@@ -20,13 +18,13 @@ def find_nearest_available_elevator(
         if e.direction == 0:
             available_elevators.append(e)
         if (
-            any(rider.destination < dest for dest in e.destinations)
+            any(rider.destination < dest for dest in e.internal_destinations)
             and (e.direction == 1)  # elevator going up
             and (e.floor < rider.start_floor)
         ):
             available_elevators.append(e)
         if (
-            any(rider.destination > dest for dest in e.destinations)
+            any(rider.destination > dest for dest in e.internal_destinations)
             and (e.direction == -1)  # elevator going down
             and (e.floor > rider.start_floor)
         ):

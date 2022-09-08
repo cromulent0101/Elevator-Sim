@@ -1,5 +1,5 @@
 # pylint: disable=import-error
-from classes import InefficientElevator, Rider, Floor
+from classes import Elevator, Rider, Floor
 import utils
 from time import sleep
 from sys import maxsize
@@ -15,7 +15,7 @@ rider_list = [
 ]
 
 # create an elevator at a random floor
-e = InefficientElevator(3, 3)
+e = Elevator(3, 3)
 
 floor_dict = utils.create_floors(rider_list)
 

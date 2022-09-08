@@ -4,10 +4,10 @@ from sys import maxsize
 import csv
 
 
-def find_next_floor(curr_floor, destinations):
+def find_next_floor(curr_floor, internal_destinations):
     up_floor = maxsize
     down_floor = maxsize
-    for floor in destinations:
+    for floor in internal_destinations:
         if floor > curr_floor:  # find closest floor above
             if abs(floor - curr_floor) < abs(up_floor - curr_floor):
                 up_floor = floor
@@ -18,12 +18,12 @@ def find_next_floor(curr_floor, destinations):
 
 
 # @dataclass
-class InefficientElevator:
+class Elevator:
     def __init__(self, capacity: int, floor):
         self.floor = floor
         self.capacity = capacity
         self.direction = 0  # 0 for stationary, 1 for up, -1 for down
-        self.destinations = set()  # Set of ints
+        self.internal_destinations = set()  # Set of ints
         self.door_speed = 1
         self.elevator_speed = 10
         self.riders = []  # list of Riders
@@ -50,8 +50,8 @@ class InefficientElevator:
             riders_to_remove = []
 
             # if we are at an internal stop (someone inside wants to get off)
-            if self.floor in self.destinations:
-                self.destinations.remove(self.floor)  # ding, we stop
+            if self.floor in self.internal_destinations:
+                self.internal_destinations.remove(self.floor)  # ding, we stop
                 for rider in self.riders:  # can we DRY?
                     if rider.destination == self.floor:
                         riders_to_remove.append(rider)
@@ -102,7 +102,7 @@ class InefficientElevator:
                 else:
                     continue
 
-            if self.destinations:
+            if self.internal_destinations:
                 pass
             elif (keep_going_down and self.direction == -1) or (
                 keep_going_up and self.direction == 1
@@ -124,7 +124,7 @@ class InefficientElevator:
                 full_log.append(self.log)
                 return full_log
 
-            # see if anyone needs to get on (in the elevator's direction), and add their destinations
+            # see if anyone needs to get on (in the elevator's direction), and add their internal_destinations
             clear_up_button = False
             clear_down_button = False
             riders_to_step_in = []
@@ -136,7 +136,7 @@ class InefficientElevator:
                 ):  # going up, rider goes from floor into elevator and adds destination
                     rider.step_in(self)
                     rider_names_to_add.append(str(rider))
-                    self.destinations.add(
+                    self.internal_destinations.add(
                         rider.destination
                     )  # should be greater than self.floor
                     riders_to_step_in.append(rider)
@@ -148,7 +148,7 @@ class InefficientElevator:
                 ):  # going down
                     rider.step_in(self)
                     rider_names_to_add.append(str(rider))
-                    self.destinations.add(
+                    self.internal_destinations.add(
                         rider.destination
                     )  # should be less than self.floor
                     riders_to_step_in.append(rider)

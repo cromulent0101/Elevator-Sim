@@ -1,20 +1,20 @@
 # pylint: disable=import-error
 import pytest, utils
-from classes import InefficientElevator, Rider
+from classes import Elevator, Rider
 
 # https://stackoverflow.com/questions/29627341/pytest-where-to-store-expected-data
 
 
 @pytest.fixture
 def first_floor_elevator():
-    e = InefficientElevator(3, 1)
+    e = Elevator(3, 1)
     e.direction = 1
     return e
 
 
 @pytest.fixture
 def middle_floor_elevator():
-    e = InefficientElevator(3, 3)
+    e = Elevator(3, 3)
     e.direction = 1
     return e
 
