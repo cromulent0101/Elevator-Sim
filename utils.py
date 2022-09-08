@@ -50,7 +50,9 @@ def get_riders() -> list[Rider]:
             return rider_list
 
 
-def create_floors(rider_list: list[Rider]) -> dict[Floor]:
+def create_floors(
+    rider_list: list[Rider], elevator_bank: list[Elevator]
+) -> dict[Floor]:
     """
     Returns a dict of Floors initialized by a list of riders
     and presses buttons on those floors.
@@ -59,8 +61,10 @@ def create_floors(rider_list: list[Rider]) -> dict[Floor]:
     min_destination = min([rider.destination for rider in rider_list])
     max_start_floor = max([rider.start_floor for rider in rider_list])
     max_destination = max([rider.destination for rider in rider_list])
-    min_floor = min([min_start_floor, min_destination])
-    max_floor = max([max_start_floor, max_destination])
+    min_elevator = min([elevator.floor for elevator in elevator_bank])
+    max_elevator = max([elevator.floor for elevator in elevator_bank])
+    min_floor = min([min_start_floor, min_destination, min_elevator])
+    max_floor = max([max_start_floor, max_destination, max_elevator])
 
     floor_dict = {}
     # populate dict of floors with each floor traversable and press up or down buttons on those floors
@@ -69,8 +73,5 @@ def create_floors(rider_list: list[Rider]) -> dict[Floor]:
         for rider in rider_list:
             if rider.start_floor == floor_num:
                 floor_dict[floor_num].riders.append(rider)
-                if rider.start_floor > rider.destination:
-                    floor_dict[floor_num].down_request = True
-                else:
-                    floor_dict[floor_num].up_request = True
+                rider.press_button(floor_dict)
     return floor_dict

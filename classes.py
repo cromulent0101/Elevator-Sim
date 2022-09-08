@@ -202,14 +202,17 @@ class Rider:
     def __repr__(self):
         return f"{self.name} began on {self.start_floor}, is now on {self.curr_floor} and wants to go to {self.destination}"
 
-    def step_in(self, elev):
+    def step_in(self, elev):  # elevator should stop for a time even if full
         if elev.capacity == len(elev.riders):
             print(f"Rider {self.name} can't enter elevator since it is full")
         else:
             elev.riders.append(self)
 
-    def press_button(self, destination):
-        pass
+    def press_button(self, floor_dict):
+        if self.start_floor < self.destination:
+            floor_dict[self.start_floor].up_request = True
+        else:
+            floor_dict[self.start_floor].down_request = True
 
 
 class Floor:
