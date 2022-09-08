@@ -1,5 +1,5 @@
 # pylint: disable=import-error
-from classes import InefficientElevator, Rider
+from classes import InefficientElevator, Rider, Floor
 from sys import maxsize
 
 
@@ -7,9 +7,9 @@ def find_nearest_available_elevator(
     rider, elevator_bank: list[InefficientElevator]
 ) -> InefficientElevator:
     """
-    Returns an Elevator object that is the nearest (in terms of floors)
+    Returns an Elevator object that is the nearest (in terms of Floors)
     elevator that can pick up a rider. Elevator will probably be stationary,
-    but can also return an Elevator that is on its way to the Rider's floor,
+    but can also return an Elevator that is on its way to the Rider's Floor,
     meaning has the proper direction and has a destination past the Rider's
     floor.
 
@@ -35,7 +35,7 @@ def find_nearest_available_elevator(
 
 
 def get_riders() -> list[Rider]:
-    """Returns a list of Riders on multiple floors."""
+    """Returns a list of Riders on multiple floors from user input."""
     rider_list = []
     while True:
         try:
@@ -52,24 +52,27 @@ def get_riders() -> list[Rider]:
             return rider_list
 
 
-def get_min_max_floors(riders: list[Rider]) -> list:
+def create_floors(rider_list: list[Rider]) -> dict[Floor]:
     """
-    Return the lowest and highest floors that a list
-    of Riders could go to.
+    Returns a dict of Floors initialized by a list of riders
+    and presses buttons on those floors.
     """
-    start_floors = [rider.start_floor for rider in riders]
-    dest_floors = [rider.destination for rider in riders]
-    highest_rider_floor = max(start_floors.extend(dest_floors))
-    lowest_rider_floor = min(start_floors.extend(dest_floors))
-    return [lowest_rider_floor, highest_rider_floor]
-    # for rider in riders:
-    #     if (
-    #         rider_start_floor < lowest_rider_floor
-    #         or rider_dest_floor < lowest_rider_floor
-    #     ):
-    #         lowest_rider_floor = min(rider_dest_floor, rider_start_floor)
-    #     if (
-    #         rider_start_floor > highest_rider_floor
-    #         or rider_dest_floor > highest_rider_floor
-    #     ):
-    #         highest_rider_floor = max(rider_dest_floor, rider_start_floor)
+    min_start_floor = min([rider.start_floor for rider in rider_list])
+    min_destination = min([rider.destination for rider in rider_list])
+    max_start_floor = max([rider.start_floor for rider in rider_list])
+    max_destination = max([rider.destination for rider in rider_list])
+    min_floor = min([min_start_floor, min_destination])
+    max_floor = max([max_start_floor, max_destination])
+
+    floor_dict = {}
+    # populate dict of floors with each floor traversable and press up or down buttons on those floors
+    for floor_num in range(min_floor - 1, max_floor + 2):
+        floor_dict[floor_num] = Floor(floor_num)
+        for rider in rider_list:
+            if rider.start_floor == floor_num:
+                floor_dict[floor_num].riders.append(rider)
+                if rider.start_floor > rider.destination:
+                    floor_dict[floor_num].down_request = True
+                else:
+                    floor_dict[floor_num].up_request = True
+    return floor_dict

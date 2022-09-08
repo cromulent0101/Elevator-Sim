@@ -48,7 +48,7 @@ class InefficientElevator:
             rider_names_to_remove = []
             rider_names_to_add = []
             riders_to_remove = []
-            ## decision: implement floors again
+
             # if we are at an internal stop (someone inside wants to get off)
             if self.floor in self.destinations:
                 self.destinations.remove(self.floor)  # ding, we stop
@@ -155,14 +155,10 @@ class InefficientElevator:
                     clear_down_button = True
                 else:
                     pass
-            try:
-                floor_dict[self.floor].riders = [
-                    e
-                    for e in floor_dict[self.floor].riders
-                    if e not in riders_to_step_in
-                ]
-            except:
-                pass
+            floor_dict[self.floor].riders = [
+                e for e in floor_dict[self.floor].riders if e not in riders_to_step_in
+            ]
+
             floor_dict[self.floor].up_request = not clear_up_button
             floor_dict[self.floor].down_request = not clear_down_button
 
