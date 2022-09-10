@@ -5,7 +5,7 @@ from sys import maxsize
 
 def find_nearest_available_elevator(rider, elevator_bank: list[Elevator]) -> Elevator:
     """
-    Returns an Elevator object that is the nearest (in terms of Floors)
+    Returns the Elevator object that is the nearest (in terms of Floors)
     elevator that can pick up a rider. Elevator will probably be stationary,
     but can also return an Elevator that is on its way to the Rider's Floor,
     meaning has the proper direction and has a destination past the Rider's

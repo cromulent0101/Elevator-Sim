@@ -24,8 +24,8 @@ class Elevator:
         self.capacity = capacity
         self.direction = 0  # 0 for stationary, 1 for up, -1 for down
         self.internal_destinations = set()  # Set of ints
-        self.door_speed = 1
-        self.elevator_speed = 10
+        self.door_delay = 1
+        self.elevator_delay = 0.5
         self.riders = []  # list of Riders
         self.log = []  # list of strs to log what elevator did
 
@@ -49,6 +49,8 @@ class Elevator:
             rider_names_to_add = []
             riders_to_remove = []
 
+            door_open = False
+
             # if we are at an internal stop (someone inside wants to get off)
             if self.floor in self.internal_destinations:
                 self.internal_destinations.remove(self.floor)  # ding, we stop
@@ -57,6 +59,7 @@ class Elevator:
                         riders_to_remove.append(rider)
                         rider_names_to_remove.append(str(rider))
                         rider_list.remove(rider)
+                        door_open = True
 
             for rider in riders_to_remove:
                 self.riders.remove(rider)
@@ -76,8 +79,6 @@ class Elevator:
             ## change direction if necessary
             # if there is an internal dest on the way, continue in that dir
             # if there not an internal dest on the way, turn around or stop
-            # keep_going_up = any([floor.up_request for floor in list(floor_dict.values())])
-            # keep_going_down = any([floor.down_request for floor in list(floor_dict.values())])
             keep_going_down = False
             keep_going_up = False
             for floor in floor_dict.values():
@@ -141,6 +142,8 @@ class Elevator:
                     )  # should be greater than self.floor
                     riders_to_step_in.append(rider)
                     clear_up_button = True
+                    door_open = True
+
                 elif (
                     floor_dict[self.floor].down_request
                     and self.direction == -1
@@ -153,6 +156,8 @@ class Elevator:
                     )  # should be less than self.floor
                     riders_to_step_in.append(rider)
                     clear_down_button = True
+                    door_open = True
+
                 else:
                     pass
             floor_dict[self.floor].riders = [
@@ -171,6 +176,10 @@ class Elevator:
                 rider_names_to_remove,
             )
             self.floor += self.direction
+            if door_open:
+                sleep(self.door_delay)
+            sleep(self.elevator_delay)
+            print(self.log)
             full_log.append(self.log)
 
     def log_movement(
