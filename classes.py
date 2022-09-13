@@ -197,6 +197,18 @@ class Elevator:
         return ";".join([str(log_element) for log_element in log])
 
 
+class DestinationElevator:
+    def __init__(self, capacity: int, floor):
+        self.floor = floor
+        self.capacity = capacity
+        self.direction = 0  # 0 for stationary, 1 for up, -1 for down
+        self.destination = -1  # current dispatched destination
+        self.door_delay = 1
+        self.elevator_delay = 0.5
+        self.riders = []  # list of Riders
+        self.log = []  # list of strs to log what elevator did
+
+
 class Rider:
     def __init__(self, name, destination, start_floor):
         self.name = name
