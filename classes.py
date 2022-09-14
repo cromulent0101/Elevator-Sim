@@ -84,51 +84,52 @@ class Elevator:
             # if there not an internal dest on the way, turn around or stop
             # based on whether there is an external destination.
             # TODO: implement stopping logic
-            keep_going_down = False
-            keep_going_up = False
-            for floor in floor_dict.values():
-                if keep_going_down and keep_going_up:
-                    break
-                if floor.number > self.floor and (
-                    floor.up_request or floor.down_request
-                ):
-                    keep_going_up = True
-                elif floor.number < self.floor and (
-                    floor.up_request or floor.down_request
-                ):
-                    keep_going_down = True
-                elif floor.number == self.floor and (
-                    self.direction == 1 and floor.up_request
-                ):
-                    keep_going_up = True
-                elif floor.number == self.floor and (
-                    self.direction == -1 and floor.down_request
-                ):
-                    keep_going_down = True
-                else:
-                    continue
-
             if self.internal_destinations:
                 pass
-            elif (keep_going_down and self.direction == -1) or (
-                keep_going_up and self.direction == 1
-            ):
-                pass
-            elif (keep_going_down and self.direction == 1) or (
-                keep_going_up and self.direction == -1
-            ):
-                self.direction = self.direction * -1
             else:
-                rider_names_to_add.sort()
-                rider_names_to_remove.sort()
-                self.log = self.log_movement(
-                    starting_floor,
-                    starting_direction,
-                    rider_names_to_add,
-                    rider_names_to_remove,
-                )
-                full_log.append(self.log)
-                return full_log
+                keep_going_down = False
+                keep_going_up = False
+                for floor in floor_dict.values():
+                    if keep_going_down and keep_going_up:
+                        break
+                    if floor.number > self.floor and (
+                        floor.up_request or floor.down_request
+                    ):
+                        keep_going_up = True
+                    elif floor.number < self.floor and (
+                        floor.up_request or floor.down_request
+                    ):
+                        keep_going_down = True
+                    elif floor.number == self.floor and (
+                        self.direction == 1 and floor.up_request
+                    ):
+                        keep_going_up = True
+                    elif floor.number == self.floor and (
+                        self.direction == -1 and floor.down_request
+                    ):
+                        keep_going_down = True
+                    else:
+                        continue
+
+                if (keep_going_down and self.direction == -1) or (
+                    keep_going_up and self.direction == 1
+                ):
+                    pass
+                elif (keep_going_down and self.direction == 1) or (
+                    keep_going_up and self.direction == -1
+                ):
+                    self.direction = self.direction * -1
+                else:
+                    rider_names_to_add.sort()
+                    rider_names_to_remove.sort()
+                    self.log = self.log_movement(
+                        starting_floor,
+                        starting_direction,
+                        rider_names_to_add,
+                        rider_names_to_remove,
+                    )
+                    full_log.append(self.log)
+                    return full_log
 
             # see if anyone needs to get on (in the elevator's direction), and add their internal_destinations
             clear_up_button = False
