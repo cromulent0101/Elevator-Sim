@@ -29,7 +29,7 @@ class Elevator:
         self.riders = []  # list of Riders
         self.log = []  # list of strs to log what elevator did
 
-    def run(self, rider_list, floor_dict) -> str:
+    def elevate(self, rider_list, floor_dict) -> str:
         """
         Tells an elevator to pick up and drop off passengers
         given a rider list.
@@ -47,11 +47,12 @@ class Elevator:
             starting_direction = self.direction
             rider_names_to_remove = []
             rider_names_to_add = []
+
             riders_to_remove = []
 
-            door_open = False
+            door_open = False  # if True, sleep(door_delay) once
 
-            # if we are at an internal stop (someone inside wants to get off)
+            # check if we are at an internal stop (someone inside wants to get off)
             if self.floor in self.internal_destinations:
                 self.internal_destinations.remove(self.floor)  # ding, we stop
                 for rider in self.riders:  # can we DRY?
@@ -64,8 +65,9 @@ class Elevator:
             for rider in riders_to_remove:
                 self.riders.remove(rider)
 
+            # check if the rider who got off was the last one
             if not rider_list:
-                rider_names_to_add.sort()
+                rider_names_to_add.sort()  # sort to ensure order is consistent
                 rider_names_to_remove.sort()
                 self.log = self.log_movement(
                     starting_floor,
@@ -74,11 +76,14 @@ class Elevator:
                     rider_names_to_remove,
                 )
                 full_log.append(self.log)
+                sleep(self.door_delay)  # open door one last time
                 return full_log
 
             ## change direction if necessary
-            # if there is an internal dest on the way, continue in that dir
+            # if there is an internal dest on the way, continue in that dir.
             # if there not an internal dest on the way, turn around or stop
+            # based on whether there is an external destination.
+            # TODO: implement stopping logic
             keep_going_down = False
             keep_going_up = False
             for floor in floor_dict.values():
