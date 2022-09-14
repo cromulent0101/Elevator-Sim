@@ -1,9 +1,11 @@
 # pylint: disable=import-error
 from classes import Elevator, Rider, Floor
 import utils
+import csv
 from time import sleep
 from sys import maxsize
 import random
+import threading
 
 # rider_list = utils.get_riders()
 rider_list = [
@@ -22,6 +24,8 @@ floor_dict = utils.create_floors(rider_list, e_bank)
 
 # arbitrarily choose elevator to go up first
 e.direction = -1
+t1 = threading.Thread(target=e.elevate, args=[rider_list, floor_dict])
 
-output = e.run(rider_list, floor_dict)
-print(output)
+t1.start()
+# output = e.elevate(rider_list, floor_dict)
+# print(output)
