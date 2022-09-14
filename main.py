@@ -18,14 +18,21 @@ rider_list = [
 
 # create an elevator at a random floor
 e = Elevator(3, 12)
+t = Elevator(3, 2)
 e_bank = [e]
 
 floor_dict = utils.create_floors(rider_list, e_bank)
 
 # arbitrarily choose elevator to go up first
 e.direction = -1
+t.direction = 1
 t1 = threading.Thread(target=e.elevate, args=[rider_list, floor_dict])
+t2 = threading.Thread(target=t.elevate, args=[rider_list, floor_dict])
 
 t1.start()
+t2.start()
+
+t1.join()
+t2.join()
 # output = e.elevate(rider_list, floor_dict)
 # print(output)
