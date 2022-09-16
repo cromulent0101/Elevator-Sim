@@ -6,6 +6,8 @@ from time import sleep
 from sys import maxsize
 import random
 import threading
+import concurrent.futures
+
 
 # rider_list = utils.get_riders()
 rider_list = [
@@ -18,7 +20,7 @@ rider_list = [
 
 # create an elevator at a random floor
 e = Elevator(3, 12)
-t = Elevator(3, 2)
+t = Elevator(3, 12)
 e_bank = [e]
 
 floor_dict = utils.create_floors(rider_list, e_bank)
@@ -30,6 +32,7 @@ t1 = threading.Thread(target=e.elevate, args=[rider_list, floor_dict])
 t2 = threading.Thread(target=t.elevate, args=[rider_list, floor_dict])
 
 t1.start()
+sleep(2)
 t2.start()
 
 t1.join()
