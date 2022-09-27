@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from time import sleep
+from time import sleep, time
 from sys import maxsize
 import csv
 
@@ -29,7 +29,9 @@ class Elevator:
         self.riders = []  # list of Riders
         self.log = []  # list of strs to log what elevator did
 
-    def elevate(self, rider_list, floor_dict) -> str:
+    def elevate(
+        self, rider_list, floor_dict, start_stop_delays, start_step_delays
+    ) -> str:
         """
         Tells an elevator to pick up and drop off passengers
         given a rider list.
@@ -60,6 +62,9 @@ class Elevator:
                         riders_to_remove.append(rider)
                         rider_names_to_remove.append(str(rider))
                         rider_list.remove(rider)
+                        rider.end_time = time()
+                        start_stop_delays.append(rider.end_time - rider.start_time)
+                        start_step_delays.append(rider.step_in_time - rider.start_time)
                         door_open = True
 
             for rider in riders_to_remove:
@@ -76,13 +81,11 @@ class Elevator:
                     rider_names_to_remove,
                 )
                 full_log.append(self.log)
+                print(self.log)
                 sleep(self.door_delay)  # open door one last time
                 return full_log
 
             ## change direction if necessary
-            # if there is an internal dest on the way, continue in that dir.
-            # if there not an internal dest on the way, turn around or stop
-            # based on whether there is an external destination.
             # TODO: implement stopping logic
             if self.internal_destinations:
                 pass
@@ -129,6 +132,7 @@ class Elevator:
                         rider_names_to_remove,
                     )
                     full_log.append(self.log)
+                    print(self.log)
                     return full_log
 
             # see if anyone needs to get on (in the elevator's direction), and add their internal_destinations
@@ -166,6 +170,7 @@ class Elevator:
 
                 else:
                     pass
+
             floor_dict[self.floor].riders = [
                 e for e in floor_dict[self.floor].riders if e not in riders_to_step_in
             ]
@@ -221,6 +226,9 @@ class Rider:
         self.destination = destination
         self.start_floor = start_floor
         self.curr_floor = start_floor
+        self.start_time = time()
+        self.step_in_time = 0
+        self.end_time = 0
         self.is_in_elevator = False
 
     def __str__(self):
@@ -233,6 +241,7 @@ class Rider:
         if elev.capacity == len(elev.riders):
             print(f"Rider {self.name} can't enter elevator since it is full")
         else:
+            self.step_in_time = time()
             elev.riders.append(self)
 
     def press_button(self, floor_dict):

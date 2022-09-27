@@ -37,7 +37,7 @@ def get_riders() -> list[Rider]:
     rider_list = []
     while True:
         try:
-            rider_name = input("Enter a rider name: ")
+            rider_name = input("Enter a rider name: ")  # needs to be unique
             rider_start_floor = int(input("Enter the rider's starting floor: "))
             rider_dest_floor = int(input("Enter the rider's destination: "))
             rider_list.append(Rider(rider_name, rider_dest_floor, rider_start_floor))
