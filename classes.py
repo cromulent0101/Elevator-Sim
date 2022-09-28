@@ -17,6 +17,9 @@ def find_next_floor(curr_floor, internal_destinations):
     return down_floor, up_floor
 
 
+# should I add a Building class which contains the Floor dict and
+# a list of Elevators?
+
 # @dataclass
 class Elevator:
     def __init__(self, capacity: int, floor):

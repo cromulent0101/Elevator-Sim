@@ -1,3 +1,4 @@
+# TODO: add main dunder
 # pylint: disable=import-error
 from classes import Elevator, Rider, Floor
 import utils
@@ -36,14 +37,14 @@ t1 = threading.Thread(
     target=e.elevate,
     args=[rider_list, floor_dict, start_stop_delays, start_step_delays],
 )
-# t2 = threading.Thread(target=t.elevate, args=[rider_list, floor_dict])
+t2 = threading.Thread(target=utils.update_riders, args=[rider_list, floor_dict])
 
 t1.start()
-# sleep(2)
-# t2.start()
+sleep(2)
+t2.start()
 
 t1.join()
-# t2.join()
+t2.join()
 # output = e.elevate(rider_list, floor_dict)
 # print(output)
 

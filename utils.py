@@ -50,6 +50,24 @@ def get_riders() -> list[Rider]:
             return rider_list
 
 
+def update_riders(rider_list, floor_dict):
+    while True:
+        try:
+            rider_name = input("Enter a rider name: ")  # needs to be unique
+            rider_start_floor = int(input("Enter the rider's starting floor: "))
+            rider_dest_floor = int(input("Enter the rider's destination: "))
+            new_rider = Rider(rider_name, rider_dest_floor, rider_start_floor)
+            rider_list.append(new_rider)
+            floor_dict[rider_start_floor].riders.append(new_rider)
+            new_rider.press_button(floor_dict)
+        except ValueError as err:
+            print("Terminating because", err)
+            return
+        except EOFError:
+            print("EOF!")
+            return
+
+
 def create_floors(
     rider_list: list[Rider], elevator_bank: list[Elevator]
 ) -> dict[Floor]:
