@@ -48,8 +48,6 @@ class Elevator:
                 rider.curr_floor = self.floor
 
             # to log what elevator does for testing
-            starting_floor = self.floor
-            starting_direction = self.direction
             rider_names_to_remove = []
             rider_names_to_add = []
 
@@ -75,11 +73,7 @@ class Elevator:
 
             # check if the rider who got off was the last one
             if not rider_list:
-                rider_names_to_add.sort()  # sort to ensure order is consistent
-                rider_names_to_remove.sort()
                 self.log = self.log_movement(
-                    starting_floor,
-                    starting_direction,
                     rider_names_to_add,
                     rider_names_to_remove,
                 )
@@ -126,11 +120,8 @@ class Elevator:
                 ):
                     self.direction = self.direction * -1
                 else:
-                    rider_names_to_add.sort()
-                    rider_names_to_remove.sort()
-                    self.log = self.log_movement(
-                        starting_floor,
-                        starting_direction,
+                    self.direction = 0
+                    self.log = self.log_movement(  # remove this at some point as we don't want Elevator to stop running
                         rider_names_to_add,
                         rider_names_to_remove,
                     )
@@ -144,10 +135,12 @@ class Elevator:
             riders_to_step_in = []
             for rider in floor_dict[self.floor].riders:
                 if (
-                    floor_dict[self.floor].up_request
+                    floor_dict[
+                        self.floor
+                    ].up_request  # check if we need to check up_request
                     and self.direction == 1
                     and rider.destination > self.floor
-                ):  # going up, rider goes from floor into elevator and adds destination
+                ):  # going up
                     rider.step_in(self)
                     rider_names_to_add.append(str(rider))
                     self.internal_destinations.add(
@@ -174,6 +167,7 @@ class Elevator:
                 else:
                     pass
 
+            # remove Rider from Floor if they are going in Elevator
             floor_dict[self.floor].riders = [
                 e for e in floor_dict[self.floor].riders if e not in riders_to_step_in
             ]
@@ -181,11 +175,7 @@ class Elevator:
             floor_dict[self.floor].up_request = not clear_up_button
             floor_dict[self.floor].down_request = not clear_down_button
 
-            rider_names_to_add.sort()
-            rider_names_to_remove.sort()
             self.log = self.log_movement(
-                starting_floor,
-                starting_direction,
                 rider_names_to_add,
                 rider_names_to_remove,
             )
@@ -198,14 +188,14 @@ class Elevator:
 
     def log_movement(
         self,
-        starting_floor,
-        starting_direction,
         rider_names_to_add,
         rider_names_to_remove,
     ):
         log = []
-        log.append(starting_floor)
-        log.append(starting_direction)
+        rider_names_to_add.sort()
+        rider_names_to_remove.sort()
+        log.append(self.floor)
+        log.append(self.direction)
         log.append(",".join(rider_names_to_add))
         log.append(",".join(rider_names_to_remove))
         return ";".join([str(log_element) for log_element in log])

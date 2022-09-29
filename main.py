@@ -41,10 +41,10 @@ t2 = threading.Thread(target=utils.update_riders, args=[rider_list, floor_dict])
 
 t1.start()
 sleep(2)
-t2.start()
+# t2.start()
 
 t1.join()
-t2.join()
+# t2.join()
 # output = e.elevate(rider_list, floor_dict)
 # print(output)
 
