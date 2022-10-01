@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from time import sleep, time
 from sys import maxsize
 import csv
+from typing import Set
 
 
 def find_next_floor(curr_floor, internal_destinations):
@@ -20,21 +21,19 @@ def find_next_floor(curr_floor, internal_destinations):
 # should I add a Building class which contains the Floor dict and
 # a list of Elevators?
 
-# @dataclass
+
 class Elevator:
     def __init__(self, capacity: int, floor):
         self.floor = floor
         self.capacity = capacity
         self.direction = 0  # 0 for stationary, 1 for up, -1 for down
-        self.internal_destinations = set()  # Set of ints
+        self.internal_destinations = set()  # Set of ints. Can we type this?
         self.door_delay = 1
         self.elevator_delay = 0.5
         self.riders = []  # list of Riders
         self.log = []  # list of strs to log what elevator did
 
-    def elevate(
-        self, rider_list, floor_dict, start_stop_delays, start_step_delays
-    ) -> str:
+    def elevate(self, rider_list, floor_dict, start_stop_delays, start_step_delays):
         """
         Tells an elevator to pick up and drop off passengers
         given a rider list.
@@ -47,10 +46,9 @@ class Elevator:
             for rider in self.riders:
                 rider.curr_floor = self.floor
 
-            # to log what elevator does for testing
+            # to log what elevator does
             rider_names_to_remove = []
             rider_names_to_add = []
-
             riders_to_remove = []
 
             door_open = False  # if True, sleep(door_delay) once
@@ -78,9 +76,9 @@ class Elevator:
                     rider_names_to_remove,
                 )
                 full_log.append(self.log)
+                self.direction = 0
                 print(self.log)
                 sleep(self.door_delay)  # open door one last time
-                return full_log
 
             ## change direction if necessary
             # TODO: implement stopping logic
@@ -127,43 +125,29 @@ class Elevator:
                     )
                     full_log.append(self.log)
                     print(self.log)
-                    return full_log
 
             # see if anyone needs to get on (in the elevator's direction), and add their internal_destinations
             clear_up_button = False
             clear_down_button = False
             riders_to_step_in = []
             for rider in floor_dict[self.floor].riders:
-                if (
-                    floor_dict[
-                        self.floor
-                    ].up_request  # check if we need to check up_request
-                    and self.direction == 1
-                    and rider.destination > self.floor
-                ):  # going up
+                if self.direction == 1 and rider.destination > self.floor:  # going up
                     rider.step_in(self)
                     rider_names_to_add.append(str(rider))
-                    self.internal_destinations.add(
-                        rider.destination
-                    )  # should be greater than self.floor
+                    self.internal_destinations.add(rider.destination)
                     riders_to_step_in.append(rider)
                     clear_up_button = True
                     door_open = True
 
                 elif (
-                    floor_dict[self.floor].down_request
-                    and self.direction == -1
-                    and rider.destination < self.floor
+                    self.direction == -1 and rider.destination < self.floor
                 ):  # going down
                     rider.step_in(self)
                     rider_names_to_add.append(str(rider))
-                    self.internal_destinations.add(
-                        rider.destination
-                    )  # should be less than self.floor
+                    self.internal_destinations.add(rider.destination)
                     riders_to_step_in.append(rider)
                     clear_down_button = True
                     door_open = True
-
                 else:
                     pass
 
@@ -201,7 +185,19 @@ class Elevator:
         return ";".join([str(log_element) for log_element in log])
 
 
-class DestinationElevator:
+class NormalElevator(Elevator):
+    def __init__(self, capacity: int, floor):
+        self.floor = floor
+        self.capacity = capacity
+        self.direction = 0  # 0 for stationary, 1 for up, -1 for down
+        self.internal_destinations = set(int)  # Set of ints
+        self.door_delay = 1
+        self.elevator_delay = 0.5
+        self.riders = []  # list of Riders
+        self.log = []  # list of strs to log what elevator did
+
+
+class DestinationElevator(Elevator):
     def __init__(self, capacity: int, floor):
         self.floor = floor
         self.capacity = capacity
