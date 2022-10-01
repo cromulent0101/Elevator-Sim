@@ -9,6 +9,7 @@ from statistics import mean, median
 import random
 import threading
 import concurrent.futures
+import tkinter as tk
 
 
 # rider_list = utils.get_riders()
@@ -33,20 +34,21 @@ floor_dict = utils.create_floors(rider_list, e_bank)
 # arbitrarily choose elevator to go up first
 e.direction = -1
 t.direction = 1
-t1 = threading.Thread(
-    target=e.elevate,
-    args=[rider_list, floor_dict, start_stop_delays, start_step_delays],
-)
-t2 = threading.Thread(target=utils.update_riders, args=[rider_list, floor_dict])
 
-t1.start()
-sleep(2)
-# t2.start()
+e.elevate(rider_list, floor_dict, start_stop_delays, start_step_delays)
+# t1 = threading.Thread(
+#     target=e.elevate,
+#     args=[rider_list, floor_dict, start_stop_delays, start_step_delays],
+# )
+# t2 = threading.Thread(target=utils.update_riders, args=[rider_list, floor_dict])
 
-t1.join()
-# t2.join()
-# output = e.elevate(rider_list, floor_dict)
-# print(output)
+# t1.start()
+# sleep(2)
+# # t2.start()
+# t1.join()
+# # t2.join()
+# # output = e.elevate(rider_list, floor_dict)
+# # print(output)
 
 print(f"Average total wait: {mean(start_stop_delays)}")
 print(f"Median total wait: {median(start_stop_delays)}")

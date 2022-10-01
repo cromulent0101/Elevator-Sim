@@ -3,6 +3,7 @@ from time import sleep, time
 from sys import maxsize
 import csv
 from typing import Set
+import tkinter as tk
 
 
 def find_next_floor(curr_floor, internal_destinations):
@@ -41,6 +42,11 @@ class Elevator:
         Returns a string that represents the actions taken by
         the elevator.
         """
+        root = tk.Tk()
+        root.geometry("250x170")
+        var = tk.StringVar()
+        l = tk.Label(root, textvariable=var)
+        l.pack()
         full_log = []
         while True:
             for rider in self.riders:
@@ -53,6 +59,8 @@ class Elevator:
 
             door_open = False  # if True, sleep(door_delay) once
 
+            keep_going_down = False
+            keep_going_up = False
             # check if we are at an internal stop (someone inside wants to get off)
             if self.floor in self.internal_destinations:
                 self.internal_destinations.remove(self.floor)  # ding, we stop
@@ -61,9 +69,7 @@ class Elevator:
                         riders_to_remove.append(rider)
                         rider_names_to_remove.append(str(rider))
                         rider_list.remove(rider)
-                        rider.end_time = time()
-                        start_stop_delays.append(rider.end_time - rider.start_time)
-                        start_step_delays.append(rider.step_in_time - rider.start_time)
+                        rider.step_out(start_stop_delays, start_step_delays)
                         door_open = True
 
             for rider in riders_to_remove:
@@ -71,22 +77,21 @@ class Elevator:
 
             # check if the rider who got off was the last one
             if not rider_list:
-                self.log = self.log_movement(
-                    rider_names_to_add,
-                    rider_names_to_remove,
-                )
-                full_log.append(self.log)
-                self.direction = 0
-                print(self.log)
-                sleep(self.door_delay)  # open door one last time
+                if not (self.direction == 0):
+                    self.log = self.log_movement(
+                        rider_names_to_add,
+                        rider_names_to_remove,
+                    )
+                    print(self.log)
+                    sleep(self.door_delay)
+                    self.direction = 0
+                continue
 
             ## change direction if necessary
             # TODO: implement stopping logic
             if self.internal_destinations:
                 pass
             else:
-                keep_going_down = False
-                keep_going_up = False
                 for floor in floor_dict.values():
                     if keep_going_down and keep_going_up:
                         break
@@ -123,12 +128,6 @@ class Elevator:
                     self.direction = 1
                 else:
                     self.direction = 0
-                    self.log = self.log_movement(  # remove this at some point as we don't want Elevator to stop running
-                        rider_names_to_add,
-                        rider_names_to_remove,
-                    )
-                    full_log.append(self.log)
-                    print(self.log)
 
             # see if anyone needs to get on (in the elevator's direction), and add their internal_destinations
             clear_up_button = False
@@ -142,7 +141,6 @@ class Elevator:
                     riders_to_step_in.append(rider)
                     clear_up_button = True
                     door_open = True
-
                 elif (
                     self.direction == -1 and rider.destination < self.floor
                 ):  # going down
@@ -172,6 +170,8 @@ class Elevator:
             if door_open:
                 sleep(self.door_delay)
             sleep(self.elevator_delay)
+            var.set(self.log)
+            root.update_idletasks()
             print(self.log)
             full_log.append(self.log)
 
@@ -237,6 +237,11 @@ class Rider:
         else:
             self.step_in_time = time()
             elev.riders.append(self)
+
+    def step_out(self, start_stop_delays, start_step_delays):
+        self.end_time = time()
+        start_stop_delays.append(self.end_time - self.start_time)
+        start_step_delays.append(self.step_in_time - self.start_time)
 
     def press_button(self, floor_dict):
         if self.start_floor < self.destination:
