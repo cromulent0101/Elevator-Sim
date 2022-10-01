@@ -99,11 +99,11 @@ class Elevator:
                     ):
                         keep_going_down = True
                     elif floor.number == self.floor and (
-                        self.direction == 1 and floor.up_request
+                        self.direction > -1 and floor.up_request
                     ):
                         keep_going_up = True
                     elif floor.number == self.floor and (
-                        self.direction == -1 and floor.down_request
+                        self.direction < 1 and floor.down_request
                     ):
                         keep_going_down = True
                     else:
@@ -117,6 +117,10 @@ class Elevator:
                     keep_going_up and self.direction == -1
                 ):
                     self.direction = self.direction * -1
+                elif self.direction == 0 and keep_going_down:
+                    self.direction = -1
+                elif self.direction == 0 and keep_going_up:
+                    self.direction = 1
                 else:
                     self.direction = 0
                     self.log = self.log_movement(  # remove this at some point as we don't want Elevator to stop running
@@ -155,9 +159,10 @@ class Elevator:
             floor_dict[self.floor].riders = [
                 e for e in floor_dict[self.floor].riders if e not in riders_to_step_in
             ]
-
-            floor_dict[self.floor].up_request = not clear_up_button
-            floor_dict[self.floor].down_request = not clear_down_button
+            if clear_up_button:
+                floor_dict[self.floor].up_request = False
+            if clear_down_button:
+                floor_dict[self.floor].down_request = False
 
             self.log = self.log_movement(
                 rider_names_to_add,
