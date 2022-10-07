@@ -3,6 +3,19 @@ from classes import Elevator, Rider, Floor
 from sys import maxsize
 
 
+def find_next_floor(curr_floor, internal_destinations):
+    up_floor = maxsize
+    down_floor = maxsize
+    for floor in internal_destinations:
+        if floor > curr_floor:  # find closest floor above
+            if abs(floor - curr_floor) < abs(up_floor - curr_floor):
+                up_floor = floor
+        if floor < curr_floor:  # find closest floor below
+            if abs(floor - curr_floor) < abs(down_floor - curr_floor):
+                down_floor = floor
+    return down_floor, up_floor
+
+
 def find_nearest_available_elevator(rider, elevator_bank: list[Elevator]) -> Elevator:
     """
     Returns the Elevator object that is the nearest (in terms of Floors)
@@ -10,6 +23,9 @@ def find_nearest_available_elevator(rider, elevator_bank: list[Elevator]) -> Ele
     but can also return an Elevator that is on its way to the Rider's Floor,
     meaning has the proper direction and has a destination past the Rider's
     floor.
+
+    If two elevators are equidistant then the higher elevator
+    gets preference.
 
     Used for an elevator bank.
     """
@@ -50,7 +66,7 @@ def get_riders() -> list[Rider]:
             return rider_list
 
 
-def update_riders(rider_list, floor_dict):
+def update_riders(rider_list, floor_dict, elevator_bank):
     while True:
         try:
             rider_name = input("Enter a rider name: ")  # needs to be unique
@@ -60,6 +76,8 @@ def update_riders(rider_list, floor_dict):
             rider_list.append(new_rider)
             floor_dict[rider_start_floor].riders.append(new_rider)
             new_rider.press_button(floor_dict)
+            nearest_elevator = find_nearest_available_elevator(new_rider, elevator_bank)
+            nearest_elevator.external_destinations.add(rider_start_floor)
         except ValueError as err:
             print("Terminating because", err)
             return
