@@ -6,19 +6,6 @@ from typing import Set
 import tkinter as tk
 
 
-def find_next_floor(curr_floor, internal_destinations):
-    up_floor = maxsize
-    down_floor = maxsize
-    for floor in internal_destinations:
-        if floor > curr_floor:  # find closest floor above
-            if abs(floor - curr_floor) < abs(up_floor - curr_floor):
-                up_floor = floor
-        if floor < curr_floor:  # find closest floor below
-            if abs(floor - curr_floor) < abs(down_floor - curr_floor):
-                down_floor = floor
-    return down_floor, up_floor
-
-
 # should I add a Building class which contains the Floor dict and
 # a list of Elevators?
 
@@ -29,6 +16,7 @@ class Elevator:
         self.capacity = capacity
         self.direction = 0  # 0 for stationary, 1 for up, -1 for down
         self.internal_destinations = set()  # Set of ints. Can we type this?
+        self.external_destinations = set()
         self.door_delay = 1
         self.elevator_delay = 0.5
         self.riders = []  # list of Riders
@@ -55,121 +43,31 @@ class Elevator:
             # to log what elevator does
             rider_names_to_remove = []
             rider_names_to_add = []
-            riders_to_remove = []
 
-            door_open = False  # if True, sleep(door_delay) once
-
-            keep_going_down = False
-            keep_going_up = False
             # check if we are at an internal stop (someone inside wants to get off)
-            if self.floor in self.internal_destinations:
-                self.internal_destinations.remove(self.floor)  # ding, we stop
-                for rider in self.riders:  # can we DRY?
-                    if rider.destination == self.floor:
-                        riders_to_remove.append(rider)
-                        rider_names_to_remove.append(str(rider))
-                        rider_list.remove(rider)
-                        rider.step_out(start_stop_delays, start_step_delays)
-                        door_open = True
-
-            for rider in riders_to_remove:
-                self.riders.remove(rider)
-
-            # check if the rider who got off was the last one
-            if not rider_list:
-                if not (self.direction == 0):
-                    self.log = self.log_movement(
-                        rider_names_to_add,
-                        rider_names_to_remove,
-                    )
-                    print(self.log)
-                    sleep(self.door_delay)
-                    self.direction = 0
-                continue
+            door_open_out = self.let_riders_out(
+                rider_names_to_add,
+                rider_names_to_remove,
+                rider_list,
+                start_stop_delays,
+                start_step_delays,
+            )
 
             ## change direction if necessary
             # TODO: implement stopping logic
-            if self.internal_destinations:
-                pass
-            else:
-                for floor in floor_dict.values():
-                    if keep_going_down and keep_going_up:
-                        break
-                    if floor.number > self.floor and (
-                        floor.up_request or floor.down_request
-                    ):
-                        keep_going_up = True
-                    elif floor.number < self.floor and (
-                        floor.up_request or floor.down_request
-                    ):
-                        keep_going_down = True
-                    elif floor.number == self.floor and (
-                        self.direction > -1 and floor.up_request
-                    ):
-                        keep_going_up = True
-                    elif floor.number == self.floor and (
-                        self.direction < 1 and floor.down_request
-                    ):
-                        keep_going_down = True
-                    else:
-                        continue
+            self.update_direction(floor_dict)
 
-                if (keep_going_down and self.direction == -1) or (
-                    keep_going_up and self.direction == 1
-                ):
-                    pass
-                elif (keep_going_down and self.direction == 1) or (
-                    keep_going_up and self.direction == -1
-                ):
-                    self.direction = self.direction * -1
-                elif self.direction == 0 and keep_going_down:
-                    self.direction = -1
-                elif self.direction == 0 and keep_going_up:
-                    self.direction = 1
-                else:
-                    self.direction = 0
-
-            # see if anyone needs to get on (in the elevator's direction), and add their internal_destinations
-            clear_up_button = False
-            clear_down_button = False
-            riders_to_step_in = []
-            for rider in floor_dict[self.floor].riders:
-                if self.direction == 1 and rider.destination > self.floor:  # going up
-                    rider.step_in(self)
-                    rider_names_to_add.append(str(rider))
-                    self.internal_destinations.add(rider.destination)
-                    riders_to_step_in.append(rider)
-                    clear_up_button = True
-                    door_open = True
-                elif (
-                    self.direction == -1 and rider.destination < self.floor
-                ):  # going down
-                    rider.step_in(self)
-                    rider_names_to_add.append(str(rider))
-                    self.internal_destinations.add(rider.destination)
-                    riders_to_step_in.append(rider)
-                    clear_down_button = True
-                    door_open = True
-                else:
-                    pass
-
-            # remove Rider from Floor if they are going in Elevator
-            floor_dict[self.floor].riders = [
-                e for e in floor_dict[self.floor].riders if e not in riders_to_step_in
-            ]
-            if clear_up_button:
-                floor_dict[self.floor].up_request = False
-            if clear_down_button:
-                floor_dict[self.floor].down_request = False
+            door_open_in = self.let_riders_in(floor_dict, rider_names_to_add)
 
             self.log = self.log_movement(
                 rider_names_to_add,
                 rider_names_to_remove,
             )
             self.floor += self.direction
-            if door_open:
+            if door_open_in or door_open_out:
                 sleep(self.door_delay)
             sleep(self.elevator_delay)
+            # Tkinter stuff
             var.set(self.log)
             root.update_idletasks()
             print(self.log)
@@ -188,6 +86,116 @@ class Elevator:
         log.append(",".join(rider_names_to_add))
         log.append(",".join(rider_names_to_remove))
         return ";".join([str(log_element) for log_element in log])
+
+    def let_riders_out(
+        self,
+        rider_names_to_add,
+        rider_names_to_remove,
+        rider_list,
+        start_stop_delays,
+        start_step_delays,
+    ):
+        riders_to_remove = []
+        door_open = False
+        if self.floor in self.internal_destinations:
+            self.internal_destinations.remove(self.floor)  # ding, we stop
+            for rider in self.riders:  # can we DRY?
+                if rider.destination == self.floor:
+                    riders_to_remove.append(rider)
+                    rider_names_to_remove.append(str(rider))
+                    rider_list.remove(rider)
+                    rider.step_out(start_stop_delays, start_step_delays)
+                    door_open = True
+
+        for rider in riders_to_remove:
+            self.riders.remove(rider)
+
+        # check if the rider who got off was the last one
+        if not rider_list:
+            if not (self.direction == 0):
+                self.log = self.log_movement(
+                    rider_names_to_add,
+                    rider_names_to_remove,
+                )
+                print(self.log)
+                sleep(self.door_delay)
+                self.direction = 0
+        return door_open
+
+    def update_direction(self, floor_dict):
+        keep_going_down = False
+        keep_going_up = False
+        if self.internal_destinations:
+            pass
+        else:
+            for floor in floor_dict.values():
+                if keep_going_down and keep_going_up:
+                    break
+                if floor.number > self.floor and (
+                    floor.up_request or floor.down_request
+                ):
+                    keep_going_up = True
+                elif floor.number < self.floor and (
+                    floor.up_request or floor.down_request
+                ):
+                    keep_going_down = True
+                elif floor.number == self.floor and (
+                    self.direction > -1 and floor.up_request
+                ):
+                    keep_going_up = True
+                elif floor.number == self.floor and (
+                    self.direction < 1 and floor.down_request
+                ):
+                    keep_going_down = True
+                else:
+                    continue
+
+            if (keep_going_down and self.direction == -1) or (
+                keep_going_up and self.direction == 1
+            ):
+                pass
+            elif (keep_going_down and self.direction == 1) or (
+                keep_going_up and self.direction == -1
+            ):
+                self.direction = self.direction * -1
+            elif self.direction == 0 and keep_going_down:
+                self.direction = -1
+            elif self.direction == 0 and keep_going_up:
+                self.direction = 1
+            else:
+                self.direction = 0
+
+    def let_riders_in(self, floor_dict, rider_names_to_add):
+        clear_up_button = False
+        clear_down_button = False
+        door_open = False
+        riders_to_step_in = []
+        for rider in floor_dict[self.floor].riders:
+            if self.direction == 1 and rider.destination > self.floor:  # going up
+                rider.step_in(self)
+                rider_names_to_add.append(str(rider))
+                self.internal_destinations.add(rider.destination)
+                riders_to_step_in.append(rider)
+                clear_up_button = True
+                door_open = True
+            elif self.direction == -1 and rider.destination < self.floor:  # going down
+                rider.step_in(self)
+                rider_names_to_add.append(str(rider))
+                self.internal_destinations.add(rider.destination)
+                riders_to_step_in.append(rider)
+                clear_down_button = True
+                door_open = True
+            else:
+                pass
+        # remove Rider from Floor if they are going in Elevator
+        floor_dict[self.floor].riders = [
+            e for e in floor_dict[self.floor].riders if e not in riders_to_step_in
+        ]
+        if clear_up_button:
+            floor_dict[self.floor].up_request = False
+        if clear_down_button:
+            floor_dict[self.floor].down_request = False
+        return door_open
 
 
 class NormalElevator(Elevator):
