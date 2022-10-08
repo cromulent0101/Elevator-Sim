@@ -35,43 +35,32 @@ class Elevator:
         var = tk.StringVar()
         l = tk.Label(root, textvariable=var)
         l.pack()
-        full_log = []
         while True:
             for rider in self.riders:
                 rider.curr_floor = self.floor
 
-            # to log what elevator does
-            rider_names_to_remove = []
-            rider_names_to_add = []
-
-            # check if we are at an internal stop (someone inside wants to get off)
-            door_open_out = self.let_riders_out(
-                rider_names_to_add,
-                rider_names_to_remove,
+            door_open_out, rider_names_to_remove = self.let_riders_out(
                 rider_list,
                 start_stop_delays,
                 start_step_delays,
             )
-
-            ## change direction if necessary
-            # TODO: implement stopping logic
             self.update_direction(floor_dict)
-
-            door_open_in = self.let_riders_in(floor_dict, rider_names_to_add)
-
+            door_open_in, rider_names_to_add = self.let_riders_in(floor_dict)
             self.log = self.log_movement(
                 rider_names_to_add,
                 rider_names_to_remove,
             )
             self.floor += self.direction
-            if door_open_in or door_open_out:
-                sleep(self.door_delay)
-            sleep(self.elevator_delay)
+            self.simulate_delays(door_open_in, door_open_out)
             # Tkinter stuff
             var.set(self.log)
             root.update_idletasks()
             print(self.log)
-            full_log.append(self.log)
+
+    def simulate_delays(self, door_open_in, door_open_out):
+        if door_open_in or door_open_out:
+            sleep(self.door_delay)
+        sleep(self.elevator_delay)
 
     def log_movement(
         self,
@@ -89,13 +78,12 @@ class Elevator:
 
     def let_riders_out(
         self,
-        rider_names_to_add,
-        rider_names_to_remove,
         rider_list,
         start_stop_delays,
         start_step_delays,
     ):
         riders_to_remove = []
+        rider_names_to_remove = []
         door_open = False
         if self.floor in self.internal_destinations:
             self.internal_destinations.remove(self.floor)  # ding, we stop
@@ -114,13 +102,13 @@ class Elevator:
         if not rider_list:
             if not (self.direction == 0):
                 self.log = self.log_movement(
-                    rider_names_to_add,
+                    [],
                     rider_names_to_remove,
                 )
                 print(self.log)
                 sleep(self.door_delay)
                 self.direction = 0
-        return door_open
+        return door_open, rider_names_to_remove
 
     def update_direction(self, floor_dict):
         keep_going_down = False
@@ -165,11 +153,12 @@ class Elevator:
             else:
                 self.direction = 0
 
-    def let_riders_in(self, floor_dict, rider_names_to_add):
+    def let_riders_in(self, floor_dict):
         clear_up_button = False
         clear_down_button = False
         door_open = False
         riders_to_step_in = []
+        rider_names_to_add = []
         for rider in floor_dict[self.floor].riders:
             if self.direction == 1 and rider.destination > self.floor:  # going up
                 rider.step_in(self)
@@ -195,7 +184,7 @@ class Elevator:
             floor_dict[self.floor].up_request = False
         if clear_down_button:
             floor_dict[self.floor].down_request = False
-        return door_open
+        return door_open, rider_names_to_add
 
 
 class NormalElevator(Elevator):
@@ -244,6 +233,7 @@ class Rider:
             print(f"Rider {self.name} can't enter elevator since it is full")
         else:
             self.step_in_time = time()
+            self.is_in_elevator = True
             elev.riders.append(self)
 
     def step_out(self, start_stop_delays, start_step_delays):
