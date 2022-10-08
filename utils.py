@@ -45,7 +45,7 @@ def find_nearest_available_elevator(rider, elevator_bank: list[Elevator]) -> Ele
             and (e.floor > rider.start_floor)
         ):
             available_elevators.append(e)
-    return min(available_elevators, key=lambda x: abs(x - rider.start_floor))
+    return min(available_elevators, key=lambda x: abs(x.floor - rider.start_floor))
 
 
 def get_riders() -> list[Rider]:

@@ -22,6 +22,17 @@ class Elevator:
         self.riders = []  # list of Riders
         self.log = []  # list of strs to log what elevator did
 
+    def __eq__(
+        self, other
+    ):  # implementing this makes Elevators not be able to be in sets/dicts
+        if not isinstance(other, Elevator):
+            return NotImplemented
+
+        return self.floor == other.floor and self.direction == other.direction
+
+    def __repr__(self):
+        return f"Elevator is on {self.floor} and direction {self.direction}"
+
     def elevate(self, rider_list, floor_dict, start_stop_delays, start_step_delays):
         """
         Tells an elevator to pick up and drop off passengers

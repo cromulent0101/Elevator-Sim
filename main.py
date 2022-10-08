@@ -35,6 +35,20 @@ floor_dict = utils.create_floors(rider_list, e_bank)
 e.direction = -1
 t.direction = 1
 
+el1 = Elevator(3, 10)
+el1.direction = -1
+el2 = Elevator(3, 6)
+el2.direction = -1
+el3 = Elevator(3, 4)
+el3.direction = 0
+el4 = Elevator(3, 4)
+el4.direction = -1
+el5 = Elevator(3, 1)
+el5.direction = 1
+elevator_bank = [el1, el2, el3, el4, el5]
+
+print(utils.find_nearest_available_elevator(Rider("Joe", 2, 5), elevator_bank))
+
 e.elevate(rider_list, floor_dict, start_stop_delays, start_step_delays)
 # t1 = threading.Thread(
 #     target=e.elevate,
