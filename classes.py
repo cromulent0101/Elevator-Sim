@@ -30,11 +30,6 @@ class Elevator:
         Returns a string that represents the actions taken by
         the elevator.
         """
-        root = tk.Tk()
-        root.geometry("250x170")
-        var = tk.StringVar()
-        l = tk.Label(root, textvariable=var)
-        l.pack()
         while True:
             for rider in self.riders:
                 rider.curr_floor = self.floor
@@ -52,9 +47,6 @@ class Elevator:
             )
             self.floor += self.direction
             self.simulate_delays(door_open_in, door_open_out)
-            # Tkinter stuff
-            var.set(self.log)
-            root.update_idletasks()
             print(self.log)
 
     def simulate_delays(self, door_open_in, door_open_out):
