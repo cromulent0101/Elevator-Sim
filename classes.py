@@ -4,10 +4,23 @@ from sys import maxsize
 import csv
 from typing import Set
 import tkinter as tk
+import threading
 
 
 # should I add a Building class which contains the Floor dict and
 # a list of Elevators?
+class ElevatorBank:
+    def __init__(self, e_bank):
+        self.elevators = e_bank
+
+    def simulate(self, rider_list, floor_dict, start_stop_delays, start_step_delays):
+        for e in self.elevators:
+            t1 = threading.Thread(
+                target=e.elevate,
+                args=[rider_list, floor_dict, start_stop_delays, start_step_delays],
+            )
+            t1.start()
+            t1.join()
 
 
 class Elevator:

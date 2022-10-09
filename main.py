@@ -1,6 +1,6 @@
 # TODO: add main dunder
 # pylint: disable=import-error
-from classes import Elevator, Rider, Floor
+from classes import Elevator, Rider, Floor, ElevatorBank
 import utils
 import csv
 from time import sleep
@@ -24,7 +24,10 @@ rider_list = [
 # create an elevator at a random floor
 e = Elevator(3, 12)
 t = Elevator(3, 12)
+e.direction = -1
+
 e_bank = [e]
+bank = ElevatorBank(e_bank)
 
 start_stop_delays = []
 start_step_delays = []
@@ -32,24 +35,9 @@ start_step_delays = []
 floor_dict = utils.create_floors(rider_list, e_bank)
 
 # arbitrarily choose elevator to go up first
-e.direction = -1
-t.direction = 1
 
-el1 = Elevator(3, 10)
-el1.direction = -1
-el2 = Elevator(3, 6)
-el2.direction = -1
-el3 = Elevator(3, 4)
-el3.direction = 0
-el4 = Elevator(3, 4)
-el4.direction = -1
-el5 = Elevator(3, 1)
-el5.direction = 1
-elevator_bank = [el1, el2, el3, el4, el5]
-
-print(utils.find_nearest_available_elevator(Rider("Joe", 2, 5), elevator_bank))
-
-e.elevate(rider_list, floor_dict, start_stop_delays, start_step_delays)
+bank.simulate(rider_list, floor_dict, start_stop_delays, start_step_delays)
+# e.elevate(rider_list, floor_dict, start_stop_delays, start_step_delays)
 # t1 = threading.Thread(
 #     target=e.elevate,
 #     args=[rider_list, floor_dict, start_stop_delays, start_step_delays],
