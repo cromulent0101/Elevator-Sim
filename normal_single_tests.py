@@ -52,11 +52,6 @@ def multiple_riders_multiple_floors():
     ]
 
 
-# @pytest.fixure(autouse=True)
-# def get_floors():
-#     return
-
-
 def test_first_classic(first_floor_elevator, classic_riders):
     floor_dict = utils.create_floors(classic_riders)
     assert first_floor_elevator.run(classic_riders, floor_dict) == [
