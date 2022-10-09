@@ -14,13 +14,16 @@ class ElevatorBank:
         self.elevators = e_bank
 
     def simulate(self, rider_list, floor_dict, start_stop_delays, start_step_delays):
+        threads = []
         for e in self.elevators:
             t1 = threading.Thread(
                 target=e.elevate,
                 args=[rider_list, floor_dict, start_stop_delays, start_step_delays],
             )
             t1.start()
-            t1.join()
+            threads.append(t1)
+        for t in threads:
+            t.join()
 
 
 class Elevator:

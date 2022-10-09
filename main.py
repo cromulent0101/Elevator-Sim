@@ -23,10 +23,11 @@ rider_list = [
 
 # create an elevator at a random floor
 e = Elevator(3, 12)
-t = Elevator(3, 12)
+t = Elevator(3, 3)
 e.direction = -1
+t.direction = 1
 
-e_bank = [e]
+e_bank = [e, t]
 bank = ElevatorBank(e_bank)
 
 start_stop_delays = []
