@@ -34,18 +34,29 @@ def find_nearest_available_elevator(rider, elevator_bank: list[Elevator]) -> Ele
         if e.direction == 0:
             available_elevators.append(e)
         if (
-            any(rider.destination < dest for dest in e.internal_destinations)
+            rider.destination > rider.start_floor
             and (e.direction == 1)  # elevator going up
             and (e.floor < rider.start_floor)
         ):
             available_elevators.append(e)
         if (
-            any(rider.destination > dest for dest in e.internal_destinations)
+            rider.destination < rider.start_floor
             and (e.direction == -1)  # elevator going down
             and (e.floor > rider.start_floor)
         ):
             available_elevators.append(e)
-    return min(available_elevators, key=lambda x: abs(x.floor - rider.start_floor))
+    min_distance = abs(
+        min(available_elevators, key=lambda x: abs(x.floor - rider.start_floor)).floor
+        - rider.start_floor
+    )
+    print(min_distance)
+    print(available_elevators)
+    for e in available_elevators:  # higher elevators win tiebreaker
+        if e.floor - rider.start_floor == min_distance:
+            return e
+    for e in available_elevators:
+        if rider.start_floor - e.floor == min_distance:
+            return e
 
 
 def get_riders() -> list[Rider]:

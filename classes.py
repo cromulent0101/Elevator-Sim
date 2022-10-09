@@ -30,6 +30,9 @@ class Elevator:
 
         return self.floor == other.floor and self.direction == other.direction
 
+    def __str__(self):
+        return f"{self.floor}  {self.direction}"
+
     def __repr__(self):
         return f"Elevator is on {self.floor} and direction {self.direction}"
 
