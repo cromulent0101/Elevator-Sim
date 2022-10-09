@@ -37,6 +37,4 @@ def test_find_nearest_elevator(down_rider_9, elevator_bank):
 def test_find_nearest_elevator_tie(down_rider_5, elevator_bank):
     el2 = Elevator(3, 6)
     el2.direction = -1
-    repr(el2)
-    repr(utils.find_nearest_available_elevator(down_rider_5, elevator_bank))
     assert el2 == utils.find_nearest_available_elevator(down_rider_5, elevator_bank)

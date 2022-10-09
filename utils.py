@@ -49,8 +49,6 @@ def find_nearest_available_elevator(rider, elevator_bank: list[Elevator]) -> Ele
         min(available_elevators, key=lambda x: abs(x.floor - rider.start_floor)).floor
         - rider.start_floor
     )
-    print(min_distance)
-    print(available_elevators)
     for e in available_elevators:  # higher elevators win tiebreaker
         if e.floor - rider.start_floor == min_distance:
             return e
