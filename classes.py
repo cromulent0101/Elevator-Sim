@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from time import sleep, time
 from sys import maxsize
+from queue import Queue
 import csv
 from typing import Set
 import tkinter as tk
@@ -10,9 +11,7 @@ import threading
 class ElevatorBank:
     def __init__(self, e_bank):
         self.elevators = e_bank
-        self.queue = (
-            set()
-        )  # set of floors that don't have an elevator going to them yet
+        self.queue = Queue()  # floors that don't have an elevator going to them yet
 
     def simulate(self, rider_list, floor_dict):
         threads = []
@@ -43,7 +42,7 @@ class Elevator:
 
     def __eq__(
         self, other
-    ):  # implementing this makes Elevators not be able to be in sets/dicts
+    ):  # FYI implementing this makes Elevators not be able to be in sets/dicts
         if not isinstance(other, Elevator):
             return NotImplemented
 
@@ -178,7 +177,7 @@ class Elevator:
             else:
                 self.direction = 0
 
-    def update_direction_new(self):
+    def update_direction_new(self, e_bank: ElevatorBank):
         if self.internal_destinations or self.external_destinations:
             pass
         elif self.external_destinations and self.direction == 0:
@@ -186,6 +185,16 @@ class Elevator:
                 self.direction = 1
             elif list(self.external_destinations)[0] < self.floor:
                 self.direction = -1
+        elif e_bank.queue:
+            next_floor = e_bank.queue.get()
+            if next_floor > self.floor:
+                self.direction = 1
+                self.external_destinations.add(next_floor)
+                e_bank.queue.remove(next_floor)
+            elif next_floor < self.floor:
+                self.direction = -1
+                self.external_destinations.add(next_floor)
+                e_bank.queue.remove(next_floor)
         else:
             self.direction = 0
 
@@ -288,9 +297,7 @@ class Rider:
         if nearest_elevator:
             nearest_elevator.external_destinations.append(self.start_floor)
 
-    def find_nearest_available_elevator(
-        self, elevator_bank: list[Elevator]
-    ) -> Elevator:
+    def find_nearest_available_elevator(self, elevator_bank: ElevatorBank) -> Elevator:
         """
         Returns the Elevator object that is the nearest (in terms of Floors)
         elevator that can pick up a rider. Elevator will probably be stationary,
@@ -321,7 +328,7 @@ class Rider:
                 available_elevators.append(e)
 
         if not available_elevators:
-            elevator_bank.queue.add(self.start_floor)
+            elevator_bank.queue.put(self.start_floor)
             return
 
         min_distance = abs(

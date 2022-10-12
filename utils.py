@@ -1,6 +1,7 @@
 # pylint: disable=import-error
-from classes import Elevator, Rider, Floor
+from classes import Elevator, Rider, Floor, ElevatorBank
 from sys import maxsize
+import csv
 
 
 def find_next_floor(curr_floor, internal_destinations):
@@ -16,7 +17,7 @@ def find_next_floor(curr_floor, internal_destinations):
     return down_floor, up_floor
 
 
-def find_nearest_available_elevator(rider, elevator_bank: list[Elevator]) -> Elevator:
+def find_nearest_available_elevator(rider, elevator_bank: ElevatorBank) -> Elevator:
     """
     Returns the Elevator object that is the nearest (in terms of Floors)
     elevator that can pick up a rider. Elevator will probably be stationary,
@@ -30,7 +31,7 @@ def find_nearest_available_elevator(rider, elevator_bank: list[Elevator]) -> Ele
     Used for an elevator bank.
     """
     available_elevators = []
-    for e in elevator_bank:
+    for e in elevator_bank.elevators:
         if e.direction == 0:
             available_elevators.append(e)
         if (
@@ -45,6 +46,11 @@ def find_nearest_available_elevator(rider, elevator_bank: list[Elevator]) -> Ele
             and (e.floor > rider.start_floor)
         ):
             available_elevators.append(e)
+
+    if not available_elevators:
+        elevator_bank.queue.put(rider.start_floor)
+        return
+
     min_distance = abs(
         min(available_elevators, key=lambda x: abs(x.floor - rider.start_floor)).floor
         - rider.start_floor

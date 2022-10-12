@@ -58,4 +58,4 @@ def test_find_nearest_elevator_tie(down_rider_5, elevator_bank_mixed):
 def test_find_nearest_elevator_none(down_rider_9, elevator_bank_down):
     elev = down_rider_9.find_nearest_available_elevator(elevator_bank_down)
     assert None == elev
-    assert down_rider_9.start_floor in elevator_bank_down.queue
+    assert down_rider_9.start_floor == elevator_bank_down.queue.get()
