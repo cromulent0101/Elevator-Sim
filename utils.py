@@ -63,7 +63,7 @@ def find_nearest_available_elevator(rider, elevator_bank: ElevatorBank) -> Eleva
             return e
 
 
-def get_riders() -> list[Rider]:
+def get_riders_from_user() -> list[Rider]:
     """Returns a list of Riders on multiple floors from user input."""
     rider_list = []
     while True:
@@ -81,7 +81,7 @@ def get_riders() -> list[Rider]:
             return rider_list
 
 
-def update_riders(rider_list, floor_dict, elevator_bank):
+def update_riders_from_user(rider_list, floor_dict, elevator_bank):
     while True:
         try:
             rider_name = input("Enter a rider name: ")  # needs to be unique
@@ -99,6 +99,17 @@ def update_riders(rider_list, floor_dict, elevator_bank):
         except EOFError:
             print("EOF!")
             return
+
+
+def get_riders_from_csv(filename) -> list[Rider]:
+    rider_list = []
+    with open(filename, newline="") as csvfile:
+        rider_reader = csv.DictReader(csvfile, delimiter=",", quotechar='"')
+        for row in rider_reader:
+            rider_list.append(
+                Rider(row["name"], int(row["destination"]), int(row["start_floor"]))
+            )
+    return rider_list
 
 
 def create_floors(

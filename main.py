@@ -20,14 +20,14 @@ rider_list = [
     Rider("Jimmy", 5, 9),
     Rider("Jill", 9, 5),
 ]
-
+print(utils.get_riders_from_csv("sims/sim1.csv"))
 # create an elevator at a random floor
 e = Elevator(3, 12)
 t = Elevator(3, 3)
-e.direction = -1
+e.direction = 0
 t.direction = 1
 
-e_bank = [e, t]
+e_bank = [e]
 bank = ElevatorBank(e_bank)
 
 start_stop_delays = []
@@ -37,7 +37,7 @@ floor_dict = utils.create_floors(rider_list, e_bank)
 
 # arbitrarily choose elevator to go up first
 
-bank.simulate(rider_list, floor_dict, start_stop_delays, start_step_delays)
+bank.simulate(rider_list, floor_dict)
 # e.elevate(rider_list, floor_dict, start_stop_delays, start_step_delays)
 # t1 = threading.Thread(
 #     target=e.elevate,
