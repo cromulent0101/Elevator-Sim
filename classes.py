@@ -12,15 +12,22 @@ class ElevatorBank:
     def __init__(self, e_bank):
         self.elevators = e_bank
         self.queue = Queue()  # floors that don't have an elevator going to them yet
+        self.begin_time = time()
 
-    def simulate(self, rider_list, floor_dict):
+    def simulate(self, rider_list_csv, floor_dict):
         threads = []
         start_stop_delays = []
         start_step_delays = []
         for e in self.elevators:
             t1 = threading.Thread(
                 target=e.elevate,
-                args=[rider_list, floor_dict, start_stop_delays, start_step_delays],
+                args=[
+                    rider_list_csv,
+                    floor_dict,
+                    start_stop_delays,
+                    start_step_delays,
+                    self,
+                ],
             )
             t1.start()
             threads.append(t1)
@@ -54,7 +61,9 @@ class Elevator:
     def __repr__(self):
         return f"Elevator is on {self.floor} and direction {self.direction}"
 
-    def elevate(self, rider_list, floor_dict, start_stop_delays, start_step_delays):
+    def elevate(
+        self, rider_list, floor_dict, start_stop_delays, start_step_delays, e_bank
+    ):
         """
         Tells an elevator to pick up and drop off passengers
         given a rider list.
@@ -63,6 +72,7 @@ class Elevator:
         the elevator.
         """
         while True:
+            self.check_for_new_riders(rider_list, e_bank)
             for rider in self.riders:
                 rider.curr_floor = self.floor
 
@@ -85,6 +95,11 @@ class Elevator:
         if door_open_in or door_open_out:
             sleep(self.door_delay)
         sleep(self.elevator_delay)
+
+    def check_for_new_riders(self, rider_list_csv, elevator_bank):
+        for rider in rider_list_csv:
+            if rider.when_to_add > (time() - elevator_bank.begin_time):
+                rider.press_button_new(elevator_bank)
 
     def log_movement(
         self,
@@ -262,6 +277,7 @@ class Rider:
         self.destination = destination
         self.start_floor = start_floor
         self.curr_floor = start_floor
+        self.when_to_add = 0
         self.start_time = time()
         self.step_in_time = 0
         self.end_time = 0

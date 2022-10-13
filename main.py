@@ -13,14 +13,14 @@ import tkinter as tk
 
 
 # rider_list = utils.get_riders()
-rider_list = [
-    Rider("Joe", 2, 9),
-    Rider("Bob", 2, 5),
-    Rider("Jane", 3, 5),
-    Rider("Jimmy", 5, 9),
-    Rider("Jill", 9, 5),
-]
-print(utils.get_riders_from_csv("sims/sim1.csv"))
+# rider_list = [
+#     Rider("Joe", 2, 9),
+#     Rider("Bob", 2, 5),
+#     Rider("Jane", 3, 5),
+#     Rider("Jimmy", 5, 9),
+#     Rider("Jill", 9, 5),
+# ]
+rider_list = utils.get_riders_from_csv("sims/sim1.csv")
 # create an elevator at a random floor
 e = Elevator(3, 12)
 t = Elevator(3, 3)
