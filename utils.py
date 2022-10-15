@@ -109,7 +109,7 @@ def get_riders_from_csv(filename) -> list[Rider]:
             new_rider = Rider(
                 row["name"], int(row["destination"]), int(row["start_floor"])
             )
-            new_rider.when_to_add = row["when_to_add"]
+            new_rider.when_to_add = int(row["when_to_add"])
             rider_list.append(new_rider)
 
     return rider_list

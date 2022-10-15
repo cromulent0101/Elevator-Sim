@@ -24,7 +24,7 @@ rider_list = utils.get_riders_from_csv("sims/sim1.csv")
 # create an elevator at a random floor
 e = Elevator(3, 12)
 t = Elevator(3, 3)
-e.direction = 0
+e.direction = -1
 t.direction = 1
 
 e_bank = [e]
