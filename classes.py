@@ -334,6 +334,8 @@ class NormalElevator(Elevator):
         self.log = []  # list of strs to log what elevator did
 
 
+# see http://www.facilitiesnet.com/elevators/article/Destination-Dispatch-Machineroomless-Systems-Are-Current-Wave-of-Elevator-Technology--13595?source=previous
+# and https://www.thyssenkruppelevator.com/elevator-products/elevator-destination-dispatch
 class DestinationElevator(Elevator):
     def __init__(self, capacity: int, floor):
         self.floor = floor
