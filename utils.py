@@ -109,7 +109,7 @@ def get_riders_from_csv(filename) -> list[Rider]:
             new_rider = Rider(
                 row["name"], int(row["destination"]), int(row["start_floor"])
             )
-            new_rider.when_to_add = row["when_to_add"]
+            new_rider.when_to_add = int(row["when_to_add"])
             rider_list.append(new_rider)
 
     return rider_list
@@ -135,8 +135,8 @@ def create_floors(
     # populate dict of floors with each floor traversable and press up or down buttons on those floors
     for floor_num in range(min_floor - 1, max_floor + 2):
         floor_dict[floor_num] = Floor(floor_num)
-        for rider in rider_list:
-            if rider.start_floor == floor_num:
-                floor_dict[floor_num].riders.append(rider)
-                rider.press_button(floor_dict)
+        # for rider in rider_list:
+        #     if rider.start_floor == floor_num:
+        #         floor_dict[floor_num].riders.append(rider)
+        #         rider.press_button(floor_dict)
     return floor_dict

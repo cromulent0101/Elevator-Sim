@@ -20,7 +20,7 @@ import tkinter as tk
 #     Rider("Jimmy", 5, 9),
 #     Rider("Jill", 9, 5),
 # ]
-rider_list = utils.get_riders_from_csv("sims/sim1.csv")
+full_rider_list = utils.get_riders_from_csv("sims/sim1.csv")
 # create an elevator at a random floor
 e = Elevator(3, 12)
 t = Elevator(3, 3)
@@ -33,11 +33,11 @@ bank = ElevatorBank(e_bank)
 start_stop_delays = []
 start_step_delays = []
 
-floor_dict = utils.create_floors(rider_list, e_bank)
+floor_dict = utils.create_floors(full_rider_list, e_bank)
 
 # arbitrarily choose elevator to go up first
 
-bank.simulate(rider_list, floor_dict)
+bank.simulate(full_rider_list, floor_dict)
 # e.elevate(rider_list, floor_dict, start_stop_delays, start_step_delays)
 # t1 = threading.Thread(
 #     target=e.elevate,

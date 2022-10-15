@@ -72,12 +72,19 @@ class Elevator:
         the elevator.
         """
         while True:
-            self.check_for_new_riders(rider_list, e_bank)
+            smaller_rider_list = []
+            for rider in rider_list:
+                if (
+                    rider.when_to_add < (time() - e_bank.begin_time)
+                    and not rider.button_pressed
+                ):
+                    rider.press_button(floor_dict)
+                    smaller_rider_list.append(rider)
             for rider in self.riders:
                 rider.curr_floor = self.floor
 
             door_open_out, rider_names_to_remove = self.let_riders_out(
-                rider_list,
+                smaller_rider_list,
                 start_stop_delays,
                 start_step_delays,
             )
@@ -96,10 +103,10 @@ class Elevator:
             sleep(self.door_delay)
         sleep(self.elevator_delay)
 
-    def check_for_new_riders(self, rider_list_csv, elevator_bank):
+    def check_for_new_riders(self, rider_list_csv, elevator_bank, floor_dict):
         for rider in rider_list_csv:
-            if rider.when_to_add > (time() - elevator_bank.begin_time):
-                rider.press_button_new(elevator_bank)
+            if rider.when_to_add < (time() - elevator_bank.begin_time):
+                rider.press_button(floor_dict)
 
     def log_movement(
         self,
@@ -282,6 +289,7 @@ class Rider:
         self.step_in_time = 0
         self.end_time = 0
         self.is_in_elevator = False
+        self.button_pressed = False
 
     def __str__(self):
         return self.name  # for logging
@@ -303,6 +311,7 @@ class Rider:
         start_step_delays.append(self.step_in_time - self.start_time)
 
     def press_button(self, floor_dict):
+        self.button_pressed = True
         if self.start_floor < self.destination:
             floor_dict[self.start_floor].up_request = True
         else:
