@@ -71,8 +71,9 @@ class Elevator:
         Returns a string that represents the actions taken by
         the elevator.
         """
+        smaller_rider_list = []
         while True:
-            smaller_rider_list = []
+
             for rider in rider_list:
                 if (
                     rider.when_to_add < (time() - e_bank.begin_time)
@@ -145,15 +146,9 @@ class Elevator:
             self.riders.remove(rider)
 
         # check if the rider who got off was the last one
-        if not rider_list:
-            if not (self.direction == 0):
-                self.log = self.log_movement(
-                    [],
-                    rider_names_to_remove,
-                )
-                print(self.log)
-                sleep(self.door_delay)
-                self.direction = 0
+        # if not rider_list:
+        #     if not (self.direction == 0):
+        #         self.direction = 0
         return door_open, rider_names_to_remove
 
     def update_direction(self, floor_dict):
@@ -194,7 +189,9 @@ class Elevator:
                 self.direction = self.direction * -1
             elif self.direction == 0 and keep_going_down:
                 self.direction = -1
-            elif self.direction == 0 and keep_going_up:
+            elif (
+                self.direction == 0 and keep_going_up
+            ):  # would these two lines imply that keep_going_up has priority?
                 self.direction = 1
             else:
                 self.direction = 0
@@ -312,6 +309,7 @@ class Rider:
 
     def press_button(self, floor_dict):
         self.button_pressed = True
+        floor_dict[self.start_floor].riders.append(self)
         if self.start_floor < self.destination:
             floor_dict[self.start_floor].up_request = True
         else:
