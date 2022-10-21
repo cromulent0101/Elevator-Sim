@@ -6,6 +6,7 @@ import csv
 from typing import Set
 import tkinter as tk
 import threading
+import abc
 
 
 class ElevatorBank:
@@ -14,11 +15,11 @@ class ElevatorBank:
         self.queue = Queue()  # floors that don't have an elevator going to them yet
         self.begin_time = time()
 
-    def simulate(self, rider_list_csv, floor_dict):
+    def simulate(self, rider_list_csv: list, floor_dict: dict):
         threads = []
         start_stop_delays = []
         start_step_delays = []
-        for e in self.elevators:
+        for idx, e in enumerate(self.elevators, start=1):
             t1 = threading.Thread(
                 target=e.elevate,
                 args=[
@@ -28,6 +29,7 @@ class ElevatorBank:
                     start_step_delays,
                     self,
                 ],
+                name=f"Elevator {idx}",
             )
             t1.start()
             threads.append(t1)
@@ -71,7 +73,7 @@ class Elevator:
         Returns a string that represents the actions taken by
         the elevator.
         """
-        smaller_rider_list = []
+        active_riders = []
         while True:
 
             for rider in rider_list:
@@ -80,12 +82,12 @@ class Elevator:
                     and not rider.button_pressed
                 ):
                     rider.press_button(floor_dict)
-                    smaller_rider_list.append(rider)
+                    active_riders.append(rider)
             for rider in self.riders:
                 rider.curr_floor = self.floor
 
             door_open_out, rider_names_to_remove = self.let_riders_out(
-                smaller_rider_list,
+                active_riders,
                 start_stop_delays,
                 start_step_delays,
             )
@@ -138,7 +140,10 @@ class Elevator:
                 if rider.destination == self.floor:
                     riders_to_remove.append(rider)
                     rider_names_to_remove.append(str(rider))
+                    # try:
                     rider_list.remove(rider)
+                    # except ValueError:
+                    #   pass
                     rider.step_out(start_stop_delays, start_step_delays)
                     door_open = True
 
