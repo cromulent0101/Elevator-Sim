@@ -16,8 +16,9 @@ full_rider_list = utils.get_riders_from_csv("sims/sim1.csv")
 
 e = Elevator(3, 12)
 t = Elevator(3, 3)
+r = Elevator(3, 6)
 
-e_bank = [e, t]
+e_bank = [e, t, r]
 bank = ElevatorBank(e_bank)
 
 
