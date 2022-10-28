@@ -8,11 +8,12 @@ import tkinter as tk
 import threading
 import abc
 
-active_riders = []
+active_riders = []  # make a Queue?
 
 
 def rider_update(rider_list, floor_dict, e_bank):
-    while True:
+    floor_dict["done"] = False
+    while rider_list:
         for rider in rider_list:
             if (
                 rider.when_to_add < (time() - e_bank.begin_time)
@@ -20,7 +21,9 @@ def rider_update(rider_list, floor_dict, e_bank):
             ):
                 rider.press_button(floor_dict)
                 active_riders.append(rider)
+                rider_list.remove(rider)
         sleep(1)
+    floor_dict["done"] = True
 
 
 class ElevatorBank:
@@ -56,6 +59,7 @@ class ElevatorBank:
             threads.append(t1)
         for t in threads:
             t.join()
+        return start_step_delays, start_stop_delays
 
 
 class Elevator:
@@ -94,16 +98,7 @@ class Elevator:
         Returns a string that represents the actions taken by
         the elevator.
         """
-        #  active_riders = []
-        while True:
-
-            # for rider in rider_list:
-            #     if (
-            #         rider.when_to_add < (time() - e_bank.begin_time)
-            #         and not rider.button_pressed
-            #     ):
-            #         rider.press_button(floor_dict)
-            #         active_riders.append(rider)
+        while not floor_dict["done"]:
             for rider in self.riders:
                 rider.curr_floor = self.floor
 
@@ -184,26 +179,27 @@ class Elevator:
             pass
         else:
             for floor in floor_dict.values():
-                if keep_going_down and keep_going_up:
-                    break
-                if floor.number > self.floor and (
-                    floor.up_request or floor.down_request
-                ):
-                    keep_going_up = True
-                elif floor.number < self.floor and (
-                    floor.up_request or floor.down_request
-                ):
-                    keep_going_down = True
-                elif floor.number == self.floor and (
-                    self.direction > -1 and floor.up_request
-                ):
-                    keep_going_up = True
-                elif floor.number == self.floor and (
-                    self.direction < 1 and floor.down_request
-                ):
-                    keep_going_down = True
-                else:
-                    continue
+                if isinstance(floor, Floor):
+                    if keep_going_down and keep_going_up:
+                        break
+                    if floor.number > self.floor and (
+                        floor.up_request or floor.down_request
+                    ):
+                        keep_going_up = True
+                    elif floor.number < self.floor and (
+                        floor.up_request or floor.down_request
+                    ):
+                        keep_going_down = True
+                    elif floor.number == self.floor and (
+                        self.direction > -1 and floor.up_request
+                    ):
+                        keep_going_up = True
+                    elif floor.number == self.floor and (
+                        self.direction < 1 and floor.down_request
+                    ):
+                        keep_going_down = True
+                    else:
+                        continue
 
             if (keep_going_down and self.direction == -1) or (
                 keep_going_up and self.direction == 1

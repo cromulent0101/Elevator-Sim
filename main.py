@@ -20,13 +20,11 @@ t = Elevator(3, 3)
 e_bank = [e, t]
 bank = ElevatorBank(e_bank)
 
-start_stop_delays = []
-start_step_delays = []
 
 floor_dict = utils.create_floors(full_rider_list, e_bank)
 
 
-bank.simulate(full_rider_list, floor_dict)
+start_step_delays, start_stop_delays = bank.simulate(full_rider_list, floor_dict)
 
 
 print(f"Average total wait: {mean(start_stop_delays)}")
