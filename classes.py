@@ -8,6 +8,20 @@ import tkinter as tk
 import threading
 import abc
 
+active_riders = []
+
+
+def rider_update(rider_list, floor_dict, e_bank):
+    while True:
+        for rider in rider_list:
+            if (
+                rider.when_to_add < (time() - e_bank.begin_time)
+                and not rider.button_pressed
+            ):
+                rider.press_button(floor_dict)
+                active_riders.append(rider)
+        sleep(1)
+
 
 class ElevatorBank:
     def __init__(self, e_bank):
@@ -19,6 +33,13 @@ class ElevatorBank:
         threads = []
         start_stop_delays = []
         start_step_delays = []
+        rider_updater = threading.Thread(
+            target=rider_update,
+            args=[rider_list_csv, floor_dict, self],
+            name="Rider Updater",
+        )
+        rider_updater.start()
+        threads.append(rider_updater)
         for idx, e in enumerate(self.elevators, start=1):
             t1 = threading.Thread(
                 target=e.elevate,
@@ -73,16 +94,16 @@ class Elevator:
         Returns a string that represents the actions taken by
         the elevator.
         """
-        active_riders = []
+        #  active_riders = []
         while True:
 
-            for rider in rider_list:
-                if (
-                    rider.when_to_add < (time() - e_bank.begin_time)
-                    and not rider.button_pressed
-                ):
-                    rider.press_button(floor_dict)
-                    active_riders.append(rider)
+            # for rider in rider_list:
+            #     if (
+            #         rider.when_to_add < (time() - e_bank.begin_time)
+            #         and not rider.button_pressed
+            #     ):
+            #         rider.press_button(floor_dict)
+            #         active_riders.append(rider)
             for rider in self.riders:
                 rider.curr_floor = self.floor
 
