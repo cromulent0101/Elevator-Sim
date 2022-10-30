@@ -23,6 +23,8 @@ def rider_update(rider_list, floor_dict, e_bank):
                 active_riders.append(rider)
                 rider_list.remove(rider)
         sleep(1)
+    while active_riders:
+        sleep(1)
     floor_dict["done"] = True
 
 
