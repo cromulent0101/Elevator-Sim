@@ -247,14 +247,14 @@ class Elevator:
         rider_names_to_add = []
         for rider in floor_dict[self.floor].riders:
             if self.direction == 1 and rider.destination > self.floor:  # going up
-                if rider.step_in(self):
+                if rider.step_in_no_capacity_check(self):
                     rider_names_to_add.append(str(rider))
                     self.internal_destinations.add(rider.destination)
                     riders_to_step_in.append(rider)
                     clear_up_button = True
                 door_open = True
             elif self.direction == -1 and rider.destination < self.floor:  # going down
-                if rider.step_in(self):
+                if rider.step_in_no_capacity_check(self):
                     rider_names_to_add.append(str(rider))
                     self.internal_destinations.add(rider.destination)
                     riders_to_step_in.append(rider)
@@ -325,6 +325,14 @@ class Rider:
             self.is_in_elevator = True
             elev.riders.append(self)
             return True
+
+    def step_in_no_capacity_check(
+        self, elev
+    ):  # elevator should stop for a time even if full
+        self.step_in_time = time()
+        self.is_in_elevator = True
+        elev.riders.append(self)
+        return True
 
     def step_out(self, start_stop_delays, start_step_delays):
         self.end_time = time()
