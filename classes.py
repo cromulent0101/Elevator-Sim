@@ -6,7 +6,7 @@ import csv
 from typing import Set
 import tkinter as tk
 import threading
-import abc
+import logging
 
 active_riders = []  # make a Queue?
 
@@ -38,6 +38,7 @@ class ElevatorBank:
         threads = []
         start_stop_delays = []
         start_step_delays = []
+        log_dict = {}
         rider_updater = threading.Thread(
             target=rider_update,
             args=[rider_list_csv, floor_dict, self],
@@ -46,6 +47,7 @@ class ElevatorBank:
         rider_updater.start()
         threads.append(rider_updater)
         for idx, e in enumerate(self.elevators, start=1):
+            log_dict[f"Elevator {idx}"] = []
             t1 = threading.Thread(
                 target=e.elevate,
                 args=[
@@ -54,6 +56,7 @@ class ElevatorBank:
                     start_stop_delays,
                     start_step_delays,
                     self,
+                    log_dict,
                 ],
                 name=f"Elevator {idx}",
             )
@@ -61,7 +64,7 @@ class ElevatorBank:
             threads.append(t1)
         for t in threads:
             t.join()
-        return start_step_delays, start_stop_delays
+        return start_step_delays, start_stop_delays, log_dict
 
 
 class Elevator:
@@ -91,7 +94,13 @@ class Elevator:
         return f"Elevator is on {self.floor} and direction {self.direction}"
 
     def elevate(
-        self, rider_list, floor_dict, start_stop_delays, start_step_delays, e_bank
+        self,
+        rider_list,
+        floor_dict,
+        start_stop_delays,
+        start_step_delays,
+        e_bank,
+        log_dict,
     ):
         """
         Tells an elevator to pick up and drop off passengers
@@ -112,8 +121,7 @@ class Elevator:
             self.update_direction(floor_dict)
             door_open_in, rider_names_to_add = self.let_riders_in(floor_dict)
             self.log = self.log_movement(
-                rider_names_to_add,
-                rider_names_to_remove,
+                rider_names_to_add, rider_names_to_remove, log_dict
             )
             self.floor += self.direction
             self.simulate_delays(door_open_in, door_open_out)
@@ -129,19 +137,18 @@ class Elevator:
             if rider.when_to_add < (time() - elevator_bank.begin_time):
                 rider.press_button(floor_dict)
 
-    def log_movement(
-        self,
-        rider_names_to_add,
-        rider_names_to_remove,
-    ):
-        log = []
+    def log_movement(self, rider_names_to_add, rider_names_to_remove, log_dict):
+        log_str = []
         rider_names_to_add.sort()
         rider_names_to_remove.sort()
-        log.append(self.floor)
-        log.append(self.direction)
-        log.append(",".join(rider_names_to_add))
-        log.append(",".join(rider_names_to_remove))
-        return ";".join([str(log_element) for log_element in log])
+        log_str.append(self.floor)
+        log_str.append(self.direction)
+        log_str.append(",".join(rider_names_to_add))
+        log_str.append(",".join(rider_names_to_remove))
+        log_dict[threading.current_thread().name].append(
+            ";".join([str(log_element) for log_element in log_str])
+        )
+        return ";".join([str(log_element) for log_element in log_str])
 
     def let_riders_out(
         self,
@@ -181,7 +188,9 @@ class Elevator:
             pass
         else:
             for floor in floor_dict.values():
-                if isinstance(floor, Floor):
+                if isinstance(
+                    floor, Floor
+                ):  # there is a value in the dict that is not a Floor but rather a Boolean
                     if keep_going_down and keep_going_up:
                         break
                     if floor.number > self.floor and (
@@ -219,27 +228,6 @@ class Elevator:
                 self.direction = 1
             else:
                 self.direction = 0
-
-    def update_direction_new(self, e_bank: ElevatorBank):
-        if self.internal_destinations or self.external_destinations:
-            pass
-        elif self.external_destinations and self.direction == 0:
-            if list(self.external_destinations)[0] > self.floor:
-                self.direction = 1
-            elif list(self.external_destinations)[0] < self.floor:
-                self.direction = -1
-        elif e_bank.queue:
-            next_floor = e_bank.queue.get()
-            if next_floor > self.floor:
-                self.direction = 1
-                self.external_destinations.add(next_floor)
-                e_bank.queue.remove(next_floor)
-            elif next_floor < self.floor:
-                self.direction = -1
-                self.external_destinations.add(next_floor)
-                e_bank.queue.remove(next_floor)
-        else:
-            self.direction = 0
 
     def let_riders_in(self, floor_dict):
         clear_up_button = False
