@@ -101,7 +101,9 @@ class Elevator:
     def check_for_new_riders(self, rider_list_csv, elevator_bank):
         for rider in rider_list_csv:
             delta_time = time() - elevator_bank.begin_time
-            if rider.when_to_add < (delta_time) and not rider.button_pressed:
+            if rider.when_to_add < (delta_time) and not (
+                rider.button_pressed_up or rider.button_pressed_down
+            ):
                 rider.press_button_new(elevator_bank)
                 break  # only add one new destination at a time
 
@@ -236,7 +238,9 @@ class Elevator:
         ):
             pass
         elif self.external_destinations and self.direction == 0:
-            if list(self.external_destinations)[0] > self.floor:
+            if (
+                list(self.external_destinations)[0] > self.floor
+            ):  # assuming only one external dest would be added at once
                 self.direction = 1
             elif list(self.external_destinations)[0] < self.floor:
                 self.direction = -1
@@ -297,7 +301,10 @@ class Elevator:
                 rider.step_in(self)
                 rider_names_to_add.append(str(rider))
                 self.internal_destinations.add(rider.destination)
-                self.external_destinations.remove(self.floor)
+                try:
+                    self.external_destinations.remove(self.floor)
+                except KeyError:
+                    print(f"Rider {rider.name} was added but didnt call this elevator")
                 riders_to_step_in.append(rider)
                 clear_up_button = True
                 door_open = True
@@ -305,7 +312,10 @@ class Elevator:
                 rider.step_in(self)
                 rider_names_to_add.append(str(rider))
                 self.internal_destinations.add(rider.destination)
-                self.external_destinations.remove(self.floor)
+                try:
+                    self.external_destinations.remove(self.floor)
+                except KeyError:
+                    print(f"Rider {rider.name} was added but didnt call this elevator")
                 riders_to_step_in.append(rider)
                 clear_down_button = True
                 door_open = True
