@@ -8,31 +8,13 @@ import tkinter as tk
 import threading
 import logging
 
-active_riders = []  # make a Queue?
-
-
-def rider_update(rider_list, floor_dict, e_bank):
-    floor_dict["done"] = False
-    while rider_list:
-        for rider in rider_list:
-            if (
-                rider.when_to_add < (time() - e_bank.begin_time)
-                and not rider.button_pressed
-            ):
-                rider.press_button(floor_dict)
-                active_riders.append(rider)
-                rider_list.remove(rider)
-        sleep(1)
-    while active_riders:
-        sleep(1)
-    floor_dict["done"] = True
-
 
 class ElevatorBank:
     def __init__(self, e_bank):
         self.elevators = e_bank
         self.queue = Queue()  # floors that don't have an elevator going to them yet
         self.begin_time = time()
+        self.active_riders = []  # Queue()
 
     def simulate(self, rider_list_csv: list, floor_dict: dict):
         threads = []
@@ -40,7 +22,7 @@ class ElevatorBank:
         start_step_delays = []
         log_dict = {}
         rider_updater = threading.Thread(
-            target=rider_update,
+            target=self.rider_update,
             args=[rider_list_csv, floor_dict, self],
             name="Rider Updater",
         )
@@ -65,6 +47,22 @@ class ElevatorBank:
         for t in threads:
             t.join()
         return start_step_delays, start_stop_delays, log_dict
+
+    def rider_update(self, rider_list, floor_dict, e_bank):
+        floor_dict["done"] = False
+        while rider_list:
+            for rider in rider_list:
+                if (
+                    rider.when_to_add < (time() - e_bank.begin_time)
+                    and not rider.button_pressed
+                ):
+                    rider.press_button(floor_dict)
+                    self.active_riders.append(rider)
+                    rider_list.remove(rider)
+            sleep(1)
+        while self.active_riders:
+            sleep(1)
+        floor_dict["done"] = True
 
 
 class Elevator:
@@ -113,7 +111,7 @@ class Elevator:
                 rider.curr_floor = self.floor
 
             door_open_out, rider_names_to_remove = self.let_riders_out(
-                active_riders,
+                e_bank.active_riders,
                 start_stop_delays,
                 start_step_delays,
             )
