@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from time import sleep, time
 from sys import maxsize
-from queue import Queue
+from queue import Queue, Empty
 import csv
 from typing import Set
 import tkinter as tk
@@ -101,9 +101,7 @@ class Elevator:
     def check_for_new_riders(self, rider_list_csv, elevator_bank):
         for rider in rider_list_csv:
             delta_time = time() - elevator_bank.begin_time
-            if rider.when_to_add < (delta_time) and not (
-                rider.button_pressed_up or rider.button_pressed_down
-            ):
+            if rider.when_to_add < (delta_time) and not (rider.button_pressed):
                 rider.press_button_new(elevator_bank)
                 break  # only add one new destination at a time
 
@@ -121,40 +119,6 @@ class Elevator:
         log.append(",".join(rider_names_to_remove))
         return ";".join([str(log_element) for log_element in log])
 
-    def let_riders_out(
-        self,
-        rider_list,
-        start_stop_delays,
-        start_step_delays,
-    ):
-        riders_to_remove = []
-        rider_names_to_remove = []
-        door_open = False
-        if self.floor in self.internal_destinations:
-            self.internal_destinations.remove(self.floor)  # ding, we stop
-            for rider in self.riders:  # can we DRY?
-                if rider.destination == self.floor:
-                    riders_to_remove.append(rider)
-                    rider_names_to_remove.append(str(rider))
-                    rider_list.remove(rider)
-                    rider.step_out(start_stop_delays, start_step_delays)
-                    door_open = True
-
-        for rider in riders_to_remove:
-            self.riders.remove(rider)
-
-        # check if the rider who got off was the last one
-        if not rider_list:
-            if not (self.direction == 0):
-                self.log = self.log_movement(
-                    [],
-                    rider_names_to_remove,
-                )
-                print(self.log)
-                sleep(self.door_delay)
-                self.direction = 0
-        return door_open, rider_names_to_remove
-
     def let_riders_out_new(
         self,
         rider_list,
@@ -166,6 +130,10 @@ class Elevator:
         door_open = False
         if self.floor in self.internal_destinations:
             self.internal_destinations.remove(self.floor)  # ding, we stop
+            try:
+                self.external_destinations.remove(self.floor)
+            except KeyError:
+                print(f"external dest not found when rider stepping out")
             for rider in self.riders:  # can we DRY?
                 if rider.destination == self.floor:
                     riders_to_remove.append(rider)
@@ -186,109 +154,47 @@ class Elevator:
                 )
                 print(self.log)
                 sleep(self.door_delay)
-                self.direction = 0
+                # self.direction = 0
         return door_open, rider_names_to_remove
 
-    def update_direction(self, floor_dict):
-        keep_going_down = False
-        keep_going_up = False
-        if self.internal_destinations:
-            pass
-        else:
-            for floor in floor_dict.values():
-                if keep_going_down and keep_going_up:
-                    break
-                if floor.number > self.floor and (
-                    floor.up_request or floor.down_request
-                ):
-                    keep_going_up = True
-                elif floor.number < self.floor and (
-                    floor.up_request or floor.down_request
-                ):
-                    keep_going_down = True
-                elif floor.number == self.floor and (
-                    self.direction > -1 and floor.up_request
-                ):
-                    keep_going_up = True
-                elif floor.number == self.floor and (
-                    self.direction < 1 and floor.down_request
-                ):
-                    keep_going_down = True
-                else:
-                    continue
-
-            if (keep_going_down and self.direction == -1) or (
-                keep_going_up and self.direction == 1
-            ):
-                pass
-            elif (keep_going_down and self.direction == 1) or (
-                keep_going_up and self.direction == -1
-            ):
-                self.direction = self.direction * -1
-            elif self.direction == 0 and keep_going_down:
-                self.direction = -1
-            elif self.direction == 0 and keep_going_up:
-                self.direction = 1
-            else:
-                self.direction = 0
-
     def update_direction_new(self, e_bank: ElevatorBank):
-        if self.internal_destinations or (
-            self.external_destinations and self.direction != 0
-        ):
+        if (
+            self.internal_destinations or self.external_destinations
+        ) and self.direction != 0:
+            print(
+                f"internal dest {self.internal_destinations} or external dest {self.external_destinations} w dir"
+            )
             pass
         elif self.external_destinations and self.direction == 0:
+            print(f"ext dest {self.external_destinations} but stationary")
             if (
                 list(self.external_destinations)[0] > self.floor
             ):  # assuming only one external dest would be added at once
                 self.direction = 1
             elif list(self.external_destinations)[0] < self.floor:
                 self.direction = -1
-        elif not e_bank.queue.empty():
-            next_floor = e_bank.queue.get()
-            if next_floor > self.floor:
+        elif self.internal_destinations and self.direction == 0:
+            print(f"internal dest {self.internal_destinations} but stationary")
+            if (
+                list(self.internal_destinations)[0] > self.floor
+            ):  # assuming only one external dest would be added at once
                 self.direction = 1
-                self.external_destinations.add(next_floor)
-                e_bank.queue.remove(next_floor)
-            elif next_floor < self.floor:
+            elif list(self.internal_destinations)[0] < self.floor:
                 self.direction = -1
-                self.external_destinations.add(next_floor)
-                e_bank.queue.remove(next_floor)
+        elif not e_bank.queue.empty():
+            print("went to elev queue")
+            try:
+                next_floor = e_bank.queue.get()
+                if next_floor > self.floor:
+                    self.direction = 1
+                    self.external_destinations.add(next_floor)
+                elif next_floor < self.floor:
+                    self.direction = -1
+                    self.external_destinations.add(next_floor)
+            except Empty:
+                pass
         else:
             self.direction = 0
-
-    def let_riders_in(self, floor_dict):
-        clear_up_button = False
-        clear_down_button = False
-        door_open = False
-        riders_to_step_in = []
-        rider_names_to_add = []
-        for rider in floor_dict[self.floor].riders:
-            if self.direction == 1 and rider.destination > self.floor:  # going up
-                rider.step_in(self)
-                rider_names_to_add.append(str(rider))
-                self.internal_destinations.add(rider.destination)
-                riders_to_step_in.append(rider)
-                clear_up_button = True
-                door_open = True
-            elif self.direction == -1 and rider.destination < self.floor:  # going down
-                rider.step_in(self)
-                rider_names_to_add.append(str(rider))
-                self.internal_destinations.add(rider.destination)
-                riders_to_step_in.append(rider)
-                clear_down_button = True
-                door_open = True
-            else:
-                pass
-        # remove Rider from Floor if they are going in Elevator
-        floor_dict[self.floor].riders = [
-            e for e in floor_dict[self.floor].riders if e not in riders_to_step_in
-        ]
-        if clear_up_button:
-            floor_dict[self.floor].up_request = False
-        if clear_down_button:
-            floor_dict[self.floor].down_request = False
-        return door_open, rider_names_to_add
 
     def let_riders_in_new(self, floor_dict):
         clear_up_button = False
@@ -297,7 +203,7 @@ class Elevator:
         riders_to_step_in = []
         rider_names_to_add = []
         for rider in floor_dict[self.floor].riders:
-            if self.direction == 1 and rider.destination > self.floor:  # going up
+            if self.direction > -1 and rider.destination > self.floor:  # going up
                 rider.step_in(self)
                 rider_names_to_add.append(str(rider))
                 self.internal_destinations.add(rider.destination)
@@ -308,7 +214,7 @@ class Elevator:
                 riders_to_step_in.append(rider)
                 clear_up_button = True
                 door_open = True
-            elif self.direction == -1 and rider.destination < self.floor:  # going down
+            elif self.direction < 1 and rider.destination < self.floor:  # going down
                 rider.step_in(self)
                 rider_names_to_add.append(str(rider))
                 self.internal_destinations.add(rider.destination)
@@ -369,6 +275,7 @@ class Rider:
         self.step_in_time = 0
         self.end_time = 0
         self.is_in_elevator = False
+        self.button_pressed = False
         self.button_pressed_up = False
         self.button_pressed_down = False
 
