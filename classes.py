@@ -73,7 +73,6 @@ class Elevator:
         self.capacity = capacity
         self.direction = 0  # 0 for stationary, 1 for up, -1 for down
         self.internal_destinations = set()  # Set of ints. Can we type this?
-        self.external_destinations = set()
         self.door_delay = 1
         self.elevator_delay = 0.5
         self.riders = []  # list of Riders
@@ -165,20 +164,12 @@ class Elevator:
                 if rider.destination == self.floor:
                     riders_to_remove.append(rider)
                     rider_names_to_remove.append(str(rider))
-                    # try:
                     rider_list.remove(rider)
-                    # except ValueError:
-                    #   pass
-                    rider.step_out(start_stop_delays, start_step_delays)
+                    rider.log_time(start_stop_delays, start_step_delays)
                     door_open = True
 
         for rider in riders_to_remove:
             self.riders.remove(rider)
-
-        # check if the rider who got off was the last one
-        # if not rider_list:
-        #     if not (self.direction == 0):
-        #         self.direction = 0
         return door_open, rider_names_to_remove
 
     def update_direction(self, floor_dict):
@@ -263,30 +254,6 @@ class Elevator:
         return door_open, rider_names_to_add
 
 
-class NormalElevator(Elevator):
-    def __init__(self, capacity: int, floor):
-        self.floor = floor
-        self.capacity = capacity
-        self.direction = 0  # 0 for stationary, 1 for up, -1 for down
-        self.internal_destinations = set(int)  # Set of ints
-        self.door_delay = 1
-        self.elevator_delay = 0.5
-        self.riders = []  # list of Riders
-        self.log = []  # list of strs to log what elevator did
-
-
-class DestinationElevator(Elevator):
-    def __init__(self, capacity: int, floor):
-        self.floor = floor
-        self.capacity = capacity
-        self.direction = 0  # 0 for stationary, 1 for up, -1 for down
-        self.destination = -1  # current dispatched destination
-        self.door_delay = 1
-        self.elevator_delay = 0.5
-        self.riders = []  # list of Riders
-        self.log = []  # list of strs to log what elevator did
-
-
 class Rider:
     def __init__(self, name, destination, start_floor):
         self.name = name
@@ -316,15 +283,13 @@ class Rider:
             elev.riders.append(self)
             return True
 
-    def step_in_no_capacity_check(
-        self, elev
-    ):  # elevator should stop for a time even if full
+    def step_in_no_capacity_check(self, elev):
         self.step_in_time = time()
         self.is_in_elevator = True
         elev.riders.append(self)
         return True
 
-    def step_out(self, start_stop_delays, start_step_delays):
+    def log_time(self, start_stop_delays, start_step_delays):
         self.end_time = time()
         start_stop_delays.append(self.end_time - self.start_time)
         start_step_delays.append(self.step_in_time - self.start_time)
@@ -336,58 +301,6 @@ class Rider:
             floor_dict[self.start_floor].up_request = True
         else:
             floor_dict[self.start_floor].down_request = True
-
-    def press_button_new(self, e_bank: ElevatorBank):
-        nearest_elevator = self.find_nearest_available_elevator(e_bank)
-        if nearest_elevator:
-            nearest_elevator.external_destinations.append(self.start_floor)
-
-    def find_nearest_available_elevator(self, elevator_bank: ElevatorBank) -> Elevator:
-        """
-        Returns the Elevator object that is the nearest (in terms of Floors)
-        elevator that can pick up a rider. Elevator will probably be stationary,
-        but can also return an Elevator that is on its way to the Rider's Floor,
-        meaning has the proper direction and has a destination past the Rider's
-        floor.
-
-        If two elevators are equidistant then the higher elevator
-        gets preference.
-
-        Used for an elevator bank.
-        """
-        available_elevators = []
-        for e in elevator_bank.elevators:
-            if e.direction == 0:
-                available_elevators.append(e)
-            if (
-                self.destination > self.start_floor
-                and (e.direction == 1)  # elevator going up
-                and (e.floor < self.start_floor)
-            ):
-                available_elevators.append(e)
-            if (
-                self.destination < self.start_floor
-                and (e.direction == -1)  # elevator going down
-                and (e.floor > self.start_floor)
-            ):
-                available_elevators.append(e)
-
-        if not available_elevators:
-            elevator_bank.queue.put(self.start_floor)
-            return
-
-        min_distance = abs(
-            min(
-                available_elevators, key=lambda x: abs(x.floor - self.start_floor)
-            ).floor
-            - self.start_floor
-        )
-        for e in available_elevators:  # higher elevators win tiebreaker
-            if e.floor - self.start_floor == min_distance:
-                return e
-        for e in available_elevators:
-            if self.start_floor - e.floor == min_distance:
-                return e
 
 
 class Floor:
