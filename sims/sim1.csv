@@ -1,5 +1,13 @@
 name,start_floor,destination,when_to_add
-Joe,2,9,3
+Joe,2,9,2
+3Joe,2,9,3
+EvilJ33oe,8,6,3
+E3vilJoe,1,2,3
+Evi2lJoe,9,2,3
+EvilfJdoe,5,9,3
+EvilsJoe,5,2,3
+EvilJoe,2,9,3
 Bob,5,2,2
 Jane,1,2,10
-Mark,1,10,50
+Mark,1,10,30
+placeholder,1,10,35
