@@ -9,8 +9,8 @@ import threading
 
 
 class ElevatorBank:
-    def __init__(self, e_bank):
-        self.elevators = e_bank
+    def __init__(self, elevator_list):
+        self.elevators = elevator_list
         self.queue = Queue()  # floors that don't have an elevator going to them yet
         self.begin_time = time()
 
@@ -297,12 +297,6 @@ class Rider:
         self.end_time = time()
         start_stop_delays.append(self.end_time - self.start_time)
         start_step_delays.append(self.step_in_time - self.start_time)
-
-    def press_button(self, floor_dict):
-        if self.start_floor < self.destination:
-            floor_dict[self.start_floor].up_request = True
-        else:
-            floor_dict[self.start_floor].down_request = True
 
     def press_button_new(self, e_bank: ElevatorBank):
         self.button_pressed = True
