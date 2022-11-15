@@ -82,7 +82,6 @@ class Elevator:
                 start_stop_delays,
                 start_step_delays,
             )
-            # self.update_direction(floor_dict)
             self.update_direction_new(e_bank)
             door_open_in, rider_names_to_add = self.let_riders_in_new(floor_dict)
             self.log = self.log_movement(
@@ -92,32 +91,6 @@ class Elevator:
             self.floor += self.direction
             self.simulate_delays(door_open_in, door_open_out)
             print(self.log)
-
-    def simulate_delays(self, door_open_in, door_open_out):
-        if door_open_in or door_open_out:
-            sleep(self.door_delay)
-        sleep(self.elevator_delay)
-
-    def check_for_new_riders(self, rider_list_csv, elevator_bank):
-        for rider in rider_list_csv:
-            delta_time = time() - elevator_bank.begin_time
-            if rider.when_to_add < (delta_time) and not (rider.button_pressed):
-                rider.press_button_new(elevator_bank)
-                break  # only add one new destination at a time
-
-    def log_movement(
-        self,
-        rider_names_to_add,
-        rider_names_to_remove,
-    ):
-        log = []
-        rider_names_to_add.sort()
-        rider_names_to_remove.sort()
-        log.append(self.floor)
-        log.append(self.direction)
-        log.append(",".join(rider_names_to_add))
-        log.append(",".join(rider_names_to_remove))
-        return ";".join([str(log_element) for log_element in log])
 
     def let_riders_out_new(
         self,
@@ -207,10 +180,6 @@ class Elevator:
                 rider.step_in(self)
                 rider_names_to_add.append(str(rider))
                 self.internal_destinations.add(rider.destination)
-                try:
-                    self.external_destinations.remove(self.floor)
-                except KeyError:
-                    print(f"Rider {rider.name} was added but didnt call this elevator")
                 riders_to_step_in.append(rider)
                 clear_up_button = True
                 door_open = True
@@ -218,15 +187,15 @@ class Elevator:
                 rider.step_in(self)
                 rider_names_to_add.append(str(rider))
                 self.internal_destinations.add(rider.destination)
-                try:
-                    self.external_destinations.remove(self.floor)
-                except KeyError:
-                    print(f"Rider {rider.name} was added but didnt call this elevator")
                 riders_to_step_in.append(rider)
                 clear_down_button = True
                 door_open = True
             else:
                 pass
+        try:
+            self.external_destinations.remove(self.floor)
+        except KeyError:
+            pass
         # remove Rider from Floor if they are going in Elevator
         floor_dict[self.floor].riders = [
             e for e in floor_dict[self.floor].riders if e not in riders_to_step_in
@@ -236,6 +205,32 @@ class Elevator:
         if clear_down_button:
             floor_dict[self.floor].down_request = False
         return door_open, rider_names_to_add
+
+    def simulate_delays(self, door_open_in, door_open_out):
+        if door_open_in or door_open_out:
+            sleep(self.door_delay)
+        sleep(self.elevator_delay)
+
+    def check_for_new_riders(self, rider_list_csv, elevator_bank):
+        for rider in rider_list_csv:
+            delta_time = time() - elevator_bank.begin_time
+            if rider.when_to_add < (delta_time) and not (rider.button_pressed):
+                rider.press_button_new(elevator_bank)
+                break  # only add one new destination at a time
+
+    def log_movement(
+        self,
+        rider_names_to_add,
+        rider_names_to_remove,
+    ):
+        log = []
+        rider_names_to_add.sort()
+        rider_names_to_remove.sort()
+        log.append(self.floor)
+        log.append(self.direction)
+        log.append(",".join(rider_names_to_add))
+        log.append(",".join(rider_names_to_remove))
+        return ";".join([str(log_element) for log_element in log])
 
 
 class NormalElevator(Elevator):
