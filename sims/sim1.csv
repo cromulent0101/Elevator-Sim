@@ -1,4 +1,6 @@
 name,start_floor,destination,when_to_add
-Joe,5,9,3
-Bob,6,2,3
-Jane,1,2,50
+Joe,4,1,30
+Bob,6,3,3
+Ron,9,3,3
+Sam,1,9,1
+Jane,1,2,500
