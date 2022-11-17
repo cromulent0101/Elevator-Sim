@@ -20,7 +20,7 @@ import tkinter as tk
 #     Rider("Jimmy", 5, 9),
 #     Rider("Jill", 9, 5),
 # ]
-rider_list = utils.get_riders_from_csv("sims/sim1.csv")
+rider_list_csv = utils.get_riders_from_csv("sims/sim1.csv")
 # create an elevator at a random floor
 e = Elevator(3, 12)
 t = Elevator(3, 3)
@@ -33,11 +33,13 @@ bank = ElevatorBank(e_bank)
 start_stop_delays = []
 start_step_delays = []
 
-floor_dict = utils.create_floors(rider_list, e_bank, bank)
+floor_dict = utils.create_floors(rider_list_csv, e_bank, bank)
 
 # arbitrarily choose elevator to go up first
 
-start_step_delays, start_stop_delays, log_dict = bank.simulate(rider_list, floor_dict)
+start_step_delays, start_stop_delays, log_dict = bank.simulate(
+    rider_list_csv, floor_dict
+)
 
 
 print(f"Average total wait: {mean(start_stop_delays)}")

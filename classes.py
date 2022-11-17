@@ -88,7 +88,9 @@ class Elevator:
         """
         while not floor_dict["done"]:
             # checking for new riders can be refactored out of Elevator
-            self.check_for_new_riders(rider_list_csv, e_bank, floor_dict)
+            print(rider_list_csv)
+            print(rider_list)
+            self.check_for_new_riders(rider_list_csv, e_bank, floor_dict, rider_list)
             for rider in self.riders:
                 rider.curr_floor = self.floor
 
@@ -217,12 +219,15 @@ class Elevator:
             sleep(self.door_delay)
         sleep(self.elevator_delay)
 
-    def check_for_new_riders(self, rider_list_csv, elevator_bank, floor_dict):
+    def check_for_new_riders(
+        self, rider_list_csv, elevator_bank, floor_dict, rider_list
+    ):
         if not rider_list_csv:
             floor_dict["done"] = True
         for rider in rider_list_csv:
             delta_time = time() - elevator_bank.begin_time
             if rider.when_to_add < (delta_time) and not (rider.button_pressed):
+                rider_list.append(rider)
                 floor_dict[rider.start_floor].riders.append(rider)
                 rider.press_button_new(elevator_bank)
                 rider_list_csv.remove(rider)
