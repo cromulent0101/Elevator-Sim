@@ -18,18 +18,20 @@ class ElevatorBank:
         threads = []
         start_stop_delays = []
         start_step_delays = []
+        rider_list = []
         log_dict = {}
-
+        floor_dict["done"] = False
         for e in self.elevators:
             t1 = threading.Thread(
                 target=e.elevate,
                 args=[
-                    rider_list_csv,
+                    rider_list,
                     floor_dict,
                     start_stop_delays,
                     start_step_delays,
                     self,
                     log_dict,
+                    rider_list_csv,
                 ],
             )
             log_dict[t1.name] = []
@@ -75,6 +77,7 @@ class Elevator:
         start_step_delays,
         e_bank,
         log_dict,
+        rider_list_csv,
     ):
         """
         Tells an elevator to pick up and drop off passengers
@@ -83,9 +86,9 @@ class Elevator:
         Returns a string that represents the actions taken by
         the elevator.
         """
-        while True:
+        while not floor_dict["done"]:
             # checking for new riders can be refactored out of Elevator
-            self.check_for_new_riders(rider_list, e_bank, floor_dict)
+            self.check_for_new_riders(rider_list_csv, e_bank, floor_dict)
             for rider in self.riders:
                 rider.curr_floor = self.floor
 
@@ -121,12 +124,12 @@ class Elevator:
             self.riders.remove(rider)
 
         # check if the rider who got off was the last one
-        if not rider_list:
-            if not (self.direction == 0):
-                self.log = self.log_movement([], rider_names_to_remove, log_dict)
-                print(self.log)
-                sleep(self.door_delay)
-                # self.direction = 0
+        # if not rider_list:
+        #     if not (self.direction == 0):
+        #         self.log = self.log_movement([], rider_names_to_remove, log_dict)
+        #         print(self.log)
+        #         sleep(self.door_delay)
+        #         # self.direction = 0
         return door_open, rider_names_to_remove
 
     def update_direction_new(self, e_bank: ElevatorBank):
@@ -215,11 +218,14 @@ class Elevator:
         sleep(self.elevator_delay)
 
     def check_for_new_riders(self, rider_list_csv, elevator_bank, floor_dict):
+        if not rider_list_csv:
+            floor_dict["done"] = True
         for rider in rider_list_csv:
             delta_time = time() - elevator_bank.begin_time
             if rider.when_to_add < (delta_time) and not (rider.button_pressed):
                 floor_dict[rider.start_floor].riders.append(rider)
                 rider.press_button_new(elevator_bank)
+                rider_list_csv.remove(rider)
 
     def log_movement(self, rider_names_to_add, rider_names_to_remove, log_dict):
         log_str = []
