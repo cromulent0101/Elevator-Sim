@@ -18,6 +18,8 @@ class ElevatorBank:
         threads = []
         start_stop_delays = []
         start_step_delays = []
+        log_dict = {}
+
         for e in self.elevators:
             t1 = threading.Thread(
                 target=e.elevate,
@@ -27,12 +29,16 @@ class ElevatorBank:
                     start_stop_delays,
                     start_step_delays,
                     self,
+                    log_dict,
                 ],
             )
+            log_dict[t1.name] = []
             t1.start()
             threads.append(t1)
         for t in threads:  # TODO: investigate asyncio.gather()
             t.join()
+
+        return start_step_delays, start_stop_delays, log_dict
 
 
 class Elevator:
@@ -62,7 +68,13 @@ class Elevator:
         return f"Elevator is on {self.floor} and direction {self.direction}"
 
     def elevate(
-        self, rider_list, floor_dict, start_stop_delays, start_step_delays, e_bank
+        self,
+        rider_list,
+        floor_dict,
+        start_stop_delays,
+        start_step_delays,
+        e_bank,
+        log_dict,
     ):
         """
         Tells an elevator to pick up and drop off passengers
@@ -78,35 +90,25 @@ class Elevator:
                 rider.curr_floor = self.floor
 
             door_open_out, rider_names_to_remove = self.let_riders_out_new(
-                rider_list,
-                start_stop_delays,
-                start_step_delays,
+                rider_list, start_stop_delays, start_step_delays, log_dict
             )
             self.update_direction_new(e_bank)
             door_open_in, rider_names_to_add = self.let_riders_in_new(floor_dict)
             self.log = self.log_movement(
-                rider_names_to_add,
-                rider_names_to_remove,
+                rider_names_to_add, rider_names_to_remove, log_dict
             )
             self.floor += self.direction
             self.simulate_delays(door_open_in, door_open_out)
             print(self.log)
 
     def let_riders_out_new(
-        self,
-        rider_list,
-        start_stop_delays,
-        start_step_delays,
+        self, rider_list, start_stop_delays, start_step_delays, log_dict
     ):
         riders_to_remove = []
         rider_names_to_remove = []
         door_open = False
         if self.floor in self.internal_destinations:
             self.internal_destinations.remove(self.floor)  # ding, we stop
-            # try:
-            #     self.external_destinations.remove(self.floor)
-            # except KeyError:
-            #     print(f"external dest not found when rider stepping out")
             for rider in self.riders:  # can we DRY?
                 if rider.destination == self.floor:
                     riders_to_remove.append(rider)
@@ -121,10 +123,7 @@ class Elevator:
         # check if the rider who got off was the last one
         if not rider_list:
             if not (self.direction == 0):
-                self.log = self.log_movement(
-                    [],
-                    rider_names_to_remove,
-                )
+                self.log = self.log_movement([], rider_names_to_remove, log_dict)
                 print(self.log)
                 sleep(self.door_delay)
                 # self.direction = 0
@@ -222,19 +221,18 @@ class Elevator:
                 floor_dict[rider.start_floor].riders.append(rider)
                 rider.press_button_new(elevator_bank)
 
-    def log_movement(
-        self,
-        rider_names_to_add,
-        rider_names_to_remove,
-    ):
-        log = []
+    def log_movement(self, rider_names_to_add, rider_names_to_remove, log_dict):
+        log_str = []
         rider_names_to_add.sort()
         rider_names_to_remove.sort()
-        log.append(self.floor)
-        log.append(self.direction)
-        log.append(",".join(rider_names_to_add))
-        log.append(",".join(rider_names_to_remove))
-        return ";".join([str(log_element) for log_element in log])
+        log_str.append(self.floor)
+        log_str.append(self.direction)
+        log_str.append(",".join(rider_names_to_add))
+        log_str.append(",".join(rider_names_to_remove))
+        log_dict[threading.current_thread().name].append(
+            ";".join([str(log_element) for log_element in log_str])
+        )
+        return ";".join([str(log_element) for log_element in log_str])
 
 
 class NormalElevator(Elevator):

@@ -27,7 +27,7 @@ t = Elevator(3, 3)
 e.direction = -1
 t.direction = 1
 
-e_bank = [e, t]
+e_bank = [e]
 bank = ElevatorBank(e_bank)
 
 start_stop_delays = []
@@ -37,10 +37,11 @@ floor_dict = utils.create_floors(rider_list, e_bank, bank)
 
 # arbitrarily choose elevator to go up first
 
-bank.simulate(rider_list, floor_dict)
+start_step_delays, start_stop_delays, log_dict = bank.simulate(rider_list, floor_dict)
 
 
 print(f"Average total wait: {mean(start_stop_delays)}")
 print(f"Median total wait: {median(start_stop_delays)}")
 print(f"Average floor wait: {mean(start_step_delays)}")
 print(f"Median floor wait : {median(start_step_delays)}")
+print(log_dict)
