@@ -73,7 +73,7 @@ class Elevator:
         """
         while True:
             # checking for new riders can be refactored out of Elevator
-            self.check_for_new_riders(rider_list, e_bank)
+            self.check_for_new_riders(rider_list, e_bank, floor_dict)
             for rider in self.riders:
                 rider.curr_floor = self.floor
 
@@ -103,10 +103,10 @@ class Elevator:
         door_open = False
         if self.floor in self.internal_destinations:
             self.internal_destinations.remove(self.floor)  # ding, we stop
-            try:
-                self.external_destinations.remove(self.floor)
-            except KeyError:
-                print(f"external dest not found when rider stepping out")
+            # try:
+            #     self.external_destinations.remove(self.floor)
+            # except KeyError:
+            #     print(f"external dest not found when rider stepping out")
             for rider in self.riders:  # can we DRY?
                 if rider.destination == self.floor:
                     riders_to_remove.append(rider)
@@ -132,14 +132,16 @@ class Elevator:
 
     def update_direction_new(self, e_bank: ElevatorBank):
         if (
-            self.internal_destinations or self.external_destinations
-        ) and self.direction != 0:
-            print(
-                f"internal dest {self.internal_destinations} or external dest {self.external_destinations} w dir"
-            )
+            (self.internal_destinations or self.external_destinations)
+            and self.direction != 0
+            and not self.floor in self.external_destinations
+        ):
+            # #print(
+            #     f"internal dest {self.internal_destinations} or external dest {self.external_destinations} w dir"
+            # )
             pass
         elif self.external_destinations and self.direction == 0:
-            print(f"ext dest {self.external_destinations} but stationary")
+            # print(f"ext dest {self.external_destinations} but stationary")
             if (
                 list(self.external_destinations)[0] > self.floor
             ):  # assuming only one external dest would be added at once
@@ -147,15 +149,17 @@ class Elevator:
             elif list(self.external_destinations)[0] < self.floor:
                 self.direction = -1
         elif self.internal_destinations and self.direction == 0:
-            print(f"internal dest {self.internal_destinations} but stationary")
+            # print(f"internal dest {self.internal_destinations} but stationary")
             if (
                 list(self.internal_destinations)[0] > self.floor
             ):  # assuming only one external dest would be added at once
                 self.direction = 1
             elif list(self.internal_destinations)[0] < self.floor:
                 self.direction = -1
+        elif self.floor in self.external_destinations:
+            self.direction = 0
         elif not e_bank.queue.empty():
-            print("went to elev queue")
+            # print("went to elev queue")
             try:
                 next_floor = e_bank.queue.get()
                 if next_floor > self.floor:
@@ -211,12 +215,12 @@ class Elevator:
             sleep(self.door_delay)
         sleep(self.elevator_delay)
 
-    def check_for_new_riders(self, rider_list_csv, elevator_bank):
+    def check_for_new_riders(self, rider_list_csv, elevator_bank, floor_dict):
         for rider in rider_list_csv:
             delta_time = time() - elevator_bank.begin_time
             if rider.when_to_add < (delta_time) and not (rider.button_pressed):
+                floor_dict[rider.start_floor].riders.append(rider)
                 rider.press_button_new(elevator_bank)
-                break  # only add one new destination at a time
 
     def log_movement(
         self,
