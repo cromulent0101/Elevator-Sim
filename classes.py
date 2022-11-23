@@ -146,28 +146,9 @@ class Elevator:
         return door_open, rider_names_to_remove
 
     def update_direction_new(self, e_bank: ElevatorBank):
-        if self.external_destinations and self.direction == 0:
-            # print(f"ext dest {self.external_destinations} but stationary")
-            if (
-                list(self.external_destinations)[0] > self.floor
-            ):  # assuming only one external dest would be added at once
-                self.direction = 1
-            elif list(self.external_destinations)[0] < self.floor:
-                self.direction = -1
-        elif self.internal_destinations and self.direction == 0:
-            # print(f"internal dest {self.internal_destinations} but stationary")
-            if (
-                list(self.internal_destinations)[0] > self.floor
-            ):  # assuming only one external dest would be added at once
-                self.direction = 1
-            elif list(self.internal_destinations)[0] < self.floor:
-                self.direction = -1
-        elif self.floor in self.external_destinations:
-            self.external_destinations.remove(self.floor)
-            self.direction = 0
-        elif not e_bank.queue.empty() and not (
-            self.internal_destinations or self.external_destinations
-        ):
+        if self.internal_destinations or self.external_destinations:
+            pass
+        elif not e_bank.queue.empty():
             print("went to elev queue")
             try:
                 next_floor = e_bank.queue.get()
@@ -180,7 +161,7 @@ class Elevator:
             except Empty:
                 pass
         else:
-            pass
+            self.direction = 0
 
     def let_riders_in_new(self, floor_dict, e_bank):
         door_open = False
