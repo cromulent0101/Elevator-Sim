@@ -17,7 +17,8 @@ full_rider_list = utils.get_riders_from_csv("sims/100random.csv")
 
 e = Elevator(100, 80)
 t = Elevator(100, 3)
-
+e.direction = -1
+t.direction = 1
 
 e_bank = [e, t]
 bank = ElevatorBank(e_bank)
