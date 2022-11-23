@@ -112,7 +112,9 @@ class Elevator:
                 rider_list, start_stop_delays, start_step_delays, log_dict
             )
             self.update_direction_new(e_bank)
-            door_open_in, rider_names_to_add = self.let_riders_in_new(floor_dict)
+            door_open_in, rider_names_to_add = self.let_riders_in_new(
+                floor_dict, e_bank
+            )
             self.log = self.log_movement(
                 rider_names_to_add, rider_names_to_remove, log_dict
             )
@@ -180,41 +182,34 @@ class Elevator:
         else:
             pass
 
-    def let_riders_in_new(self, floor_dict):
-        clear_up_button = False
-        clear_down_button = False
+    def let_riders_in_new(self, floor_dict, e_bank):
         door_open = False
         riders_to_step_in = []
         rider_names_to_add = []
+        try:
+            self.external_destinations.remove(self.floor)
+        except KeyError:
+            pass
         for rider in floor_dict[self.floor].riders:
             if self.direction > -1 and rider.destination > self.floor:  # going up
                 rider.step_in(self)
                 rider_names_to_add.append(str(rider))
                 self.internal_destinations.add(rider.destination)
                 riders_to_step_in.append(rider)
-                clear_up_button = True
                 door_open = True
             elif self.direction < 1 and rider.destination < self.floor:  # going down
                 rider.step_in(self)
                 rider_names_to_add.append(str(rider))
                 self.internal_destinations.add(rider.destination)
                 riders_to_step_in.append(rider)
-                clear_down_button = True
                 door_open = True
-            else:
-                pass
-        try:
-            self.external_destinations.remove(self.floor)
-        except KeyError:
-            pass
+            else:  # if there's an elevator at our floor but not in right direction
+                rider.press_button_new(e_bank)
+
         # remove Rider from Floor if they are going in Elevator
         floor_dict[self.floor].riders = [
             e for e in floor_dict[self.floor].riders if e not in riders_to_step_in
         ]
-        if clear_up_button:
-            floor_dict[self.floor].up_request = False
-        if clear_down_button:
-            floor_dict[self.floor].down_request = False
         return door_open, rider_names_to_add
 
     def simulate_delays(self, door_open_in, door_open_out):

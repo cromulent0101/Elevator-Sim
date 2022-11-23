@@ -12,14 +12,16 @@ import concurrent.futures
 import tkinter as tk
 
 
-rider_list_csv = utils.get_riders_from_csv("sims/sim1.csv")
+rider_list_csv = utils.get_riders_from_csv("sims/opposite_dirs.csv")
 
-e = Elevator(3, 12)
+e = Elevator(3, 8)
 t = Elevator(3, 3)
-e.direction = -1
-t.direction = 0
+stationary = Elevator(3, 3)
+e.direction = 1
+t.direction = -1
+stationary.direction = 0
 
-e_bank = [t]
+e_bank = [e, stationary, t]
 bank = ElevatorBank(e_bank)
 
 start_stop_delays = []
