@@ -40,6 +40,7 @@ class ElevatorBank:
                 ],
             )
             log_dict[t1.name] = []
+            sleep(0.1)
             t1.start()
             threads.append(t1)
         for t in threads:  # TODO: investigate asyncio.gather()
@@ -118,8 +119,6 @@ class Elevator:
             self.log = self.log_movement(
                 rider_names_to_add, rider_names_to_remove, log_dict
             )
-            print(self.external_destinations)
-            print(self.internal_destinations)
             self.floor += self.direction
             self.simulate_delays(door_open_in, door_open_out)
             print(self.log)
