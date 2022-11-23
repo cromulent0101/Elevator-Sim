@@ -130,6 +130,10 @@ class Elevator:
         riders_to_remove = []
         rider_names_to_remove = []
         door_open = False
+        try:
+            self.external_destinations.remove(self.floor)
+        except KeyError:
+            pass
         if self.floor in self.internal_destinations:
             self.internal_destinations.remove(self.floor)  # ding, we stop
             for rider in self.riders:  # can we DRY?
@@ -167,10 +171,7 @@ class Elevator:
         door_open = False
         riders_to_step_in = []
         rider_names_to_add = []
-        try:
-            self.external_destinations.remove(self.floor)
-        except KeyError:
-            pass
+
         for rider in floor_dict[self.floor].riders:
             if self.direction > -1 and rider.destination > self.floor:  # going up
                 rider.step_in(self)
@@ -178,12 +179,14 @@ class Elevator:
                 self.internal_destinations.add(rider.destination)
                 riders_to_step_in.append(rider)
                 door_open = True
+                self.direction = 1
             elif self.direction < 1 and rider.destination < self.floor:  # going down
                 rider.step_in(self)
                 rider_names_to_add.append(str(rider))
                 self.internal_destinations.add(rider.destination)
                 riders_to_step_in.append(rider)
                 door_open = True
+                self.direction = -1
             else:  # if there's an elevator at our floor but not in right direction
                 rider.press_button_new(e_bank)
 
