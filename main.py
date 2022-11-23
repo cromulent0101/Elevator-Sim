@@ -21,7 +21,7 @@ e.direction = 1
 t.direction = -1
 stationary.direction = 0
 
-e_bank = [e, t]
+e_bank = [e]
 bank = ElevatorBank(e_bank)
 
 start_stop_delays = []

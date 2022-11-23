@@ -150,20 +150,21 @@ class Elevator:
         return door_open, rider_names_to_remove
 
     def update_direction_new(self, e_bank: ElevatorBank):
-        if self.internal_destinations or self.external_destinations:
+        if self.direction == 0:
+            if not e_bank.queue.empty():
+                print("went to elev queue")
+                try:
+                    next_floor = e_bank.queue.get()
+                    if next_floor > self.floor:
+                        self.direction = 1
+                        self.external_destinations.add(next_floor)
+                    elif next_floor < self.floor:
+                        self.direction = -1
+                        self.external_destinations.add(next_floor)
+                except Empty:
+                    pass
+        elif self.internal_destinations or self.external_destinations:
             pass
-        elif not e_bank.queue.empty():
-            print("went to elev queue")
-            try:
-                next_floor = e_bank.queue.get()
-                if next_floor > self.floor:
-                    self.direction = 1
-                    self.external_destinations.add(next_floor)
-                elif next_floor < self.floor:
-                    self.direction = -1
-                    self.external_destinations.add(next_floor)
-            except Empty:
-                pass
         else:
             self.direction = 0
 
@@ -296,9 +297,9 @@ class Rider:
         """
         available_elevators = []
         for e in elevator_bank.elevators:
-            if e.direction == 0:
-                available_elevators.append(e)
-            elif (
+            # if e.direction == 0:
+            #     available_elevators.append(e)
+            if (
                 self.destination > self.start_floor
                 and (e.direction == 1)  # elevator going up
                 and (e.floor < self.start_floor)
