@@ -1,7 +1,7 @@
+# pylint: disable=import-error
 from dataclasses import dataclass
 from time import sleep, time
 from sys import maxsize
-from queue import Queue, Empty
 import csv
 from typing import Set
 import tkinter as tk
@@ -152,17 +152,18 @@ class Elevator:
         if self.direction == 0:
             if e_bank.queue:
                 print("went to elev queue")
+                next_floor = self.find_nearest_floor(
+                    list(e_bank.queue)
+                )  # this can be improved to get nearest floor
+                if next_floor > self.floor:
+                    self.direction = 1
+                    self.external_destinations.add(next_floor)
+                elif next_floor < self.floor:
+                    self.direction = -1
+                    self.external_destinations.add(next_floor)
                 try:
-                    next_floor = (
-                        e_bank.queue.pop()
-                    )  # this can be improved to get nearest floor
-                    if next_floor > self.floor:
-                        self.direction = 1
-                        self.external_destinations.add(next_floor)
-                    elif next_floor < self.floor:
-                        self.direction = -1
-                        self.external_destinations.add(next_floor)
-                except Empty:
+                    e_bank.queue.remove(next_floor)
+                except KeyError:
                     pass
         elif self.internal_destinations or self.external_destinations:
             pass
@@ -215,6 +216,15 @@ class Elevator:
             ";".join([str(log_element) for log_element in log_str])
         )
         return ";".join([str(log_element) for log_element in log_str])
+
+    def find_nearest_floor(self, queue):
+        if queue == None:
+            return self.floor
+        nearest_floor = maxsize
+        for floor in queue:
+            if abs(floor - self.floor) < abs(nearest_floor - self.floor):
+                nearest_floor = floor
+        return nearest_floor
 
 
 class NormalElevator(Elevator):
