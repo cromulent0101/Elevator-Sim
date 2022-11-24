@@ -1,5 +1,10 @@
 # pylint: disable=import-error
-import pytest, utils
+# pylint: disable=wrong-import-position
+import pytest
+import sys
+
+sys.path.append("..")
+import utils
 from classes import Elevator, Rider, ElevatorBank
 
 # https://stackoverflow.com/questions/29627341/pytest-where-to-store-expected-data
@@ -22,17 +27,27 @@ def top_floor_elevator():
 
 @pytest.fixture
 def classic_riders():
-    return utils.get_riders_from_csv("sims/classic.csv")
+    return utils.get_riders_from_csv("../sims/classic.csv")
 
 
 @pytest.fixture
 def edge_cases_riders():
-    return utils.get_riders_from_csv("sims/edge_cases.csv")
+    return utils.get_riders_from_csv("../sims/edge_cases.csv")
 
 
 @pytest.fixture
 def edge_case_1_riders():
-    return utils.get_riders_from_csv("sims/edge_case_1.csv")
+    return utils.get_riders_from_csv("../sims/edge_case_1.csv")
+
+
+@pytest.fixture
+def random100_riders():
+    return utils.get_riders_from_csv("../sims/100random.csv")
+
+
+@pytest.fixture
+def random100_at_once_riders():
+    return utils.get_riders_from_csv("../sims/100random_at_once.csv")
 
 
 def test_first_classic(first_floor_elevator, classic_riders):
@@ -42,6 +57,16 @@ def test_first_classic(first_floor_elevator, classic_riders):
 
     start_step_delays, start_stop_delays, log_dict = bank.simulate(
         classic_riders, floor_dict
+    )
+
+
+def test_random100(first_floor_elevator, random100_at_once_riders):
+    e_bank = [first_floor_elevator]
+    bank = ElevatorBank(e_bank)
+    floor_dict = utils.create_floors(random100_at_once_riders, e_bank, bank)
+
+    start_step_delays, start_stop_delays, log_dict = bank.simulate(
+        random100_at_once_riders, floor_dict
     )
 
 
