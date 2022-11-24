@@ -1,0 +1,13 @@
+name,start_floor,destination,when_to_add
+Bob,2,9,0
+Joe,2,1,0
+Lalo,2,1,0
+Rick,2,9,0
+Jane,9,1,10
+Kilo,9,10,0
+Apple,9,8,0
+Banana,8,7,0
+Cranberry,7,8,0
+Date,7,6,0
+Raisin,9,7,0
+Grape,9,6,0
