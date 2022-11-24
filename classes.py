@@ -126,13 +126,17 @@ class Elevator:
     def let_riders_out_new(
         self, rider_list, start_stop_delays, start_step_delays, log_dict
     ):
+        """
+        Lets riders out of the elevator, and adds a delay if anyone does.
+
+        Also removes the current floor from both external and
+        internal destinations.
+        """
         riders_to_remove = []
         rider_names_to_remove = []
         door_open = False
-        try:
+        if self.floor in self.external_destinations:
             self.external_destinations.remove(self.floor)
-        except KeyError:
-            pass
         if self.floor in self.internal_destinations:
             self.internal_destinations.remove(self.floor)  # ding, we stop
             for rider in self.riders:  # can we DRY?
@@ -152,9 +156,7 @@ class Elevator:
         if self.direction == 0:
             if e_bank.queue:
                 print("went to elev queue")
-                next_floor = self.find_nearest_floor(
-                    list(e_bank.queue)
-                )  # this can be improved to get nearest floor
+                next_floor = self.find_nearest_floor(list(e_bank.queue))
                 if next_floor > self.floor:
                     self.direction = 1
                     self.external_destinations.add(next_floor)
@@ -182,6 +184,10 @@ class Elevator:
                 self.internal_destinations.add(rider.destination)
                 riders_to_step_in.append(rider)
                 door_open = True
+                try:
+                    e_bank.queue.remove(self.floor)
+                except KeyError:
+                    pass
                 self.direction = 1
             elif self.direction < 1 and rider.destination < self.floor:  # going down
                 rider.step_in(self)
@@ -189,6 +195,10 @@ class Elevator:
                 self.internal_destinations.add(rider.destination)
                 riders_to_step_in.append(rider)
                 door_open = True
+                try:
+                    e_bank.queue.remove(self.floor)
+                except KeyError:
+                    pass
                 self.direction = -1
             else:  # if there's an elevator at our floor but not in right direction
                 rider.press_button_new(e_bank)
