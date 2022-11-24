@@ -20,6 +20,7 @@ class ElevatorBank:
         start_stop_delays = []
         start_step_delays = []
         log_dict = {}
+        sleep(0.1)
         rider_updater = threading.Thread(
             target=self.rider_update,
             args=[rider_list, rider_list_csv, floor_dict, self],
@@ -57,7 +58,6 @@ class ElevatorBank:
                     floor_dict[rider.start_floor].riders.append(rider)
                     rider_list.append(rider)
                     rider_list_csv.remove(rider)
-            sleep(1)
         while rider_list:
             sleep(1)
         floor_dict["done"] = True
@@ -153,7 +153,9 @@ class Elevator:
             if not e_bank.queue.empty():
                 print("went to elev queue")
                 try:
-                    next_floor = e_bank.queue.get()
+                    next_floor = (
+                        e_bank.queue.get()
+                    )  # this can be improved to get nearest floor
                     if next_floor > self.floor:
                         self.direction = 1
                         self.external_destinations.add(next_floor)
