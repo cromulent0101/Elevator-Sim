@@ -109,6 +109,7 @@ class Elevator:
             for rider in self.riders:
                 rider.curr_floor = self.floor
 
+            self.destination_check(floor_dict)
             door_open_out, rider_names_to_remove = self.let_riders_out_new(
                 rider_list, start_stop_delays, start_step_delays, log_dict
             )
@@ -122,6 +123,15 @@ class Elevator:
             self.floor += self.direction
             self.simulate_delays(door_open_in, door_open_out)
             print(self.log)
+
+    def destination_check(self, floor_dict):
+        """Performs a sanity check on external destinations. If there is no rider at a Floor that is an external destination,
+        remove it from the list of external destinations.
+        """
+        ext_dests_copy = self.external_destinations.copy()
+        for floor in ext_dests_copy:
+            if not floor_dict[floor].riders:
+                self.external_destinations.remove(floor)
 
     def let_riders_out_new(
         self, rider_list, start_stop_delays, start_step_delays, log_dict
