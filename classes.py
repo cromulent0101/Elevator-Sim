@@ -11,7 +11,7 @@ import threading
 class ElevatorBank:
     def __init__(self, elevator_list):
         self.elevators = elevator_list
-        self.queue = Queue()  # floors that don't have an elevator going to them yet
+        self.queue = set()  # floors that don't have an elevator going to them yet
         self.begin_time = time()
 
     def simulate(self, rider_list_csv, floor_dict):
@@ -150,11 +150,11 @@ class Elevator:
 
     def update_direction_new(self, e_bank: ElevatorBank):
         if self.direction == 0:
-            if not e_bank.queue.empty():
+            if e_bank.queue:
                 print("went to elev queue")
                 try:
                     next_floor = (
-                        e_bank.queue.get()
+                        e_bank.queue.pop()
                     )  # this can be improved to get nearest floor
                     if next_floor > self.floor:
                         self.direction = 1
@@ -314,7 +314,7 @@ class Rider:
                 available_elevators.append(e)
 
         if not available_elevators:
-            elevator_bank.queue.put(self.start_floor)
+            elevator_bank.queue.add(self.start_floor)
             return
 
         min_distance = abs(
