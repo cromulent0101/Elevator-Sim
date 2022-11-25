@@ -21,14 +21,6 @@ class ElevatorBank:
         start_stop_delays = []
         start_step_delays = []
         log_dict = {}
-        sleep(0.1)
-        rider_updater = threading.Thread(
-            target=self.rider_update,
-            args=[rider_list, rider_list_csv, floor_dict, self],
-            name="Rider Updater",
-        )
-        rider_updater.start()
-        threads.append(rider_updater)
         for idx, e in enumerate(self.elevators, start=1):
             log_dict[f"\x1b[1;3{idx};40m" + f"Elevator {idx}" + "\x1b[0m"] = []
             t1 = threading.Thread(
@@ -40,10 +32,10 @@ class ElevatorBank:
                     start_step_delays,
                     self,
                     log_dict,
+                    rider_list_csv,
                 ],
                 name=f"\x1b[1;3{idx};40m" + f"Elevator {idx}" + "\x1b[0m",
             )
-            sleep(0.1)
             t1.start()
             threads.append(t1)
         for t in threads:  # TODO: investigate asyncio.gather()
@@ -51,29 +43,17 @@ class ElevatorBank:
 
         return start_step_delays, start_stop_delays, log_dict
 
-    def rider_update(self, rider_list, rider_list_csv, floor_dict, e_bank):
-        floor_dict["done"] = False
-        while rider_list_csv:
-            for rider in rider_list_csv:
-                if rider.when_to_add < (time() - e_bank.begin_time):
-                    rider.press_button_new(self)
-                    floor_dict[rider.start_floor].riders.append(rider)
-                    rider_list.append(rider)
-                    rider_list_csv.remove(rider)
-        while rider_list:
-            sleep(1)
-        floor_dict["done"] = True
-
 
 class Elevator:
     def __init__(self, capacity: int, floor):
         self.floor = floor
         self.capacity = capacity
         self.direction = 0  # 0 for stationary, 1 for up, -1 for down
-        self.internal_destinations = set()  # Set of ints. Can we type this?
+        self.internal_destinations = set()
         self.external_destinations = set()
         self.door_delay = 1
         self.elevator_delay = 0.5
+        self.simulated_time = 0
         self.riders = []  # list of Riders
         self.log = []  # list of strs to log what elevator did
 
@@ -99,6 +79,7 @@ class Elevator:
         start_step_delays,
         e_bank,
         log_dict,
+        rider_list_csv,
     ):
         """
         Tells an elevator to pick up and drop off passengers
@@ -108,6 +89,7 @@ class Elevator:
         the elevator.
         """
         while not floor_dict["done"]:
+            self.check_for_new_riders(rider_list_csv, e_bank, floor_dict, rider_list)
             for rider in self.riders:
                 rider.curr_floor = self.floor
 
@@ -125,7 +107,6 @@ class Elevator:
             self.floor += self.direction
             self.simulate_delays(door_open_in, door_open_out)
             print(self.log)
-            print(threading.current_thread().name)
 
     def destination_check(self, floor_dict):
         """
@@ -229,6 +210,22 @@ class Elevator:
         ]
         return door_open, rider_names_to_add
 
+    def check_for_new_riders(  # should be refactored out of Elevator and into ElevatorBank
+        self, rider_list_csv, elevator_bank, floor_dict, rider_list
+    ):
+        rider_list_csv_copy = [] + rider_list_csv
+        if not rider_list_csv and not rider_list:
+            floor_dict["done"] = True
+        else:
+            for rider in rider_list_csv_copy:
+                if rider.when_to_add <= self.simulated_time and not (
+                    rider.button_pressed
+                ):
+                    rider_list.append(rider)
+                    floor_dict[rider.start_floor].riders.append(rider)
+                    rider.press_button_new(elevator_bank)
+                    rider_list_csv.remove(rider)
+
     def simulate_delays(self, door_open_in, door_open_out):
         if door_open_in or door_open_out:
             sleep(self.door_delay)
@@ -304,7 +301,7 @@ class Rider:
     def __repr__(self):
         return f"{self.name} began on {self.start_floor}, is now on {self.curr_floor} and wants to go to {self.destination}"
 
-    def step_in(self, elev):  # elevator should stop for a time even if full
+    def step_in(self, elev):
         if elev.capacity == len(elev.riders):
             print(f"Rider {self.name: >20} can't enter elevator since it is full")
             return False
