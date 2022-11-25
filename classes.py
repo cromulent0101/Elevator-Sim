@@ -2,6 +2,7 @@
 from dataclasses import dataclass
 from time import sleep, time
 from sys import maxsize
+from random import randint
 import csv
 from typing import Set
 import tkinter as tk
@@ -28,7 +29,8 @@ class ElevatorBank:
         )
         rider_updater.start()
         threads.append(rider_updater)
-        for e in self.elevators:
+        for idx, e in enumerate(self.elevators, start=1):
+            log_dict[f"\x1b[1;3{idx};40m" + f"Elevator {idx}" + "\x1b[0m"] = []
             t1 = threading.Thread(
                 target=e.elevate,
                 args=[
@@ -39,8 +41,8 @@ class ElevatorBank:
                     self,
                     log_dict,
                 ],
+                name=f"\x1b[1;3{idx};40m" + f"Elevator {idx}" + "\x1b[0m",
             )
-            log_dict[t1.name] = []
             sleep(0.1)
             t1.start()
             threads.append(t1)
@@ -123,6 +125,7 @@ class Elevator:
             self.floor += self.direction
             self.simulate_delays(door_open_in, door_open_out)
             print(self.log)
+            print(threading.current_thread().name)
 
     def destination_check(self, floor_dict):
         """
@@ -303,7 +306,7 @@ class Rider:
 
     def step_in(self, elev):  # elevator should stop for a time even if full
         if elev.capacity == len(elev.riders):
-            print(f"Rider {self.name} can't enter elevator since it is full")
+            print(f"Rider {self.name: >20} can't enter elevator since it is full")
             return False
         else:
             self.step_in_time = time()
