@@ -125,7 +125,8 @@ class Elevator:
             print(self.log)
 
     def destination_check(self, floor_dict):
-        """Performs a sanity check on external destinations. If there is no rider at a Floor that is an external destination,
+        """
+        Performs a sanity check on external destinations. If there is no rider at a Floor that is an external destination,
         remove it from the list of external destinations.
         """
         ext_dests_copy = self.external_destinations.copy()
@@ -189,27 +190,33 @@ class Elevator:
 
         for rider in floor_dict[self.floor].riders:
             if self.direction > -1 and rider.destination > self.floor:  # going up
-                rider.step_in(self)
-                rider_names_to_add.append(str(rider))
-                self.internal_destinations.add(rider.destination)
-                riders_to_step_in.append(rider)
-                door_open = True
-                try:
-                    e_bank.queue.remove(self.floor)
-                except KeyError:
-                    pass
-                self.direction = 1
+                if rider.step_in(self):
+                    rider_names_to_add.append(str(rider))
+                    self.internal_destinations.add(rider.destination)
+                    riders_to_step_in.append(rider)
+                    door_open = True
+                    try:
+                        e_bank.queue.remove(self.floor)
+                    except KeyError:
+                        pass
+                    self.direction = 1
+                else:
+                    rider.press_button_new(e_bank)
+                    print("lool")
             elif self.direction < 1 and rider.destination < self.floor:  # going down
-                rider.step_in(self)
-                rider_names_to_add.append(str(rider))
-                self.internal_destinations.add(rider.destination)
-                riders_to_step_in.append(rider)
-                door_open = True
-                try:
-                    e_bank.queue.remove(self.floor)
-                except KeyError:
-                    pass
-                self.direction = -1
+                if rider.step_in(self):
+                    rider_names_to_add.append(str(rider))
+                    self.internal_destinations.add(rider.destination)
+                    riders_to_step_in.append(rider)
+                    door_open = True
+                    try:
+                        e_bank.queue.remove(self.floor)
+                    except KeyError:
+                        pass
+                    self.direction = -1
+                else:
+                    rider.press_button_new(e_bank)
+                    print("lool")
             else:  # if there's an elevator at our floor but not in right direction
                 rider.press_button_new(e_bank)
 
@@ -297,10 +304,12 @@ class Rider:
     def step_in(self, elev):  # elevator should stop for a time even if full
         if elev.capacity == len(elev.riders):
             print(f"Rider {self.name} can't enter elevator since it is full")
+            return False
         else:
             self.step_in_time = time()
             self.is_in_elevator = True
             elev.riders.append(self)
+            return True
 
     def step_out(self, start_stop_delays, start_step_delays):
         self.end_time = time()
