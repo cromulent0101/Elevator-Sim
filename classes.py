@@ -139,7 +139,7 @@ class Elevator:
                     riders_to_remove.append(rider)
                     rider_names_to_remove.append(str(rider))
                     rider_list.remove(rider)
-                    rider.step_out(start_stop_delays, start_step_delays)
+                    rider.step_out(self, start_stop_delays, start_step_delays)
                     door_open = True
 
         for rider in riders_to_remove:
@@ -218,9 +218,7 @@ class Elevator:
             floor_dict["done"] = True
         else:
             for rider in rider_list_csv_copy:
-                if rider.when_to_add <= self.simulated_time and not (
-                    rider.button_pressed
-                ):
+                if rider.when_to_add <= self.simulated_time:
                     rider_list.append(rider)
                     floor_dict[rider.start_floor].riders.append(rider)
                     rider.press_button_new(elevator_bank)
@@ -228,8 +226,8 @@ class Elevator:
 
     def simulate_delays(self, door_open_in, door_open_out):
         if door_open_in or door_open_out:
-            sleep(self.door_delay)
-        sleep(self.elevator_delay)
+            self.simulated_time = self.simulated_time + self.door_delay
+        self.simulated_time = self.simulated_time + self.elevator_delay
 
     def log_movement(self, rider_names_to_add, rider_names_to_remove, log_dict):
         log_str = []
@@ -287,9 +285,7 @@ class Rider:
         self.start_floor = start_floor
         self.curr_floor = start_floor
         self.when_to_add = 0
-        self.start_time = time()
         self.step_in_time = 0
-        self.end_time = 0
         self.is_in_elevator = False
         self.dispatched_elevator = False
         self.button_pressed_up = False
@@ -306,15 +302,14 @@ class Rider:
             print(f"Rider {self.name: >20} can't enter elevator since it is full")
             return False
         else:
-            self.step_in_time = time()
+            self.step_in_time = elev.simulated_time
             self.is_in_elevator = True
             elev.riders.append(self)
             return True
 
-    def step_out(self, start_stop_delays, start_step_delays):
-        self.end_time = time()
-        start_stop_delays.append(self.end_time - self.start_time)
-        start_step_delays.append(self.step_in_time - self.start_time)
+    def step_out(self, elevator, start_stop_delays, start_step_delays):
+        start_stop_delays.append(elevator.simulated_time - self.when_to_add)
+        start_step_delays.append(self.step_in_time - self.when_to_add)
 
     def press_button_new(self, e_bank: ElevatorBank):
         nearest_elevator = self.find_nearest_available_elevator(e_bank)
