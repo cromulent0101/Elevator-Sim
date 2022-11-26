@@ -13,40 +13,39 @@ class ElevatorBank:
     def __init__(self, elevator_list):
         self.elevators = elevator_list
         self.queue = set()  # floors that don't have an elevator going to them yet
-        self.begin_time = time()
 
-    def simulate(self, rider_list_csv, floor_dict):
-        threads = []
+    def simulate(self, rider_list_csv, floor_dict, time_step, max_time):
+        sim_time = 0
         rider_list = []
         start_stop_delays = []
         start_step_delays = []
         log_dict = {}
-        for idx, e in enumerate(self.elevators, start=1):
-            log_dict[f"\x1b[1;3{idx};40m" + f"Elevator {idx}" + "\x1b[0m"] = []
-            t1 = threading.Thread(
-                target=e.elevate,
-                args=[
-                    rider_list,
-                    floor_dict,
-                    start_stop_delays,
-                    start_step_delays,
-                    self,
-                    log_dict,
-                    rider_list_csv,
-                ],
-                name=f"\x1b[1;3{idx};40m" + f"Elevator {idx}" + "\x1b[0m",
-            )
-            t1.start()
-            threads.append(t1)
-        for t in threads:  # TODO: investigate asyncio.gather()
-            t.join()
-
+        for elevator in self.elevators:
+            log_dict[f"Elevator {elevator.name}"] = []
+        floor_dict["done"] = False
+        while not floor_dict["done"] and sim_time < max_time:
+            for elevator in self.elevators:
+                if (
+                    elevator.simulated_time >= sim_time
+                    and elevator.simulated_time < sim_time + time_step
+                ):
+                    elevator.elevate(
+                        rider_list,
+                        floor_dict,
+                        start_stop_delays,
+                        start_step_delays,
+                        self,
+                        log_dict,
+                        rider_list_csv,
+                    )
+            sim_time = sim_time + time_step
         return start_step_delays, start_stop_delays, log_dict
 
 
 class Elevator:
-    def __init__(self, capacity: int, floor):
+    def __init__(self, capacity: int, floor: int, name: str):
         self.floor = floor
+        self.name = name
         self.capacity = capacity
         self.direction = 0  # 0 for stationary, 1 for up, -1 for down
         self.internal_destinations = set()
@@ -88,25 +87,22 @@ class Elevator:
         Returns a string that represents the actions taken by
         the elevator.
         """
-        while not floor_dict["done"]:
-            self.check_for_new_riders(rider_list_csv, e_bank, floor_dict, rider_list)
-            for rider in self.riders:
-                rider.curr_floor = self.floor
+        self.check_for_new_riders(rider_list_csv, e_bank, floor_dict, rider_list)
+        for rider in self.riders:
+            rider.curr_floor = self.floor
 
-            self.destination_check(floor_dict)
-            door_open_out, rider_names_to_remove = self.let_riders_out_new(
-                rider_list, start_stop_delays, start_step_delays, log_dict
-            )
-            self.update_direction_new(e_bank)
-            door_open_in, rider_names_to_add = self.let_riders_in_new(
-                floor_dict, e_bank
-            )
-            self.log = self.log_movement(
-                rider_names_to_add, rider_names_to_remove, log_dict
-            )
-            self.floor += self.direction
-            self.simulate_delays(door_open_in, door_open_out)
-            print(self.log)
+        self.destination_check(floor_dict)
+        door_open_out, rider_names_to_remove = self.let_riders_out_new(
+            rider_list, start_stop_delays, start_step_delays, log_dict
+        )
+        self.update_direction_new(e_bank)
+        door_open_in, rider_names_to_add = self.let_riders_in_new(floor_dict, e_bank)
+        self.log = self.log_movement(
+            rider_names_to_add, rider_names_to_remove, log_dict
+        )
+        self.floor += self.direction
+        self.simulate_delays(door_open_in, door_open_out)
+        print(self.log)
 
     def destination_check(self, floor_dict):
         """
@@ -186,7 +182,6 @@ class Elevator:
                     self.direction = 1
                 else:
                     rider.press_button_new(e_bank)
-                    print("lool")
             elif self.direction < 1 and rider.destination < self.floor:  # going down
                 if rider.step_in(self):
                     rider_names_to_add.append(str(rider))
@@ -200,7 +195,6 @@ class Elevator:
                     self.direction = -1
                 else:
                     rider.press_button_new(e_bank)
-                    print("lool")
             else:  # if there's an elevator at our floor but not in right direction
                 rider.press_button_new(e_bank)
 
@@ -237,7 +231,7 @@ class Elevator:
         log_str.append(self.direction)
         log_str.append(",".join(rider_names_to_add))
         log_str.append(",".join(rider_names_to_remove))
-        log_dict[threading.current_thread().name].append(
+        log_dict[f"Elevator {self.name}"].append(
             ";".join([str(log_element) for log_element in log_str])
         )
         return ";".join([str(log_element) for log_element in log_str])
