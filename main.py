@@ -27,7 +27,7 @@ q.direction = 0
 e_bank = [z]
 bank = ElevatorBank(e_bank)
 floor_dict = utils.create_floors(rider_list_csv, e_bank, bank)
-time_step = 0.2
+time_step = 0.01
 max_time = 10000
 
 
