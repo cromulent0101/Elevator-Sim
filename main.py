@@ -21,7 +21,7 @@ q = Elevator(100, 60)
 
 e.direction = 0
 t.direction = 0
-z.direction = 1
+z.direction = 0
 q.direction = 0
 
 e_bank = [z]
