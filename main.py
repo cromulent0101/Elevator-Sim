@@ -21,7 +21,7 @@ q = Elevator(100, 60, "q")
 
 e.direction = 0
 t.direction = 0
-z.direction = 1
+z.direction = 0
 q.direction = 0
 
 e_bank = [z]
@@ -40,4 +40,4 @@ print(f"Average total wait: {mean(start_stop_delays)}")
 print(f"Median total wait: {median(start_stop_delays)}")
 print(f"Average floor wait: {mean(start_step_delays)}")
 print(f"Median floor wait : {median(start_step_delays)}")
-print(*log_dict)
+print(log_dict)
