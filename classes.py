@@ -21,7 +21,6 @@ class ElevatorBank:
         start_stop_delays = []
         start_step_delays = []
         log_dict = {}
-        sleep(0.1)
         rider_updater = threading.Thread(
             target=self.rider_update,
             args=[rider_list, rider_list_csv, floor_dict, self],
@@ -43,7 +42,7 @@ class ElevatorBank:
                 ],
                 name=f"\x1b[1;3{idx};40m" + f"Elevator {idx}" + "\x1b[0m",
             )
-            sleep(0.1)
+            sleep(0.001)
             t1.start()
             threads.append(t1)
         for t in threads:  # TODO: investigate asyncio.gather()
@@ -247,11 +246,11 @@ class Elevator:
         )
         return ";".join([str(log_element) for log_element in log_str])
 
-    def find_nearest_floor(self, queue):
-        if queue == None:
+    def find_nearest_floor(self, floor_queue):
+        if floor_queue == None:
             return self.floor
         nearest_floor = maxsize
-        for floor in queue:
+        for floor in floor_queue:
             if abs(floor - self.floor) < abs(nearest_floor - self.floor):
                 nearest_floor = floor
         return nearest_floor
