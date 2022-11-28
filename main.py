@@ -12,7 +12,7 @@ import concurrent.futures
 import tkinter as tk
 
 
-rider_list_csv = utils.get_riders_from_csv("sims/edge_cases.csv")
+rider_list_csv = utils.get_riders_from_csv("sims/office.csv")
 
 e = Elevator(100, 80)
 t = Elevator(100, 3)
@@ -24,7 +24,7 @@ t.direction = 0
 z.direction = 0
 q.direction = 0
 
-e_bank = [e, t, z]
+e_bank = [t, z]
 bank = ElevatorBank(e_bank)
 floor_dict = utils.create_floors(rider_list_csv, e_bank, bank)
 
