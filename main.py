@@ -12,15 +12,19 @@ import concurrent.futures
 import tkinter as tk
 
 
-full_rider_list = utils.get_riders_from_csv("sims/100random.csv")
-
+full_rider_list = utils.get_riders_from_csv("sims/edge_cases.csv")
 
 e = Elevator(100, 80)
-t = Elevator(100, 3)
-e.direction = -1
-t.direction = 1
+t = Elevator(1, 3)
+z = Elevator(1, 1)
+q = Elevator(100, 60)
 
-e_bank = [e, t]
+e.direction = 0
+t.direction = 0
+z.direction = 0
+q.direction = 0
+
+e_bank = [t, z]
 bank = ElevatorBank(e_bank)
 
 
