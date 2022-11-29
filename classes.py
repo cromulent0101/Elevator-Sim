@@ -42,6 +42,7 @@ class ElevatorBank:
                 ],
                 name=f"Elevator {idx}",
             )
+            sleep(0.001)
             t1.start()
             threads.append(t1)
         for t in threads:
@@ -226,14 +227,14 @@ class Elevator:
         rider_names_to_add = []
         for rider in floor_dict[self.floor].riders:
             if self.direction == 1 and rider.destination > self.floor:  # going up
-                if rider.step_in_no_capacity_check(self):
+                if rider.step_in(self):
                     rider_names_to_add.append(str(rider))
                     self.internal_destinations.add(rider.destination)
                     riders_to_step_in.append(rider)
                     clear_up_button = True
                 door_open = True
             elif self.direction == -1 and rider.destination < self.floor:  # going down
-                if rider.step_in_no_capacity_check(self):
+                if rider.step_in(self):
                     rider_names_to_add.append(str(rider))
                     self.internal_destinations.add(rider.destination)
                     riders_to_step_in.append(rider)
