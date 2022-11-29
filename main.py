@@ -12,11 +12,11 @@ import concurrent.futures
 import tkinter as tk
 
 
-rider_list_csv = utils.get_riders_from_csv("sims/100random.csv")
+rider_list_csv = utils.get_riders_from_csv("sims/edge_cases.csv")
 
 e = Elevator(100, 80, "z")
-t = Elevator(100, 3, "t")
-z = Elevator(100, 1, "z")
+t = Elevator(1, 3, "t")
+z = Elevator(1, 1, "z")
 q = Elevator(100, 60, "q")
 
 e.direction = 0
@@ -24,7 +24,7 @@ t.direction = 0
 z.direction = 0
 q.direction = 0
 
-e_bank = [z]
+e_bank = [t, z]
 bank = ElevatorBank(e_bank)
 floor_dict = utils.create_floors(rider_list_csv, e_bank, bank)
 time_step = 0.01
@@ -36,6 +36,8 @@ start_step_delays, start_stop_delays, log_dict = bank.simulate(
 )
 
 
+print(f"Overall total wait: {sum(start_stop_delays)}")
+print(f"Floor total wait: {sum(start_step_delays)}")
 print(f"Average total wait: {mean(start_stop_delays)}")
 print(f"Median total wait: {median(start_stop_delays)}")
 print(f"Average floor wait: {mean(start_step_delays)}")
