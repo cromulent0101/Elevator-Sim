@@ -1,5 +1,6 @@
 # pylint: disable=import-error
 from classes import Elevator, Rider, Floor, ElevatorBank
+from typing import List, Dict
 from sys import maxsize
 import csv
 
@@ -63,7 +64,7 @@ def find_nearest_available_elevator(rider, elevator_bank: ElevatorBank) -> Eleva
             return e
 
 
-def get_riders_from_user() -> list[Rider]:
+def get_riders_from_user() -> List[Rider]:
     """Returns a list of Riders on multiple floors from user input."""
     rider_list = []
     while True:
@@ -101,7 +102,7 @@ def update_riders_from_user(rider_list, floor_dict, elevator_bank):
             return
 
 
-def get_riders_from_csv(filename) -> list[Rider]:
+def get_riders_from_csv(filename) -> List[Rider]:
     rider_list = []
     with open(filename, newline="") as csvfile:
         rider_reader = csv.DictReader(csvfile, delimiter=",", quotechar='"')
@@ -116,8 +117,8 @@ def get_riders_from_csv(filename) -> list[Rider]:
 
 
 def create_floors(
-    rider_list: list[Rider], elevator_list: list[Elevator], elevator_bank: ElevatorBank
-) -> dict[Floor]:
+    rider_list: List[Rider], elevator_list: List[Elevator], elevator_bank: ElevatorBank
+) -> Dict[str, Floor]:
     """
     Returns a dict of Floors initialized by a list of riders
     and presses buttons on those floors.
