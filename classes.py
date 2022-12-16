@@ -222,6 +222,7 @@ class Elevator:
     def let_riders_in(self, floor_dict):
         clear_up_button = False
         clear_down_button = False
+        riders_still_waiting = False
         door_open = False
         riders_to_step_in = []
         rider_names_to_add = []
@@ -232,6 +233,8 @@ class Elevator:
                     self.internal_destinations.add(rider.destination)
                     riders_to_step_in.append(rider)
                     clear_up_button = True
+                else:
+                    riders_still_waiting = True
                 door_open = True
             elif self.direction == -1 and rider.destination < self.floor:  # going down
                 if rider.step_in(self):
@@ -239,6 +242,8 @@ class Elevator:
                     self.internal_destinations.add(rider.destination)
                     riders_to_step_in.append(rider)
                     clear_down_button = True
+                else:
+                    riders_still_waiting = True
                 door_open = True
             else:
                 pass
@@ -246,10 +251,11 @@ class Elevator:
         floor_dict[self.floor].riders = [
             e for e in floor_dict[self.floor].riders if e not in riders_to_step_in
         ]
-        if clear_up_button:
-            floor_dict[self.floor].up_request = False
-        if clear_down_button:
-            floor_dict[self.floor].down_request = False
+        if not riders_still_waiting:
+            if clear_up_button:
+                floor_dict[self.floor].up_request = False
+            if clear_down_button:
+                floor_dict[self.floor].down_request = False
         return door_open, rider_names_to_add
 
 

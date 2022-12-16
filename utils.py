@@ -118,7 +118,7 @@ def get_riders_from_csv(filename) -> List[Rider]:
 
 def create_floors(
     rider_list: List[Rider], elevator_bank: List[Elevator]
-) -> Dict[str, Floor]:
+) -> Dict[int, Floor]:
     """
     Returns a dict of Floors initialized by a list of riders
     and presses buttons on those floors.

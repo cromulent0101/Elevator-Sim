@@ -24,7 +24,7 @@ t.direction = 0
 z.direction = 0
 q.direction = 0
 
-e_bank = [t, z]
+e_bank = [t]
 bank = ElevatorBank(e_bank)
 
 
