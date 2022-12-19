@@ -26,7 +26,7 @@ q.direction = 0
 
 e_bank = [t, z]
 bank = ElevatorBank(e_bank)
-floor_dict = utils.create_floors(rider_list_csv, e_bank, bank)
+floor_dict = utils.create_floors(rider_list_csv, e_bank)
 
 start_step_delays, start_stop_delays, log_dict = bank.simulate(
     rider_list_csv, floor_dict
