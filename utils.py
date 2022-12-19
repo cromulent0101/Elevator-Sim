@@ -29,6 +29,13 @@ def find_nearest_available_elevator(rider, elevator_bank: ElevatorBank) -> Eleva
     If two elevators are equidistant then the higher elevator
     gets preference.
 
+    Args:
+        rider:
+        elevator:
+
+    Returns:
+        An Elevator.
+
     Used for an elevator bank.
     """
     available_elevators = []
@@ -117,11 +124,12 @@ def get_riders_from_csv(filename) -> List[Rider]:
 
 
 def create_floors(
-    rider_list: List[Rider], elevator_list: List[Elevator], elevator_bank: ElevatorBank
+    rider_list: List[Rider], elevator_list: List[Elevator]
 ) -> Dict[str, Floor]:
     """
     Returns a dict of Floors initialized by a list of riders
     and presses buttons on those floors.
+    param:
     """
     min_start_floor = min([rider.start_floor for rider in rider_list])
     min_destination = min([rider.destination for rider in rider_list])
@@ -136,8 +144,4 @@ def create_floors(
     # populate dict of floors with each floor traversable and press up or down buttons on those floors
     for floor_num in range(min_floor - 1, max_floor + 2):
         floor_dict[floor_num] = Floor(floor_num)
-        # for rider in rider_list:
-        #     if rider.start_floor == floor_num:
-        #         floor_dict[floor_num].riders.append(rider)
-        #         rider.press_button_new(elevator_bank)
     return floor_dict

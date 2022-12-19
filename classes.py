@@ -83,9 +83,6 @@ class Elevator:
         """
         Tells an elevator to pick up and drop off passengers
         given a rider list.
-
-        Returns a string that represents the actions taken by
-        the elevator.
         """
         self.check_for_new_riders(rider_list_csv, e_bank, floor_dict, rider_list)
         for rider in self.riders:
@@ -236,7 +233,7 @@ class Elevator:
         )
         return ";".join([str(log_element) for log_element in log_str])
 
-    def find_nearest_floor(self, queue):
+    def find_nearest_floor(self, queue) -> int:
         if queue == None:
             return self.floor
         nearest_floor = maxsize
@@ -291,7 +288,7 @@ class Rider:
     def __repr__(self):
         return f"{self.name} began on {self.start_floor}, is now on {self.curr_floor} and wants to go to {self.destination}"
 
-    def step_in(self, elev):
+    def step_in(self, elev) -> bool:
         if elev.capacity == len(elev.riders):
             print(f"Rider {self.name: >20} can't enter elevator since it is full")
             return False
