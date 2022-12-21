@@ -91,7 +91,7 @@ class Elevator:
         door_open_out, rider_names_to_remove = self.let_riders_out_new(
             rider_list, start_stop_delays, start_step_delays, log_dict
         )
-        self.update_direction_new(e_bank)
+        self.update_direction_new(floor_dict)
         door_open_in, rider_names_to_add = self.let_riders_in_new(floor_dict, e_bank)
         self.log = self.log_movement(
             rider_names_to_add, rider_names_to_remove, log_dict
@@ -111,7 +111,7 @@ class Elevator:
                 if rider.when_to_add <= self.simulated_time:
                     rider_list.append(rider)
                     floor_dict[rider.start_floor].riders.append(rider)
-                    rider.press_button_new(elevator_bank)
+                    rider.press_button(floor_dict)
                     rider_list_csv.remove(rider)
 
     def simulate_delays(self, door_open_in, door_open_out):
@@ -127,7 +127,7 @@ class Elevator:
         log_str.append(self.direction)
         log_str.append(",".join(rider_names_to_add))
         log_str.append(",".join(rider_names_to_remove))
-        log_dict[threading.current_thread().name].append(
+        log_dict[f"Elevator {self.name}"].append(
             ";".join([str(log_element) for log_element in log_str])
         )
         return ";".join([str(log_element) for log_element in log_str])
@@ -282,7 +282,6 @@ class Rider:
 
     def press_button(self, floor_dict):
         self.button_pressed = True
-        floor_dict[self.start_floor].riders.append(self)
         if self.start_floor < self.destination:
             floor_dict[self.start_floor].up_request = True
         else:
