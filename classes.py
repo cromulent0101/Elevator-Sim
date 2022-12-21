@@ -1,69 +1,43 @@
 from dataclasses import dataclass
 from time import sleep, time
 from sys import maxsize
-from queue import Queue
 import csv
 from typing import Set
 import tkinter as tk
 import threading
-import logging
 
 
 class ElevatorBank:
-    def __init__(self, e_bank):
-        self.elevators = e_bank
-        self.queue = Queue()  # floors that don't have an elevator going to them yet
-        self.begin_time = time()
-        self.active_riders = []  # Queue()
+    def __init__(self, elevator_list):
+        self.elevators = elevator_list
+        self.queue = set()  # floors that don't have an elevator going to them yet
 
-    def simulate(self, rider_list_csv: list, floor_dict: dict):
-        threads = []
+    def simulate(self, rider_list_csv, floor_dict, time_step, max_time):
+        sim_time = 0
+        rider_list = []
         start_stop_delays = []
         start_step_delays = []
         log_dict = {}
-        rider_updater = threading.Thread(
-            target=self.rider_update,
-            args=[rider_list_csv, floor_dict, self],
-            name="Rider Updater",
-        )
-        rider_updater.start()
-        threads.append(rider_updater)
-        for idx, e in enumerate(self.elevators, start=1):
-            log_dict[f"Elevator {idx}"] = []
-            t1 = threading.Thread(
-                target=e.elevate,
-                args=[
-                    rider_list_csv,
-                    floor_dict,
-                    start_stop_delays,
-                    start_step_delays,
-                    self,
-                    log_dict,
-                ],
-                name=f"Elevator {idx}",
-            )
-            sleep(0.001)
-            t1.start()
-            threads.append(t1)
-        for t in threads:
-            t.join()
-        return start_step_delays, start_stop_delays, log_dict
-
-    def rider_update(self, rider_list, floor_dict, e_bank):
+        for elevator in self.elevators:
+            log_dict[f"Elevator {elevator.name}"] = []
         floor_dict["done"] = False
-        while rider_list:
-            for rider in rider_list:
+        while not floor_dict["done"] and sim_time < max_time:
+            for elevator in self.elevators:
                 if (
-                    rider.when_to_add < (time() - e_bank.begin_time)
-                    and not rider.button_pressed
+                    elevator.simulated_time >= sim_time
+                    and elevator.simulated_time < sim_time + time_step
                 ):
-                    rider.press_button(floor_dict)
-                    self.active_riders.append(rider)
-                    rider_list.remove(rider)
-            sleep(1)
-        while self.active_riders:
-            sleep(1)
-        floor_dict["done"] = True
+                    elevator.elevate(
+                        rider_list,
+                        floor_dict,
+                        start_stop_delays,
+                        start_step_delays,
+                        self,
+                        log_dict,
+                        rider_list_csv,
+                    )
+            sim_time = sim_time + time_step
+        return start_step_delays, start_stop_delays, log_dict
 
 
 class Elevator:
