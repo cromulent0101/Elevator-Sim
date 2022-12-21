@@ -145,7 +145,7 @@ class Elevator:
                     riders_to_remove.append(rider)
                     rider_names_to_remove.append(str(rider))
                     rider_list.remove(rider)
-                    rider.log_time(start_stop_delays, start_step_delays)
+                    rider.step_out(self, start_stop_delays, start_step_delays)
                     door_open = True
 
         for rider in riders_to_remove:
@@ -264,7 +264,7 @@ class Rider:
             print(f"Rider {self.name} can't enter elevator since it is full")
             return False
         else:
-            self.step_in_time = time()
+            self.step_in_time = elev.simulated_time
             self.is_in_elevator = True
             elev.riders.append(self)
             return True
@@ -275,10 +275,9 @@ class Rider:
         elev.riders.append(self)
         return True
 
-    def log_time(self, start_stop_delays, start_step_delays):
-        self.end_time = time()
-        start_stop_delays.append(self.end_time - self.start_time)
-        start_step_delays.append(self.step_in_time - self.start_time)
+    def step_out(self, elevator, start_stop_delays, start_step_delays):
+        start_stop_delays.append(elevator.simulated_time - self.when_to_add)
+        start_step_delays.append(self.step_in_time - self.when_to_add)
 
     def press_button(self, floor_dict):
         self.button_pressed = True
