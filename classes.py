@@ -41,13 +41,15 @@ class ElevatorBank:
 
 
 class Elevator:
-    def __init__(self, capacity: int, floor):
+    def __init__(self, capacity: int, floor: int, name: str):
         self.floor = floor
         self.capacity = capacity
+        self.name = name
         self.direction = 0  # 0 for stationary, 1 for up, -1 for down
         self.internal_destinations = set()  # Set of ints. Can we type this?
         self.door_delay = 1
         self.elevator_delay = 0.5
+        self.simulated_time = 0
         self.riders = []  # list of Riders
         self.log = []  # list of strs to log what elevator did
 
@@ -73,6 +75,7 @@ class Elevator:
         start_step_delays,
         e_bank,
         log_dict,
+        rider_list_csv,
     ):
         """
         Tells an elevator to pick up and drop off passengers
@@ -81,33 +84,40 @@ class Elevator:
         Returns a string that represents the actions taken by
         the elevator.
         """
-        while not floor_dict["done"]:
-            for rider in self.riders:
-                rider.curr_floor = self.floor
+        self.check_for_new_riders(rider_list_csv, e_bank, floor_dict, rider_list)
+        for rider in self.riders:
+            rider.curr_floor = self.floor
 
-            door_open_out, rider_names_to_remove = self.let_riders_out(
-                e_bank.active_riders,
-                start_stop_delays,
-                start_step_delays,
-            )
-            self.update_direction(floor_dict)
-            door_open_in, rider_names_to_add = self.let_riders_in(floor_dict)
-            self.log = self.log_movement(
-                rider_names_to_add, rider_names_to_remove, log_dict
-            )
-            self.floor += self.direction
-            self.simulate_delays(door_open_in, door_open_out)
-            print(self.log)
+        door_open_out, rider_names_to_remove = self.let_riders_out_new(
+            rider_list, start_stop_delays, start_step_delays, log_dict
+        )
+        self.update_direction_new(e_bank)
+        door_open_in, rider_names_to_add = self.let_riders_in_new(floor_dict, e_bank)
+        self.log = self.log_movement(
+            rider_names_to_add, rider_names_to_remove, log_dict
+        )
+        self.floor += self.direction
+        self.simulate_delays(door_open_in, door_open_out)
+        print(self.log)
+
+    def check_for_new_riders(  # should be refactored out of Elevator and into ElevatorBank
+        self, rider_list_csv, elevator_bank, floor_dict, rider_list
+    ):
+        rider_list_csv_copy = [] + rider_list_csv
+        if not rider_list_csv and not rider_list:
+            floor_dict["done"] = True
+        else:
+            for rider in rider_list_csv_copy:
+                if rider.when_to_add <= self.simulated_time:
+                    rider_list.append(rider)
+                    floor_dict[rider.start_floor].riders.append(rider)
+                    rider.press_button_new(elevator_bank)
+                    rider_list_csv.remove(rider)
 
     def simulate_delays(self, door_open_in, door_open_out):
         if door_open_in or door_open_out:
-            sleep(self.door_delay)
-        sleep(self.elevator_delay)
-
-    def check_for_new_riders(self, rider_list_csv, elevator_bank, floor_dict):
-        for rider in rider_list_csv:
-            if rider.when_to_add < (time() - elevator_bank.begin_time):
-                rider.press_button(floor_dict)
+            self.simulated_time = self.simulated_time + self.door_delay
+        self.simulated_time = self.simulated_time + self.elevator_delay
 
     def log_movement(self, rider_names_to_add, rider_names_to_remove, log_dict):
         log_str = []
@@ -122,11 +132,8 @@ class Elevator:
         )
         return ";".join([str(log_element) for log_element in log_str])
 
-    def let_riders_out(
-        self,
-        rider_list,
-        start_stop_delays,
-        start_step_delays,
+    def let_riders_out_new(
+        self, rider_list, start_stop_delays, start_step_delays, log_dict
     ):
         riders_to_remove = []
         rider_names_to_remove = []
@@ -145,7 +152,7 @@ class Elevator:
             self.riders.remove(rider)
         return door_open, rider_names_to_remove
 
-    def update_direction(self, floor_dict):
+    def update_direction_new(self, floor_dict):
         keep_going_down = False
         keep_going_up = False
         if self.internal_destinations:
@@ -193,7 +200,7 @@ class Elevator:
             else:
                 self.direction = 0
 
-    def let_riders_in(self, floor_dict):
+    def let_riders_in_new(self, floor_dict, e_bank):
         clear_up_button = False
         clear_down_button = False
         riders_still_waiting = False
