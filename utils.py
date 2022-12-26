@@ -117,7 +117,7 @@ def get_riders_from_csv(filename) -> List[Rider]:
 
 
 def create_floors(
-    rider_list: List[Rider], elevator_list: List[Elevator]
+    rider_list: List[Rider], elevator_bank: List[Elevator]
 ) -> Dict[int, Floor]:
     """
     Returns a dict of Floors initialized by a list of riders
@@ -127,8 +127,8 @@ def create_floors(
     min_destination = min([rider.destination for rider in rider_list])
     max_start_floor = max([rider.start_floor for rider in rider_list])
     max_destination = max([rider.destination for rider in rider_list])
-    min_elevator = min([elevator.floor for elevator in elevator_list])
-    max_elevator = max([elevator.floor for elevator in elevator_list])
+    min_elevator = min([elevator.floor for elevator in elevator_bank])
+    max_elevator = max([elevator.floor for elevator in elevator_bank])
     min_floor = min([min_start_floor, min_destination, min_elevator])
     max_floor = max([max_start_floor, max_destination, max_elevator])
 
@@ -136,4 +136,8 @@ def create_floors(
     # populate dict of floors with each floor traversable and press up or down buttons on those floors
     for floor_num in range(min_floor - 1, max_floor + 2):
         floor_dict[floor_num] = Floor(floor_num)
+        # for rider in rider_list:
+        #     if rider.start_floor == floor_num:
+        #         floor_dict[floor_num].riders.append(rider)
+        #         rider.press_button(floor_dict)
     return floor_dict
