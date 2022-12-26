@@ -136,8 +136,4 @@ def create_floors(
     # populate dict of floors with each floor traversable and press up or down buttons on those floors
     for floor_num in range(min_floor - 1, max_floor + 2):
         floor_dict[floor_num] = Floor(floor_num)
-        # for rider in rider_list:
-        #     if rider.start_floor == floor_num:
-        #         floor_dict[floor_num].riders.append(rider)
-        #         rider.press_button(floor_dict)
     return floor_dict
