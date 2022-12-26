@@ -1,10 +1,5 @@
-from dataclasses import dataclass
-from time import sleep, time
+from time import sleep
 from sys import maxsize
-import csv
-from typing import Set
-import tkinter as tk
-import threading
 
 
 class ElevatorBank:
