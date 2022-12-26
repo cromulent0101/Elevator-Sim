@@ -12,8 +12,9 @@ import concurrent.futures
 import tkinter as tk
 
 
-rider_list_csv = utils.get_riders_from_csv("sims/edge_cases.csv")
-rider_list_csv_floor = utils.get_riders_from_csv("sims/edge_cases.csv")
+simluation_csv = "sims/100random_at_once.csv"
+rider_list_csv = utils.get_riders_from_csv(simluation_csv)
+rider_list_csv_floor = utils.get_riders_from_csv(simluation_csv)
 
 t = Elevator(1, 3, "t")
 z = Elevator(1, 1, "z")
@@ -32,13 +33,14 @@ time_step = 0.01
 max_time = 10000
 
 
-start_step_delays, start_stop_delays, log_dict = bank.simulate(
+start_step_delays, start_stop_delays, floors_traversed, log_dict = bank.simulate(
     rider_list_csv, floor_dict, time_step, max_time
 )
 
 (
     start_step_delays_floor,
     start_stop_delays_floor,
+    floors_traversed_floor,
     log_dict_floor,
 ) = bank_floor.simulate_floor(
     rider_list_csv_floor, floor_dict_floor, time_step, max_time
@@ -51,5 +53,7 @@ print(f"Average total wait: {mean(start_stop_delays)}")
 print(f"Median total wait: {median(start_stop_delays)}")
 print(f"Average floor wait: {mean(start_step_delays)}")
 print(f"Median floor wait : {median(start_step_delays)}")
+print(f"Floors traversed: {floors_traversed}")
+print(f"Floors traversed by dispatch: {floors_traversed_floor}")
 print(log_dict_floor)
 print(log_dict)

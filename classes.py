@@ -12,6 +12,7 @@ class ElevatorBank:
         rider_list = []
         start_stop_delays = []
         start_step_delays = []
+        floors_traversed = [0]
         log_dict = {}
         for elevator in self.elevators:
             log_dict[f"Elevator {elevator.name}"] = []
@@ -27,18 +28,20 @@ class ElevatorBank:
                         floor_dict,
                         start_stop_delays,
                         start_step_delays,
+                        floors_traversed,
                         self,
                         log_dict,
                         rider_list_csv,
                     )
             sim_time = sim_time + time_step
-        return start_step_delays, start_stop_delays, log_dict
+        return start_step_delays, start_stop_delays, floors_traversed[-1], log_dict
 
     def simulate_floor(self, rider_list_csv, floor_dict, time_step, max_time):
         sim_time = 0
         rider_list = []
         start_stop_delays = []
         start_step_delays = []
+        floors_traversed = [0]
         log_dict = {}
         for elevator in self.elevators:
             log_dict[f"Elevator {elevator.name}"] = []
@@ -54,12 +57,13 @@ class ElevatorBank:
                         floor_dict,
                         start_stop_delays,
                         start_step_delays,
+                        floors_traversed,
                         self,
                         log_dict,
                         rider_list_csv,
                     )
             sim_time = sim_time + time_step
-        return start_step_delays, start_stop_delays, log_dict
+        return start_step_delays, start_stop_delays, floors_traversed[-1], log_dict
 
 
 class Elevator:
@@ -96,6 +100,7 @@ class Elevator:
         floor_dict,
         start_stop_delays,
         start_step_delays,
+        floors_traversed,
         e_bank,
         log_dict,
         rider_list_csv,
@@ -120,6 +125,7 @@ class Elevator:
             rider_names_to_add, rider_names_to_remove, log_dict
         )
         self.floor += self.direction
+        floors_traversed.append(floors_traversed[-1] + abs(self.direction))
         self.simulate_delays(door_open_in, door_open_out)
         print(self.log)
 
@@ -129,6 +135,7 @@ class Elevator:
         floor_dict,
         start_stop_delays,
         start_step_delays,
+        floors_traversed,
         e_bank,
         log_dict,
         rider_list_csv,
@@ -156,6 +163,7 @@ class Elevator:
             rider_names_to_add, rider_names_to_remove, log_dict
         )
         self.floor += self.direction
+        floors_traversed.append(floors_traversed[-1] + abs(self.direction))
         self.simulate_delays(door_open_in, door_open_out)
         print(self.log)
 
