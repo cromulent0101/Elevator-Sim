@@ -12,22 +12,36 @@ import concurrent.futures
 import tkinter as tk
 
 
-simluation_csv = "sims/100random_at_once.csv"
+simluation_csv = "sims/office.csv"
 rider_list_csv = utils.get_riders_from_csv(simluation_csv)
 rider_list_csv_floor = utils.get_riders_from_csv(simluation_csv)
 
-t = Elevator(1, 3, "t")
-z = Elevator(1, 1, "z")
-t_floor = Elevator(1, 3, "t_floor")
-z_floor = Elevator(1, 1, "z_floor")
+elevator_capacity = 1
+num_elevators = 2
 
-e_bank = [t, z]
-e_bank_floor = [t_floor, z_floor]
+a = Elevator(elevator_capacity, 1, "a")
+b = Elevator(elevator_capacity, 1, "b")
+c = Elevator(elevator_capacity, 1, "c")
+d = Elevator(elevator_capacity, 1, "d")
+e = Elevator(elevator_capacity, 1, "e")
+f = Elevator(elevator_capacity, 1, "f")
+a_floor = Elevator(elevator_capacity, 1, "a_floor")
+b_floor = Elevator(elevator_capacity, 1, "b_floor")
+c_floor = Elevator(elevator_capacity, 1, "c_floor")
+d_floor = Elevator(elevator_capacity, 1, "d_floor")
+e_floor = Elevator(elevator_capacity, 1, "e_floor")
+f_floor = Elevator(elevator_capacity, 1, "f_floor")
 
-bank = ElevatorBank(e_bank)
-bank_floor = ElevatorBank(e_bank_floor)
-floor_dict = utils.create_floors(rider_list_csv, e_bank)
-floor_dict_floor = utils.create_floors(rider_list_csv_floor, e_bank_floor)
+e_bank = [a, b, c, d, e, f]
+e_bank_floor = [a_floor, b_floor, c_floor, d_floor, e_floor, f_floor]
+
+
+bank = ElevatorBank(e_bank[:num_elevators])
+bank_floor = ElevatorBank(e_bank_floor[:num_elevators])
+floor_dict = utils.create_floors(rider_list_csv, e_bank[:num_elevators])
+floor_dict_floor = utils.create_floors(
+    rider_list_csv_floor, e_bank_floor[:num_elevators]
+)
 
 time_step = 0.01
 max_time = 10000
