@@ -7,6 +7,7 @@ class ElevatorBank:
         self.elevators = elevator_list
         self.queue = set()  # floors that don't have an elevator going to them yet
 
+    ### BRILLIANT IDEA: DI!!! pass in the main method to use here (i.e. elevate vs elevate_floor)
     def simulate(self, rider_list_csv, floor_dict, time_step, max_time):
         sim_time = 0
         rider_list = []
@@ -125,7 +126,9 @@ class Elevator:
             rider_names_to_add, rider_names_to_remove, log_dict
         )
         self.floor += self.direction
-        floors_traversed.append(floors_traversed[-1] + abs(self.direction))
+        floors_traversed.append(
+            floors_traversed[-1] + abs(self.direction)
+        )  # wish there was a better way to do this. can mutate?
         self.simulate_delays(door_open_in, door_open_out)
         print(self.log)
 
@@ -163,7 +166,9 @@ class Elevator:
             rider_names_to_add, rider_names_to_remove, log_dict
         )
         self.floor += self.direction
-        floors_traversed.append(floors_traversed[-1] + abs(self.direction))
+        floors_traversed.append(
+            floors_traversed[-1] + abs(self.direction)
+        )  # wish there was a better way to do this. can mutate?
         self.simulate_delays(door_open_in, door_open_out)
         print(self.log)
 
@@ -208,6 +213,7 @@ class Elevator:
         log_str.append(self.direction)
         log_str.append(",".join(rider_names_to_add))
         log_str.append(",".join(rider_names_to_remove))
+        log_str.append(self.simulated_time)
         log_dict[f"Elevator {self.name}"].append(
             ";".join([str(log_element) for log_element in log_str])
         )
