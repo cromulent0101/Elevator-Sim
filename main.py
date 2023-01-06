@@ -12,12 +12,12 @@ import concurrent.futures
 import tkinter as tk
 
 
-simluation_csv = "sims/office.csv"
+simluation_csv = "sims/classic.csv"
 rider_list_csv = utils.get_riders_from_csv(simluation_csv)
 rider_list_csv_floor = utils.get_riders_from_csv(simluation_csv)
 
 elevator_capacity = 1
-num_elevators = 2
+num_elevators = 3
 
 a = Elevator(elevator_capacity, 1, "a")
 b = Elevator(elevator_capacity, 1, "b")
@@ -46,9 +46,8 @@ floor_dict_floor = utils.create_floors(
 time_step = 0.01
 max_time = 10000
 
-
 start_step_delays, start_stop_delays, floors_traversed, log_dict = bank.simulate(
-    rider_list_csv, floor_dict, time_step, max_time
+    rider_list_csv, floor_dict, time_step, max_time, "elevate"
 )
 
 (
@@ -56,8 +55,8 @@ start_step_delays, start_stop_delays, floors_traversed, log_dict = bank.simulate
     start_stop_delays_floor,
     floors_traversed_floor,
     log_dict_floor,
-) = bank_floor.simulate_floor(
-    rider_list_csv_floor, floor_dict_floor, time_step, max_time
+) = bank_floor.simulate(
+    rider_list_csv_floor, floor_dict_floor, time_step, max_time, "elevate_floor"
 )
 
 

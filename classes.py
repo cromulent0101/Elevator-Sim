@@ -8,7 +8,7 @@ class ElevatorBank:
         self.queue = set()  # floors that don't have an elevator going to them yet
 
     ### BRILLIANT IDEA: DI!!! pass in the main method to use here (i.e. elevate vs elevate_floor)
-    def simulate(self, rider_list_csv, floor_dict, time_step, max_time):
+    def simulate(self, rider_list_csv, floor_dict, time_step, max_time, elevate_type):
         sim_time = 0
         rider_list = []
         start_stop_delays = []
@@ -24,36 +24,7 @@ class ElevatorBank:
                     elevator.simulated_time >= sim_time
                     and elevator.simulated_time < sim_time + time_step
                 ):
-                    elevator.elevate(
-                        rider_list,
-                        floor_dict,
-                        start_stop_delays,
-                        start_step_delays,
-                        floors_traversed,
-                        self,
-                        log_dict,
-                        rider_list_csv,
-                    )
-            sim_time = sim_time + time_step
-        return start_step_delays, start_stop_delays, floors_traversed[-1], log_dict
-
-    def simulate_floor(self, rider_list_csv, floor_dict, time_step, max_time):
-        sim_time = 0
-        rider_list = []
-        start_stop_delays = []
-        start_step_delays = []
-        floors_traversed = [0]
-        log_dict = {}
-        for elevator in self.elevators:
-            log_dict[f"Elevator {elevator.name}"] = []
-        floor_dict["done"] = False
-        while not floor_dict["done"] and sim_time < max_time:
-            for elevator in self.elevators:
-                if (
-                    elevator.simulated_time >= sim_time
-                    and elevator.simulated_time < sim_time + time_step
-                ):
-                    elevator.elevate_floor(
+                    getattr(elevator, elevate_type)(
                         rider_list,
                         floor_dict,
                         start_stop_delays,
@@ -256,7 +227,7 @@ class Elevator:
         riders_to_remove = []
         rider_names_to_remove = []
         door_open = False
-        if self.floor in self.external_destinations:
+        if self.floor in self.external_destinations:  # TODO: see if we need this
             self.external_destinations.remove(self.floor)
         if self.floor in self.internal_destinations:
             self.internal_destinations.remove(self.floor)  # ding, we stop
