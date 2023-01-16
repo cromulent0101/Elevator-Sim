@@ -7,7 +7,6 @@ class ElevatorBank:
         self.elevators = elevator_list
         self.queue = set()  # floors that don't have an elevator going to them yet
 
-    ### BRILLIANT IDEA: DI!!! pass in the main method to use here (i.e. elevate vs elevate_floor)
     def simulate(self, rider_list_csv, floor_dict, time_step, max_time, elevate_type):
         sim_time = 0
         rider_list = []
@@ -196,8 +195,7 @@ class Elevator:
         """
         Lets riders out of the elevator, and adds a delay if anyone does.
 
-        Also removes the current floor from both external and
-        internal destinations.
+        Also removes the current floor from internal destinations.
         """
         riders_to_remove = []
         rider_names_to_remove = []
@@ -251,7 +249,7 @@ class Elevator:
             for floor in floor_dict.values():
                 if isinstance(
                     floor, Floor
-                ):  # there is a value in the dict that is not a Floor but rather a Boolean
+                ):  # there is a value in the floor_dict that is not a Floor but rather a Boolean
                     if keep_going_down and keep_going_up:
                         break
                     if floor.number > self.floor and (
@@ -384,7 +382,7 @@ class Elevator:
             else:  # if there's an elevator at our floor but not in right direction
                 rider.press_button_new_floor(e_bank)
 
-        # remove Rider from Floor if they are going in Elevator
+        # remove Riders from Floor if they are going in Elevator
         floor_dict[self.floor].riders = [
             e for e in floor_dict[self.floor].riders if e not in riders_to_step_in
         ]
@@ -448,7 +446,7 @@ class Rider:
         self.button_pressed = False
 
     def __str__(self):
-        return self.name  # for logging
+        return self.name
 
     def __repr__(self):
         return f"{self.name} began on {self.start_floor}, is now on {self.curr_floor} and wants to go to {self.destination}"

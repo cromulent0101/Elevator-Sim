@@ -77,3 +77,5 @@ if __name__ == "__main__":
     print("")
     print(f"Floors traversed: {floors_traversed}")
     print(f"Floors traversed by dispatch: {floors_traversed_floor}")
+
+    utils.test_helper(log_dict)
