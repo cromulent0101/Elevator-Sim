@@ -71,12 +71,13 @@ def test_first_classic(first_floor_elevator, classic_riders, simulation_settings
     bank = ElevatorBank(e_bank)
     floor_dict = utils.create_floors(classic_riders, e_bank, bank)
 
-    (
-        start_step_delays,
-        start_stop_delays,
-        floors_traversed,
-        log_dict,
-    ) = bank.simulate(classic_riders, floor_dict)
+    start_step_delays, start_stop_delays, floors_traversed, log_dict = bank.simulate(
+        classic_riders,
+        floor_dict,
+        simulation_settings[0],
+        simulation_settings[1],
+        simulation_settings[2],
+    )
 
 
 def test_random100(first_floor_elevator, random100_at_once_riders, simulation_settings):
@@ -85,5 +86,9 @@ def test_random100(first_floor_elevator, random100_at_once_riders, simulation_se
     floor_dict = utils.create_floors(random100_at_once_riders, e_bank, bank)
 
     start_step_delays, start_stop_delays, floors_traversed, log_dict = bank.simulate(
-        random100_at_once_riders, floor_dict
+        random100_at_once_riders,
+        floor_dict,
+        simulation_settings[0],
+        simulation_settings[1],
+        simulation_settings[2],
     )
