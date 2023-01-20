@@ -1,22 +1,8 @@
 # pylint: disable=import-error
 from classes import Elevator, Rider, Floor, ElevatorBank
 from typing import List, Dict
-from sys import maxsize
 import csv
 import pandas as pd
-
-
-def find_next_floor(curr_floor, internal_destinations):
-    up_floor = maxsize
-    down_floor = maxsize
-    for floor in internal_destinations:
-        if floor > curr_floor:  # find closest floor above
-            if abs(floor - curr_floor) < abs(up_floor - curr_floor):
-                up_floor = floor
-        if floor < curr_floor:  # find closest floor below
-            if abs(floor - curr_floor) < abs(down_floor - curr_floor):
-                down_floor = floor
-    return down_floor, up_floor
 
 
 def find_nearest_available_elevator(rider, elevator_bank: ElevatorBank) -> Elevator:
@@ -83,7 +69,9 @@ def get_riders_from_user() -> List[Rider]:
             return rider_list
 
 
-def update_riders_from_user(rider_list, floor_dict, elevator_bank):
+def update_riders_from_user(
+    rider_list, floor_dict, elevator_bank
+):  # TODO: revisit this with addition of destination control
     while True:
         try:
             rider_name = input("Enter a rider name: ")  # needs to be unique
@@ -104,6 +92,9 @@ def update_riders_from_user(rider_list, floor_dict, elevator_bank):
 
 
 def get_riders_from_csv(filename) -> List[Rider]:
+    """
+    Returns a list of Riders by parsing a CSV.
+    """
     rider_list = []
     with open(filename, newline="") as csvfile:
         rider_reader = csv.DictReader(csvfile, delimiter=",", quotechar='"')
