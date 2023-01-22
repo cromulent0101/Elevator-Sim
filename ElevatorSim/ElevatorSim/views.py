@@ -1,5 +1,5 @@
 # code from https://www.digitalocean.com/community/tutorials/build-a-to-do-application-using-django-and-react
-# pylint: disable=import-error
+# pylint: disable=import-error,no-member
 
 from django.shortcuts import render
 from rest_framework import viewsets
