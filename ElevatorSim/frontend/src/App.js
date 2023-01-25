@@ -7,26 +7,26 @@ const simItems = [
   {
     step_delays: "1;2;3",
     stop_delays: "1,2,3",
-    floors_traversed = 1,
-    log_dict = "1,2,3"
+    floors_traversed: 1,
+    log_dict: "1,2,3"
   },
   {
     step_delays: "1;2;3;5",
     stop_delays: "1,2,3",
-    floors_traversed = 1,
-    log_dict = "1,2,3"
+    floors_traversed: 1,
+    log_dict: "1,2,3"
   },
   {
     step_delays: "1;23",
     stop_delays: "1,2,3",
-    floors_traversed = 1,
-    log_dict = "1,2,3"
+    floors_traversed: 1,
+    log_dict: "1,2,3"
   },
   {
     step_delays: "1;2e3",
     stop_delays: "1,2,3",
-    floors_traversed = 1,
-    log_dict = "1,2,3"
+    floors_traversed: 1,
+    log_dict: "1,2,3"
   },
 ];
 
@@ -34,7 +34,7 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      viewCompleted: false,
+      viewCompleted: true,
       simList: simItems,
     };
   }
@@ -68,8 +68,8 @@ class App extends Component {
 
   renderItems = () => {
     const { viewCompleted } = this.state;
-    const newItems = this.state.todoList.filter(
-      (item) => item.completed == viewCompleted
+    const newItems = this.state.simList.filter(
+      (item) => item.floors_traversed === 1
     );
 
     return newItems.map((item) => (
@@ -81,7 +81,7 @@ class App extends Component {
           className={`todo-title mr-2 ${
             this.state.viewCompleted ? "completed-todo" : ""
           }`}
-          title={item.description}
+          title={item.log_dict}
         >
           {item.title}
         </span>
