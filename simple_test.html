@@ -1,0 +1,40 @@
+<!-- most of this code was written by GPT-3 -->
+
+<html>
+<head>
+<title>Paste Data</title>
+<script>
+function compileData() {
+  var step_delays = document.getElementById("data1").value;
+  var stop_delays = document.getElementById("data2").value;
+  var floors_traversed = document.getElementById("data3").value;
+  var log_dict = document.getElementById("data4").value;
+
+var data = {
+"step_delays": step_delays,
+"stop_delays": stop_delays,
+"floors_traversed": floors_traversed,
+"log_dict": log_dict
+};
+
+var xhr = new XMLHttpRequest();
+xhr.open("POST", "http://localhost:8000/api/simulations/", true);
+xhr.setRequestHeader("Content-Type", "application/json");
+xhr.send(JSON.stringify(data));
+}
+</script>
+</head>
+<body>
+<form>
+<textarea id="data1" rows="5" cols="50"></textarea>
+<br>
+<textarea id="data2" rows="5" cols="50"></textarea>
+<br>
+<textarea id="data3" rows="5" cols="50"></textarea>
+<br>
+<textarea id="data4" rows="5" cols="50"></textarea>
+<br>
+<input type="button" value="Submit" onclick="compileData()">
+</form>
+</body>
+</html>
