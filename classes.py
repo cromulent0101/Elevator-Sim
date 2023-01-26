@@ -1,5 +1,6 @@
 from time import sleep
 from sys import maxsize
+from typing import Tuple, List
 
 
 class ElevatorBank:
@@ -75,12 +76,12 @@ class Elevator:
         e_bank,
         log_dict,
         rider_list_csv,
-    ):
+    ) -> None:
         """
         Tells an elevator to pick up and drop off passengers
         given a rider list.
 
-        Returns a string that represents the actions taken by
+        Prints a string that represents the actions taken by
         the elevator.
         """
         self.check_for_new_riders(rider_list_csv, e_bank, floor_dict, rider_list)
@@ -112,12 +113,12 @@ class Elevator:
         e_bank,
         log_dict,
         rider_list_csv,
-    ):
+    ) -> None:
         """
         Tells an elevator to pick up and drop off passengers
         given a rider list.
 
-        Returns a string that represents the actions taken by
+        Prints a string that represents the actions taken by
         the elevator.
         """
         self.check_for_new_riders_floor(rider_list_csv, e_bank, floor_dict, rider_list)
@@ -144,7 +145,7 @@ class Elevator:
 
     def check_for_new_riders(  # should be refactored out of Elevator and into ElevatorBank
         self, rider_list_csv, elevator_bank, floor_dict, rider_list
-    ):
+    ) -> None:
         rider_list_csv_copy = [] + rider_list_csv
         if not rider_list_csv and not rider_list:
             floor_dict["done"] = True
@@ -158,7 +159,7 @@ class Elevator:
 
     def check_for_new_riders_floor(  # should be refactored out of Elevator and into ElevatorBank
         self, rider_list_csv, elevator_bank, floor_dict, rider_list
-    ):
+    ) -> None:
         rider_list_csv_copy = [] + rider_list_csv
         if not rider_list_csv and not rider_list:
             floor_dict["done"] = True
@@ -170,12 +171,12 @@ class Elevator:
                     rider.press_button_new_floor(elevator_bank)
                     rider_list_csv.remove(rider)
 
-    def simulate_delays(self, door_open_in, door_open_out):
+    def simulate_delays(self, door_open_in, door_open_out) -> None:
         if door_open_in or door_open_out:
             self.simulated_time = self.simulated_time + self.door_delay
         self.simulated_time = self.simulated_time + self.elevator_delay
 
-    def log_movement(self, rider_names_to_add, rider_names_to_remove, log_dict):
+    def log_movement(self, rider_names_to_add, rider_names_to_remove, log_dict) -> str:
         log_str = []
         rider_names_to_add.sort()
         rider_names_to_remove.sort()
@@ -191,7 +192,7 @@ class Elevator:
 
     def let_riders_out_new(
         self, rider_list, start_stop_delays, start_step_delays, log_dict
-    ):
+    ) -> Tuple[bool, List]:
         """
         Lets riders out of the elevator, and adds a delay if anyone does.
 
@@ -215,7 +216,7 @@ class Elevator:
 
     def let_riders_out_new_floor(
         self, rider_list, start_stop_delays, start_step_delays, log_dict
-    ):
+    ) -> Tuple[bool, List]:
         """
         Lets riders out of the elevator, and adds a delay if anyone does.
 
@@ -240,7 +241,7 @@ class Elevator:
             self.riders.remove(rider)
         return door_open, rider_names_to_remove
 
-    def update_direction_new(self, floor_dict):
+    def update_direction_new(self, floor_dict) -> None:
         keep_going_down = False
         keep_going_up = False
         if self.internal_destinations:
@@ -288,7 +289,7 @@ class Elevator:
             else:
                 self.direction = 0
 
-    def update_direction_new_floor(self, e_bank: ElevatorBank):
+    def update_direction_new_floor(self, e_bank: ElevatorBank) -> None:
         if self.direction == 0:
             if e_bank.queue:
                 print("went to elev queue")
@@ -308,7 +309,7 @@ class Elevator:
         else:
             self.direction = 0
 
-    def let_riders_in_new(self, floor_dict, e_bank):
+    def let_riders_in_new(self, floor_dict, e_bank) -> None:
         clear_up_button = False
         clear_down_button = False
         riders_still_waiting = False
@@ -347,7 +348,7 @@ class Elevator:
                 floor_dict[self.floor].down_request = False
         return door_open, rider_names_to_add
 
-    def let_riders_in_new_floor(self, floor_dict, e_bank):
+    def let_riders_in_new_floor(self, floor_dict, e_bank) -> None:
         door_open = False
         riders_to_step_in = []
         rider_names_to_add = []
@@ -397,7 +398,7 @@ class Elevator:
                 nearest_floor = floor
         return nearest_floor
 
-    def destination_check(self, floor_dict):
+    def destination_check(self, floor_dict) -> None:
         """
         Performs a sanity check on external destinations. If there is no rider at a Floor that is an external destination,
         remove it from the list of external destinations.
@@ -461,18 +462,18 @@ class Rider:
             elev.riders.append(self)
             return True
 
-    def step_out(self, elevator, start_stop_delays, start_step_delays):
+    def step_out(self, elevator, start_stop_delays, start_step_delays) -> None:
         start_stop_delays.append(elevator.simulated_time - self.when_to_add)
         start_step_delays.append(self.step_in_time - self.when_to_add)
 
-    def press_button_new(self, floor_dict):
+    def press_button_new(self, floor_dict) -> None:
         self.button_pressed = True
         if self.start_floor < self.destination:
             floor_dict[self.start_floor].up_request = True
         else:
             floor_dict[self.start_floor].down_request = True
 
-    def press_button_new_floor(self, e_bank: ElevatorBank):
+    def press_button_new_floor(self, e_bank: ElevatorBank) -> None:
         nearest_elevator = self.find_nearest_available_elevator(e_bank)
         if nearest_elevator:
             nearest_elevator.external_destinations.add(self.start_floor)
