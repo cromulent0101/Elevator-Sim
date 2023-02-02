@@ -1,26 +1,46 @@
 <!-- most of this code was written by GPT-3 -->
-
+<!DOCTYPE html>
 <html>
 <head>
 <title>Paste Data</title>
 <script>
-function compileData() {
-  var step_delays = document.getElementById("data1").value;
-  var stop_delays = document.getElementById("data2").value;
-  var floors_traversed = document.getElementById("data3").value;
-  var log_dict = document.getElementById("data4").value;
+  function compileData() {
+    var step_delays = document.getElementById("data1").value;
+    var stop_delays = document.getElementById("data2").value;
+    var floors_traversed = document.getElementById("data3").value;
+    var log_dict = document.getElementById("data4").value;
 
-var data = {
-"step_delays": step_delays,
-"stop_delays": stop_delays,
-"floors_traversed": floors_traversed,
-"log_dict": log_dict
-};
+  function sendData() {
+      // POST data to API
+      
+    }
 
-var xhr = new XMLHttpRequest();
-xhr.open("POST", "http://localhost:8000/api/simulations/", true);
-xhr.setRequestHeader("Content-Type", "application/json");
-xhr.send(JSON.stringify(data));
+  var data = {
+  "step_delays": step_delays,
+  "stop_delays": stop_delays,
+  "floors_traversed": floors_traversed,
+  "log_dict": log_dict
+  };
+
+  fetch('http://localhost:8000/api/simulations/', {
+    method: 'POST',
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(data)
+  })
+  .then((response) => response.text())
+  .then((text) => {
+    // Display response to user
+    document.getElementById('response').innerHTML = text;
+  });
+  // var xhr = new XMLHttpRequest();
+  // xhr.open("POST", "http://localhost:8000/api/simulations/", true);
+  // xhr.setRequestHeader("Content-Type", "application/json");
+  // xhr.send(JSON.stringify(data));
+
+
 }
 </script>
 </head>
@@ -36,5 +56,6 @@ xhr.send(JSON.stringify(data));
 <br>
 <input type="button" value="Submit" onclick="compileData()">
 </form>
+<div id="response"></div>
 </body>
 </html>
