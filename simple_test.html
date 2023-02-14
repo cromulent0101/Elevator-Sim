@@ -3,59 +3,42 @@
 <html>
 <head>
 <title>Paste Data</title>
-<script>
-  function compileData() {
-    var step_delays = document.getElementById("data1").value;
-    var stop_delays = document.getElementById("data2").value;
-    var floors_traversed = document.getElementById("data3").value;
-    var log_dict = document.getElementById("data4").value;
-
-  function sendData() {
-      // POST data to API
-      
-    }
-
-  var data = {
-  "step_delays": step_delays,
-  "stop_delays": stop_delays,
-  "floors_traversed": floors_traversed,
-  "log_dict": log_dict
-  };
-
-  fetch('http://localhost:8000/api/simulations/', {
-    method: 'POST',
-    headers: {
-      'Accept': 'application/json',
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(data)
-  })
-  .then((response) => response.text())
-  .then((text) => {
-    // Display response to user
-    document.getElementById('response').innerHTML = text;
-  });
-  // var xhr = new XMLHttpRequest();
-  // xhr.open("POST", "http://localhost:8000/api/simulations/", true);
-  // xhr.setRequestHeader("Content-Type", "application/json");
-  // xhr.send(JSON.stringify(data));
-
-
-}
-</script>
 </head>
 <body>
-<form>
-<textarea id="data1" rows="5" cols="50"></textarea>
-<br>
-<textarea id="data2" rows="5" cols="50"></textarea>
-<br>
-<textarea id="data3" rows="5" cols="50"></textarea>
-<br>
-<textarea id="data4" rows="5" cols="50"></textarea>
-<br>
-<input type="button" value="Submit" onclick="compileData()">
-</form>
+  <form id="myForm">
+    <label for="name">Name:</label>
+    <input type="text" id="name" name="name"><br>
+    <label for="email">Email:</label>
+    <input type="text" id="email" name="email"><br>
+    <label for="phone">Phone:</label>
+    <input type="text" id="phone" name="phone"><br>
+    <input type="submit" value="Submit">
+  </form>
 <div id="response"></div>
+<script>
+
+  document.getElementById('myForm').addEventListener('submit', function(event) {
+          // Prevent default form submission behavior
+    event.preventDefault();
+  
+    const data = new FormData(event.target);
+  
+    fetch('http://localhost:8000/api/simulations/', {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(Object.fromEntries(data))
+    })
+    .then((response) => response.text())
+    .then((text) => {
+      // Display response to user
+      document.getElementById('response').innerHTML = text;
+    });
+  
+  });
+  
+  </script>
 </body>
 </html>
