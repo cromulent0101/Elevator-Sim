@@ -6,12 +6,14 @@
 </head>
 <body>
   <form id="myForm">
-    <label for="name">Name:</label>
-    <input type="text" id="name" name="name"><br>
-    <label for="email">Email:</label>
-    <input type="text" id="email" name="email"><br>
-    <label for="phone">Phone:</label>
-    <input type="text" id="phone" name="phone"><br>
+    <label for="name">step_delays:</label>
+    <input type="text" id="step_delays" name="step_delays"><br>
+    <label for="stop_delays">stop_delays:</label>
+    <input type="text" id="stop_delays" name="stop_delays"><br>
+    <label for="floors_traversed">floors_traversed:</label>
+    <input type="text" id="floors_traversed" name="floors_traversed"><br>
+    <label for="log_dict">log_dict:</label>
+    <input type="text" id="log_dict" name="log_dict"><br>
     <input type="submit" value="Submit">
   </form>
 <div id="response"></div>
@@ -32,6 +34,7 @@
       body: JSON.stringify(Object.fromEntries(data))
     })
     .then((response) => response.text())
+    .then(json => console.log(json))
     .then((text) => {
       // Display response to user
       document.getElementById('response').innerHTML = text;
