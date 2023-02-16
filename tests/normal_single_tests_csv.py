@@ -43,7 +43,7 @@ def top_floor_elevator():
 
 @pytest.fixture
 def classic_riders():
-    return utils.get_riders_from_csv("../sims/classic.csv")
+    return utils.get_riders_from_csv("./sims/classic.csv")
 
 
 @pytest.fixture
@@ -63,32 +63,40 @@ def random100_riders():
 
 @pytest.fixture
 def random100_at_once_riders():
-    return utils.get_riders_from_csv("../sims/100random_at_once.csv")
+    return utils.get_riders_from_csv("./sims/100random_at_once.csv")
 
 
-def test_first_classic(first_floor_elevator, classic_riders, simulation_settings):
+# TODO: add actual assert statements here
+def test_first_classic(
+    first_floor_elevator, classic_riders, simulation_settings_normal
+):
     e_bank = [first_floor_elevator]
     bank = ElevatorBank(e_bank)
-    floor_dict = utils.create_floors(classic_riders, e_bank, bank)
+    floor_dict = utils.create_floors(classic_riders, e_bank)
 
     start_step_delays, start_stop_delays, floors_traversed, log_dict = bank.simulate(
         classic_riders,
         floor_dict,
-        simulation_settings[0],
-        simulation_settings[1],
-        simulation_settings[2],
+        simulation_settings_normal[0],
+        simulation_settings_normal[1],
+        simulation_settings_normal[2],
     )
+    # print(classic_riders[0])
+    # print(log_dict.values[0])
+    # assert classic_riders[0].name in ''.join(log_dict.values[0])
 
 
-def test_random100(first_floor_elevator, random100_at_once_riders, simulation_settings):
+def test_random100(
+    first_floor_elevator, random100_at_once_riders, simulation_settings_normal
+):
     e_bank = [first_floor_elevator]
     bank = ElevatorBank(e_bank)
-    floor_dict = utils.create_floors(random100_at_once_riders, e_bank, bank)
+    floor_dict = utils.create_floors(random100_at_once_riders, e_bank)
 
     start_step_delays, start_stop_delays, floors_traversed, log_dict = bank.simulate(
         random100_at_once_riders,
         floor_dict,
-        simulation_settings[0],
-        simulation_settings[1],
-        simulation_settings[2],
+        simulation_settings_normal[0],
+        simulation_settings_normal[1],
+        simulation_settings_normal[2],
     )
