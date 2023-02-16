@@ -23,5 +23,7 @@ from ElevatorSim import views
 
 router = routers.DefaultRouter()
 router.register(r"simulations", views.SimulationView, "simulation")
+router.register(r"simulation-requests", views.SimulationView, "simulation-request")
+
 
 urlpatterns = [path("admin/", admin.site.urls), path("api/", include(router.urls))]

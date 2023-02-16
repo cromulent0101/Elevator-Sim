@@ -2,10 +2,16 @@
 # pylint: disable=import-error
 
 from rest_framework import serializers
-from .models import Simulation
+from .models import Simulation, SimulationRequest
 
 
 class SimulationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Simulation
         fields = ("step_delays", "stop_delays", "floors_traversed", "log_dict")
+
+
+class SimulationRequestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SimulationRequest
+        fields = ("rider_list", "num_elevators", "TIME_STEP", "elevate_type")

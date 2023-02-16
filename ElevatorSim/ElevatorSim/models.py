@@ -9,5 +9,11 @@ class Simulation(models.Model):
     floors_traversed = models.IntegerField()
     log_dict = models.TextField()
 
+
+class SimulationRequest(models.Model):
+    rider_list = models.CommaSeparatedIntegerField(max_length=5000)
+    num_elevators = models.IntegerField()
+    TIME_STEP = models.FloatField()
+    elevate_type = models.TextField()
     # def _str_(self):
     #     return self.title
