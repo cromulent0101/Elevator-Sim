@@ -10,6 +10,21 @@ class SimulationSerializer(serializers.ModelSerializer):
         model = Simulation
         fields = ("step_delays", "stop_delays", "floors_traversed", "log_dict")
 
+    # run some custom code when an object comes in and gets created
+    def create(self, validated_data):
+        # items_data = validated_data.pop('items')
+
+        # similar to Parent.objects.create(**validated_data)
+        sim = Simulation.objects.create(
+            step_delays="asdf",
+            stop_delays="ASDASDASDASD",
+            floors_traversed=2010201,
+            log_dict="hello",
+        )
+        # parent = super().create(**validated_data)
+
+        return sim
+
 
 class SimulationRequestSerializer(serializers.ModelSerializer):
     class Meta:
