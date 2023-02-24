@@ -1,18 +1,20 @@
 # code taken from https://www.digitalocean.com/community/tutorials/build-a-to-do-application-using-django-and-react
-# pylint: disable=import-error
+# pylint: skip-file
+import sys
+
+sys.path.append("..")
 import utils
-import csv
-import random
-import os
 from classes import Elevator, Rider, Floor, ElevatorBank
 from rest_framework import serializers
 from .models import Simulation, SimulationRequest
 
 
 class SimulationSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(read_only=True)
+
     class Meta:
         model = Simulation
-        fields = ("step_delays", "stop_delays", "floors_traversed", "log_dict")
+        fields = ("id", "step_delays", "stop_delays", "floors_traversed", "log_dict")
 
     # run some custom code when an object comes in and gets created
     def create(self, validated_data):
@@ -58,6 +60,7 @@ class SimulationRequestSerializer(serializers.ModelSerializer):
             rider_list.append(new_rider)
 
         NUM_ELEVATORS = validated_data.pop("num_elevators")
+        MAX_TIME = 10000
         bank = ElevatorBank(e_bank[:NUM_ELEVATORS])
         floor_dict = utils.create_floors(rider_list, e_bank[:NUM_ELEVATORS])
 
@@ -69,7 +72,7 @@ class SimulationRequestSerializer(serializers.ModelSerializer):
         ) = bank.simulate(
             rider_list,
             floor_dict,
-            TIME_STEP,
+            validated_data.pop("TIME_STEP"),
             MAX_TIME,
             validated_data.pop("elevate_type"),
         )
