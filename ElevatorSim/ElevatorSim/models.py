@@ -12,7 +12,7 @@ class Simulation(models.Model):
 
 
 class SimulationRequest(models.Model):
-    rider_list = models.CommaSeparatedIntegerField(max_length=5000)
+    rider_list = models.TextField()
     num_elevators = models.IntegerField()
     TIME_STEP = models.FloatField()
     elevate_type = models.TextField()
