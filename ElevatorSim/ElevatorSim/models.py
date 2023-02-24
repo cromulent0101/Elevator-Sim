@@ -4,6 +4,7 @@ from django.db import models
 
 
 class Simulation(models.Model):
+    id = models.IntegerField(primary_key=True)
     step_delays = models.TextField()
     stop_delays = models.TextField()
     floors_traversed = models.IntegerField()
