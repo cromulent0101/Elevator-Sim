@@ -1,4 +1,6 @@
 # code taken from https://www.digitalocean.com/community/tutorials/build-a-to-do-application-using-django-and-react
+# see https://github.com/buckyroberts/Vataxia/tree/master/v1 for example DRF usage in general
+# seee https://stackoverflow.com/questions/70492496/how-i-can-set-id-in-django-rest-framework-jsonapi-response for how to get ID back in response
 # pylint: skip-file
 import sys
 
@@ -22,10 +24,15 @@ class SimulationSerializer(serializers.ModelSerializer):
 
         # similar to Parent.objects.create(**validated_data)
         sim = Simulation.objects.create(
-            step_delays="asdf",
+            id=123323123123123,
+            step_delays="i am new",
             stop_delays="ASDASDASDASD",
             floors_traversed=2010201,
             log_dict="hello",
+            TIME_STEP=0.5,
+            rider_list="test",
+            elevate_type="elevate",
+            num_elevators=1,
         )
         # parent = super().create(**validated_data)
 
