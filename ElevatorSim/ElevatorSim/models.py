@@ -16,9 +16,13 @@ class Simulation(models.Model):
 
 
 class SimulationRequest(models.Model):
+    id = models.IntegerField(primary_key=True)
+    created = models.DateTimeField(auto_now_add=True)
+    step_delays = models.TextField(blank=True, default="")
+    stop_delays = models.TextField(blank=True, default="")
+    floors_traversed = models.IntegerField(blank=True, default=1)
+    log_dict = models.TextField(blank=True, default="")
     rider_list = models.TextField()
     num_elevators = models.IntegerField()
     TIME_STEP = models.FloatField()
     elevate_type = models.TextField()
-    # def _str_(self):
-    #     return self.title

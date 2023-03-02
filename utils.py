@@ -109,6 +109,25 @@ def get_riders_from_csv(filename) -> List[Rider]:
     return rider_list
 
 
+def get_riders_from_string(riders: str) -> List[Rider]:
+    """
+    Takes a newline-delimited list of riders, which are
+    sub-deimited by semicolons, and returns a list of Riders.
+
+    Each Rider is in the format:
+
+    name;start_floor;destination;when_to_add
+    """
+    rider_list = []
+    for line in riders.split("\n"):
+        rider_data = line.split(";")
+        new_rider = Rider(rider_data[0], int(rider_data[1]), int(rider_data[2]))
+        new_rider.when_to_add = int(rider_data[3])
+        rider_list.append(new_rider)
+
+    return rider_list
+
+
 def create_floors(
     rider_list: List[Rider], elevator_bank: List[Elevator]
 ) -> Dict[int, Floor]:
