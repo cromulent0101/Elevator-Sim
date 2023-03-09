@@ -36,7 +36,7 @@
   // Define a function to check for the image file. THere's gotta be a better way
   function checkForImage(graph_id) {
     // Try to load the image using its file path
-    const fileUrl = "./graphs/5241332834447414735.png"; // Change this to the path of your image file
+    const fileUrl = `./graphs/${graph_id}.png`; // Change this to the path of your image file
     const http = new XMLHttpRequest();
     http.open("HEAD", fileUrl, false);
     http.send();
@@ -70,18 +70,21 @@
     // .then(json => console.log(json))
     .then((text) => {
       // Display response to user
+      jason = JSON.parse(text)
       document.getElementById('response').innerHTML = text;
     });
+    
     // need to load graph PNG here at some points
     const img = document.getElementById("my-image");
 
     // Set a flag to track whether the image has been found
     let imageFound = false;
-    
+
     // Check for the image file every 500 milliseconds (0.5 seconds)
     const intervalId = setInterval(() => {
       if (!imageFound) {
-        checkForImage();
+        console.log(jason.graph_id)
+        checkForImage(jason.graph_id);
       } else {
         clearInterval(intervalId);
       }

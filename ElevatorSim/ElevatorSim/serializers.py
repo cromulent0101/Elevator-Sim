@@ -77,8 +77,7 @@ class SimulationRequestSerializer(serializers.ModelSerializer):
         MAX_TIME = 10000
         bank = ElevatorBank(e_bank[:NUM_ELEVATORS])
         floor_dict = utils.create_floors(rider_list, e_bank[:NUM_ELEVATORS])
-        graph_id = abs(int(hash(str(step_delays))))
-        graphs.generate_histogram(step_delays)
+
         (
             start_step_delays,
             start_stop_delays,
@@ -91,7 +90,8 @@ class SimulationRequestSerializer(serializers.ModelSerializer):
             MAX_TIME,
             elevate_type,
         )
-
+        graph_id = abs(int(hash(str(start_step_delays))))
+        graphs.generate_histogram(start_step_delays)
         sim = SimulationRequest.objects.create(
             id=random.randint(0, 10000),
             step_delays=start_step_delays,
