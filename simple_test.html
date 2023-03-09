@@ -31,8 +31,27 @@
 
   </form>
 <div id="response"></div>
+<div id="my-image"></div>
 <script>
-
+  // Define a function to check for the image file. THere's gotta be a better way
+  function checkForImage(graph_id) {
+    // Try to load the image using its file path
+    const fileUrl = "./graphs/5241332834447414735.png"; // Change this to the path of your image file
+    const http = new XMLHttpRequest();
+    http.open("HEAD", fileUrl, false);
+    http.send();
+    console.log(http.status)
+    // If the status code is 200, the file exists
+    if (http.status === 200) {
+      // Create a new image element with the found file path
+      const foundImg = document.createElement("img");
+      foundImg.src = fileUrl;
+      
+      // Replace the existing image element in the DOM with the found image element
+      img.parentNode.replaceChild(foundImg, img);
+      imageFound = true;
+    }
+  }
   document.getElementById('myForm').addEventListener('submit', function(event) {
           // Prevent default form submission behavior
     event.preventDefault();
@@ -53,8 +72,49 @@
       // Display response to user
       document.getElementById('response').innerHTML = text;
     });
-  
+    // need to load graph PNG here at some points
+    const img = document.getElementById("my-image");
+
+    // Set a flag to track whether the image has been found
+    let imageFound = false;
+    
+    // Check for the image file every 500 milliseconds (0.5 seconds)
+    const intervalId = setInterval(() => {
+      if (!imageFound) {
+        checkForImage();
+      } else {
+        clearInterval(intervalId);
+      }
+    }, 500);
+
+    // Give up after 10 seconds
+    setTimeout(() => {
+      clearInterval(intervalId);
+    }, 10000);
   });
+
+  // Get the image element from the DOM
+  const img = document.getElementById("my-image");
+
+  // Set a flag to track whether the image has been found
+  let imageFound = false;
+
+  
+
+  // Check for the image file every 500 milliseconds (0.5 seconds)
+  const intervalId = setInterval(() => {
+    if (!imageFound) {
+      checkForImage();
+    } else {
+      clearInterval(intervalId);
+    }
+  }, 500);
+
+  // Give up after 10 seconds
+  setTimeout(() => {
+    clearInterval(intervalId);
+  }, 10000);
+
   
   </script>
 </body>
