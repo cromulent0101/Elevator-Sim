@@ -1,25 +1,63 @@
 import matplotlib.pyplot as plt
+import random
 from io import BytesIO
 from typing import List, Dict
 
 
 def generate_histogram(data: List) -> None:
-    fig, ax = plt.subplots()
-    ax.plot([1, 2, 3], [4, 5, 6])
-
-    # Save the graph to a BytesIO object
-    buffer = BytesIO()
-    fig.savefig(buffer, format="png")
-    buffer.seek(0)
+    # can we cache inputs to prevent excessive storage of graphs?
+    name = hash(
+        str(data)
+    )  # ok this won't work because Python changes the seed each time
+    fig, ax = plt.subplots(1, 1)
+    ax.hist(data)
+    # ax.plot([1, 2, 3])
+    # ax.plot(data)
+    # # Save the graph to a BytesIO object
+    # buffer = BytesIO()
+    plt.savefig(f"../graphs/{abs(int(name))}.png")
+    # plt.show()
+    # buffer.seek(0)
 
 
 if __name__ == "__main__":
+    data = [
+        412341,
+        3,
+        2,
+        1,
+        1,
+        43,
+        14,
+        3,
+        14,
+        5,
+        1,
+        23,
+        14,
+        13,
+        1,
+        3,
+        1,
+        31,
+        34,
+        1,
+        34,
+        1,
+        1,
+        323,
+        2,
+    ]
 
     # Generate your Matplotlib graph
+    # for _ in range(1000):
+    #     data.append(random.normalvariate(0,10))
 
-    fig, ax = plt.subplots()
-    ax.plot([1, 2, 3], [4, 5, 6])
-    plt.show()
+    generate_histogram(data)
+    # fig, ax = plt.subplots(1,1)
+    # ax.hist(data)
+    # plt.savefig('../graphs/test.png')
+    # plt.show()
 
     # Save the graph to a BytesIO object
     # buffer = BytesIO()
