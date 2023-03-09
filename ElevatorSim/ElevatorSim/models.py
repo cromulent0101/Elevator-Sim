@@ -22,6 +22,7 @@ class SimulationRequest(models.Model):
     stop_delays = models.TextField(blank=True, default="")
     floors_traversed = models.IntegerField(blank=True, default=1)
     log_dict = models.TextField(blank=True, default="")
+    graph_id = models.IntegerField(blank=True, default=1)
     rider_list = models.TextField()
     num_elevators = models.IntegerField()
     TIME_STEP = models.FloatField()

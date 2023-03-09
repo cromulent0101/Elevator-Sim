@@ -8,6 +8,7 @@ import random
 
 sys.path.append("..")
 import utils
+import graphs
 from classes import Elevator, Rider, Floor, ElevatorBank
 from rest_framework import serializers
 from .models import Simulation, SimulationRequest
@@ -45,6 +46,13 @@ class SimulationRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = SimulationRequest
         fields = ("rider_list", "num_elevators", "TIME_STEP", "elevate_type")
+        read_only_fields = [
+            "step_delays",
+            "stop_delays",
+            "floors_traversed",
+            "log_dict",
+            "graph_id",
+        ]
 
     def create(self, validated_data):
         # hardcode 6 elevs for now with 3 capacity each
@@ -69,7 +77,8 @@ class SimulationRequestSerializer(serializers.ModelSerializer):
         MAX_TIME = 10000
         bank = ElevatorBank(e_bank[:NUM_ELEVATORS])
         floor_dict = utils.create_floors(rider_list, e_bank[:NUM_ELEVATORS])
-
+        graph_id = abs(int(hash(str(step_delays))))
+        graphs.generate_histogram(step_delays)
         (
             start_step_delays,
             start_stop_delays,
@@ -89,6 +98,7 @@ class SimulationRequestSerializer(serializers.ModelSerializer):
             stop_delays=start_stop_delays,
             floors_traversed=floors_traversed,
             log_dict=log_dict,
+            graph_id=graph_id,
             TIME_STEP=0.5,
             rider_list="test",
             elevate_type="elevate",
