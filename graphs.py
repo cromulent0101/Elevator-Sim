@@ -1,7 +1,10 @@
+import matplotlib
 import matplotlib.pyplot as plt
 import random
 from io import BytesIO
 from typing import List, Dict
+
+matplotlib.use("agg")
 
 
 def generate_histogram(data: List) -> None:
@@ -9,8 +12,8 @@ def generate_histogram(data: List) -> None:
     name = hash(
         str(data)
     )  # ok this won't work because Python changes the seed each time
-    fig, ax = plt.subplots(1, 1)
-    ax.hist(data)
+    # fig, ax = plt.subplots(1, 1)
+    plt.hist(data)
     # ax.plot([1, 2, 3])
     # ax.plot(data)
     # # Save the graph to a BytesIO object
