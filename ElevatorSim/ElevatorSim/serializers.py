@@ -45,7 +45,13 @@ class SimulationSerializer(serializers.ModelSerializer):
 class SimulationRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = SimulationRequest
-        fields = ("rider_list", "num_elevators", "TIME_STEP", "elevate_type")
+        fields = (
+            "rider_list",
+            "num_elevators",
+            "TIME_STEP",
+            "elevate_type",
+            "graph_id",
+        )
         read_only_fields = [
             "step_delays",
             "stop_delays",
@@ -90,8 +96,8 @@ class SimulationRequestSerializer(serializers.ModelSerializer):
             MAX_TIME,
             elevate_type,
         )
-        graph_id = abs(int(hash(str(start_step_delays))))
-        graphs.generate_histogram(start_step_delays)
+        graph_id = graphs.generate_histogram(start_step_delays)
+
         sim = SimulationRequest.objects.create(
             id=random.randint(0, 10000),
             step_delays=start_step_delays,
@@ -99,10 +105,10 @@ class SimulationRequestSerializer(serializers.ModelSerializer):
             floors_traversed=floors_traversed,
             log_dict=log_dict,
             graph_id=graph_id,
-            TIME_STEP=0.5,
-            rider_list="test",
-            elevate_type="elevate",
-            num_elevators=1,
+            TIME_STEP=TIME_STEP,
+            rider_list=rider_input,
+            elevate_type=elevate_type,
+            num_elevators=NUM_ELEVATORS,
         )
         # parent = super().create(**validated_data)
         return sim

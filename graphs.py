@@ -7,11 +7,11 @@ from typing import List, Dict
 matplotlib.use("agg")
 
 
-def generate_histogram(data: List) -> None:
+def generate_histogram(data: List) -> str:
     # can we cache inputs to prevent excessive storage of graphs?
-    name = hash(
-        str(data)
-    )  # ok this won't work because Python changes the seed each time
+    name = str(hash(str(data)))[
+        0:10
+    ]  # ok this won't work because Python changes the seed each time
     # fig, ax = plt.subplots(1, 1)
     plt.hist(data)
     # ax.plot([1, 2, 3])
@@ -21,6 +21,7 @@ def generate_histogram(data: List) -> None:
     plt.savefig(f"../graphs/{abs(int(name))}.png")
     # plt.show()
     # buffer.seek(0)
+    return name
 
 
 if __name__ == "__main__":
