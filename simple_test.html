@@ -36,7 +36,7 @@
   // Define a function to check for the image file. THere's gotta be a better way
   function checkForImage(graph_id) {
     // Try to load the image using its file path
-    const fileUrl = `./graphs/${graph_id}.png`; // Change this to the path of your image file
+    const fileUrl = `graphs/${graph_id}.png`; // Change this to the path of your image file
     const http = new XMLHttpRequest();
     http.open("HEAD", fileUrl, false);
     http.send();
