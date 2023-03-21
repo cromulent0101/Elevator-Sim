@@ -1,5 +1,5 @@
 # code taken from https://www.digitalocean.com/community/tutorials/build-a-to-do-application-using-django-and-react
-# see https://github.com/buckyroberts/Vataxia/tree/master/v1 for example DRF usage in general
+# see https://github.com/buckyroberts/Vataxia/tree/master/v1 for example DRF usage in the wild
 # seee https://stackoverflow.com/questions/70492496/how-i-can-set-id-in-django-rest-framework-jsonapi-response for how to get ID back in response
 # for larger web app with AWS integration and authz look at https://www.reddit.com/r/django/comments/11f1w49/built_a_fullstack_blog_web_app_using/
 # pylint: skip-file
@@ -20,26 +20,6 @@ class SimulationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Simulation
         fields = ("id", "step_delays", "stop_delays", "floors_traversed", "log_dict")
-
-    # run some custom code when an object comes in and gets created
-    def create(self, validated_data):
-        # items_data = validated_data.pop('items')
-
-        # similar to Parent.objects.create(**validated_data)
-        sim = Simulation.objects.create(
-            id=123323123123123,
-            step_delays="i am new",
-            stop_delays="ASDASDASDASD",
-            floors_traversed=2010201,
-            log_dict="hello",
-            TIME_STEP=0.5,
-            rider_list="test",
-            elevate_type="elevate",
-            num_elevators=1,
-        )
-        # parent = super().create(**validated_data)
-
-        return sim
 
 
 class SimulationRequestSerializer(serializers.ModelSerializer):
