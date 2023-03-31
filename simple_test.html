@@ -30,8 +30,12 @@
     <input type="submit" value="Submit">
 
   </form>
-<div id="response"></div>
-<div id="my-image"></div>
+  <div id="response"></div>
+  <div id="my-image"></div>
+
+  <input type="file" id="csvfile" accept=".csv">
+  <button type="button" id="validateBtn">Validate CSV</button>
+
 <script>
   // Define a function to check for the image file. THere's gotta be a better way
   function checkForImage(graph_id) {
@@ -52,6 +56,7 @@
       imageFound = true;
     }
   }
+
   document.getElementById('myForm').addEventListener('submit', function(event) {
           // Prevent default form submission behavior
     event.preventDefault();
@@ -102,9 +107,9 @@
   // Set a flag to track whether the image has been found
   let imageFound = false;
 
-  
 
   // Check for the image file every 500 milliseconds (0.5 seconds)
+  // TODO: find a better way to do this without constant polling
   const intervalId = setInterval(() => {
     if (!imageFound) {
       checkForImage();
@@ -118,6 +123,63 @@
     clearInterval(intervalId);
   }, 10000);
 
+
+
+  document.getElementById('validateBtn').addEventListener('click', function() {
+    var file = document.getElementById('csvfile').files[0];
+    console.log(file);
+    console.log(file.type);
+    if (file && file.type === 'text/csv') {
+      console.log(valid);
+      var valid = validateCSV(file);
+      console.log(valid);
+
+      // if (valid) {
+      //   alert('CSV file is valid');
+      // } else {
+      //   alert('CSV file is invalid');
+      // }
+      alert(valid);
+    } else {
+      alert('Please select a valid CSV file');
+    }
+  });
+
+  function validateCSV(file) {
+    // console.log(file);
+    var reader = new FileReader();
+    reader.onload = function(event) {
+      var csv = event.target.result;
+      var lines = csv.split(/\r\n|\n/);
+      for (var i = 0; i < lines.length; i++) {
+        var columns = lines[i].split(',');
+        if (columns.length !== 3) {
+          console.log('cols not 34');
+          return false;
+        }
+        var id = parseInt(columns[0]);
+        if (isNaN(id)) {
+          console.log('not good id');
+
+          return false;
+        }
+        var name = columns[1].trim();
+        if (name === '') {
+          console.log('name bad');
+
+          return false;
+        }
+        var date = Date.parse(columns[2]);
+        if (isNaN(date)) {
+          console.log('date not parsed');
+
+          return false;
+        }
+      }
+      return true;
+    };
+    reader.readAsText(file);
+  };
   
   </script>
 </body>
