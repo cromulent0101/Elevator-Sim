@@ -123,64 +123,45 @@
     clearInterval(intervalId);
   }, 10000);
 
+  document.getElementById('csvfile').addEventListener('change', function (event) {
+      const file = event.target.files[0];
+      const reader = new FileReader();
 
+      reader.onload = function (e) {
+          console.log('i loaded file');
+          const contents = e.target.result;
+          const lines = contents.split('\n');
+          const regexRules = [
+              /^[a-zA-Z0-9]+$/,
+              /^\d{2}\/\d{2}\/\d{4}$/
+          ];
 
-  document.getElementById('validateBtn').addEventListener('click', function() {
-    var file = document.getElementById('csvfile').files[0];
-    console.log(file);
-    console.log(file.type);
-    if (file && file.type === 'text/csv') {
-      console.log(valid);
-      var valid = validateCSV(file);
-      console.log(valid);
+          let isValid = true;
 
-      // if (valid) {
-      //   alert('CSV file is valid');
-      // } else {
-      //   alert('CSV file is invalid');
-      // }
-      alert(valid);
-    } else {
-      alert('Please select a valid CSV file');
-    }
+          for (const line of lines) {
+              const cells = line.split(',');
+              console.log('i split a line');
+              for (let i = 0; i < cells.length; i++) {
+                  if (i < regexRules.length && !regexRules[i].test(cells[i])) {
+                      console.log(cells[i])
+                      isValid = false;
+                  }
+              }
+          }
+
+          if (isValid) {
+              alert('The CSV is valid.');
+          } else {
+              alert('The CSV is not valid.');
+          }
+      };
+
+      reader.onerror = function () {
+          alert('Error reading the CSV file.');
+      };
+
+      reader.readAsText(file);
   });
-
-  function validateCSV(file) {
-    // console.log(file);
-    var reader = new FileReader();
-    reader.onload = function(event) {
-      var csv = event.target.result;
-      var lines = csv.split(/\r\n|\n/);
-      for (var i = 0; i < lines.length; i++) {
-        var columns = lines[i].split(',');
-        if (columns.length !== 3) {
-          console.log('cols not 34');
-          return false;
-        }
-        var id = parseInt(columns[0]);
-        if (isNaN(id)) {
-          console.log('not good id');
-
-          return false;
-        }
-        var name = columns[1].trim();
-        if (name === '') {
-          console.log('name bad');
-
-          return false;
-        }
-        var date = Date.parse(columns[2]);
-        if (isNaN(date)) {
-          console.log('date not parsed');
-
-          return false;
-        }
-      }
-      return true;
-    };
-    reader.readAsText(file);
-  };
-  
   </script>
 </body>
 </html>
