@@ -120,7 +120,7 @@ def get_riders_from_string(riders: str) -> List[Rider]:
     """
     rider_list = []
     for line in riders.split("\n"):
-        rider_data = line.split(";")
+        rider_data = line.split(",")
         new_rider = Rider(rider_data[0], int(rider_data[1]), int(rider_data[2]))
         new_rider.when_to_add = int(rider_data[3])
         rider_list.append(new_rider)
