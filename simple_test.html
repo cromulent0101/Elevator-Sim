@@ -16,10 +16,10 @@
     <label for="log_dict">log_dict:</label>
     <input type="text" id="log_dict" name="log_dict"><br> -->
 
-    <label for="rider_list">rider_list:</label>
+    <!-- <label for="rider_list">rider_list:</label>
     <textarea type="text" id="rider_list" name="rider_list">enter rider things here
 
-    </textarea><br>
+    </textarea><br> -->
     <label for="num_elevators">num_elevators:</label>
     <input type="text" id="num_elevators" name="num_elevators"><br>
     <label for="TIME_STEP">TIME_STEP:</label>
@@ -44,7 +44,7 @@
     const http = new XMLHttpRequest();
     http.open("HEAD", fileUrl, false);
     http.send();
-    console.log(http.status)
+    // console.log(http.status)
     // If the status code is 200, the file exists
     if (http.status === 200) {
       // Create a new image element with the found file path
@@ -62,7 +62,9 @@
     event.preventDefault();
   
     const data = new FormData(event.target);
+    data.append("rider_list",contents);
   
+    console.log(data);
     fetch('http://localhost:8000/api/simulation-requests/', {
       method: 'POST',
       headers: {
@@ -79,6 +81,11 @@
       document.getElementById('response').innerHTML = text;
     });
     
+
+    ////////////////////
+    // Graph Stuff
+    ////////////////////
+
     // need to load graph PNG here at some points
     const img = document.getElementById("my-image");
 
@@ -123,13 +130,33 @@
     clearInterval(intervalId);
   }, 10000);
 
+  let file;
+
   document.getElementById('csvfile').addEventListener('change', function (event) {
-      const file = event.target.files[0];
+      file = event.target.files[0];
+      if (file) {
+          document.getElementById('validateBtn').disabled = false;
+      }
+  });
+
+
+
+
+
+  document.getElementById('validateBtn').addEventListener('click', function () {
+    if (!file) {
+        alert('Please select a CSV file first.');
+        return;
+    }
+    
+    // const file = event.target.files[0];
       const reader = new FileReader();
 
       reader.onload = function (e) {
-          console.log('i loaded file');
-          const contents = e.target.result;
+          // console.log('i loaded file');
+          var contents = e.target.result; // should I use var here?
+          console.log(contents)
+          // console.log(data)
           const lines = contents.split('\n');
           const regexRules = [
               /^[a-zA-z0-9]+$/,
@@ -141,12 +168,12 @@
           let isValid = true;
 
           for (const line of lines) {
-              console.log(line);
+              // console.log(line);
               const cells = line.split(',');
-              console.log(cells);
+              // console.log(cells);
               for (let i = 0; i < cells.length; i++) {
                   if (!regexRules[i].test(cells[i])) {
-                      console.log(cells[i])
+                      // console.log(cells[i])
                       isValid = false;
                   }
               }
