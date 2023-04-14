@@ -57,28 +57,38 @@
     }
   }
 
-  function processCSV(fileInput) {
-    var file = fileInput.files[0];
-    var reader = new FileReader();
-    reader.readAsText(file);
-    sleep(2000); // this is bad
-    console.log(reader.readyState);
+  function processCSV(inputElement) {
+    return new Promise((resolve, reject) => {
+      const file = inputElement.files[0];
+      const reader = new FileReader();
 
-    // const csvData = reader.result;
-    // stringify here
+      reader.onload = () => {
+        const lines = reader.result.split(/\r\n|\n/);
+        const headers = lines[0].split(',');
+        const rows = [];
 
-    const lines = reader.result.split(/\r\n|\n/);
-    const rows = [];
-    for (let i = 0; i < lines.length; i++) {
-      const values = lines[i].split(',');
-      const row = {};
-      for (let j = 0; j < values.length; j++) {
-        row[j] = values[j];
-      }
-      rows.push(row);
-    }
-    const csvString = JSON.stringify(rows);
-    return csvString;
+        for (let i = 1; i < lines.length; i++) {
+          const values = lines[i].split(',');
+          const row = {};
+
+          for (let j = 0; j < headers.length; j++) {
+            row[headers[j]] = values[j];
+          }
+
+          rows.push(row);
+        }
+
+        const csvString = JSON.stringify(rows);
+
+        resolve(csvString);
+      };
+
+      reader.onerror = () => {
+        reject(reader.error);
+      };
+
+      reader.readAsText(file);
+    });
   }
 
 
