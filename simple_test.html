@@ -57,14 +57,40 @@
     }
   }
 
+  function processCSV(fileInput) {
+    var file = fileInput.files[0];
+    var reader = new FileReader();
+    reader.readAsText(file);
+    sleep(2000); // this is bad
+    console.log(reader.readyState);
+
+    // const csvData = reader.result;
+    // stringify here
+
+    const lines = reader.result.split(/\r\n|\n/);
+    const rows = [];
+    for (let i = 0; i < lines.length; i++) {
+      const values = lines[i].split(',');
+      const row = {};
+      for (let j = 0; j < values.length; j++) {
+        row[j] = values[j];
+      }
+      rows.push(row);
+    }
+    const csvString = JSON.stringify(rows);
+    return csvString;
+  }
+
+
   document.getElementById('myForm').addEventListener('submit', function(event) {
           // Prevent default form submission behavior
     event.preventDefault();
   
     const data = new FormData(event.target);
-    data.append("rider_list",contents);
-  
     console.log(data);
+    let csvData = processCSV(document.getElementById("csvfile"));
+    console.log(csvData);
+  
     fetch('http://localhost:8000/api/simulation-requests/', {
       method: 'POST',
       headers: {
