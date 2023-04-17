@@ -57,11 +57,11 @@
     }
   }
 
-  function processCSV(inputElement) {
-    return new Promise((resolve, reject) => {
-      const file = inputElement.files[0];
-      const reader = new FileReader();
+  async function processCSV(inputElement) {
+    const file = inputElement.files[0];
+    const reader = new FileReader();
 
+    const csvString = await new Promise((resolve, reject) => {
       reader.onload = () => {
         const lines = reader.result.split(/\r\n|\n/);
         const headers = lines[0].split(',');
@@ -80,15 +80,17 @@
 
         const csvString = JSON.stringify(rows);
 
-        resolve(csvString);
+        // resolve(csvString);
+        resolve(rows)
       };
 
       reader.onerror = () => {
         reject(reader.error);
       };
-
       reader.readAsText(file);
     });
+
+    return csvString;
   }
 
 
@@ -99,7 +101,13 @@
     const data = new FormData(event.target);
     console.log(data);
     let csvData = processCSV(document.getElementById("csvfile"));
+    const printCsv = async () => {
+      const a = await csvData;
+      console.log(a);
+    };
     console.log(csvData);
+    printCsv();
+    data.append("rider_list",csvData.result);
   
     fetch('http://localhost:8000/api/simulation-requests/', {
       method: 'POST',
