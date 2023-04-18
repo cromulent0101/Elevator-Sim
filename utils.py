@@ -2,6 +2,7 @@
 from classes import Elevator, Rider, Floor, ElevatorBank
 from typing import List, Dict
 import csv
+import logging
 
 # import pandas as pd
 
@@ -112,12 +113,13 @@ def get_riders_from_csv(filename) -> List[Rider]:
 def get_riders_from_string(riders: str) -> List[Rider]:
     """
     Takes a newline-delimited list of riders, which are
-    sub-deimited by semicolons, and returns a list of Riders.
+    sub-delimited by semicolons, and returns a list of Riders.
 
     Each Rider is in the format:
 
     name;start_floor;destination;when_to_add
     """
+    logging.debug(riders)
     rider_list = []
     for line in riders.split("\n"):
         rider_data = line.split(";")
