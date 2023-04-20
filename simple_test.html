@@ -63,25 +63,7 @@
 
     const csvString = await new Promise((resolve, reject) => {
       reader.onload = () => {
-        const lines = reader.result.split(/\r\n|\n/);
-        const headers = lines[0].split(',');
-        const rows = [];
-
-        for (let i = 1; i < lines.length; i++) {
-          const values = lines[i].split(',');
-          const row = {};
-
-          for (let j = 0; j < headers.length; j++) {
-            row[headers[j]] = values[j];
-          }
-
-          rows.push(row);
-        }
-
-        const csvString = JSON.stringify(rows);
-
-        // resolve(csvString);
-        resolve(rows)
+          resolve(reader.result.replaceAll(",",";"));
       };
 
       reader.onerror = () => {
@@ -94,21 +76,16 @@
   }
 
 
-  document.getElementById('myForm').addEventListener('submit', function(event) {
-          // Prevent default form submission behavior
+  document.getElementById('myForm').addEventListener('submit', async function(event) {
+    // Prevent default form submission behavior
     event.preventDefault();
   
     const data = new FormData(event.target);
     console.log(data);
-    let csvData = processCSV(document.getElementById("csvfile"));
-    const printCsv = async () => {
-      const a = await csvData;
-      console.log(a);
-    };
-    console.log(csvData);
-    printCsv();
-    data.append("rider_list",csvData.result);
-  
+    const csvDataPromise = await processCSV(document.getElementById("csvfile"));
+    data.append("rider_list",csvDataPromise);
+
+    console.log(data);
     fetch('http://localhost:8000/api/simulation-requests/', {
       method: 'POST',
       headers: {
@@ -118,7 +95,6 @@
       body: JSON.stringify(Object.fromEntries(data))
     })
     .then((response) => response.text())
-    // .then(json => console.log(json))
     .then((text) => {
       // Display response to user
       jason = JSON.parse(text)
