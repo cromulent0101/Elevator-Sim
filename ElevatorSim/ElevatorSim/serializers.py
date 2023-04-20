@@ -26,10 +26,10 @@ class SimulationRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = SimulationRequest
         fields = (
-            "rider_list",
             "num_elevators",
             "TIME_STEP",
             "elevate_type",
+            "rider_list",
             "graph_id",
         )
         read_only_fields = [
