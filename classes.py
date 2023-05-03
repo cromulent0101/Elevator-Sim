@@ -101,7 +101,7 @@ class Elevator:
             floors_traversed[-1] + abs(self.direction)
         )  # wish there was a better way to do this. can mutate?
         self.simulate_delays(door_open_in, door_open_out)
-        print(self.log)
+        # print(self.log)
 
     def elevate_floor(
         self,
@@ -141,7 +141,7 @@ class Elevator:
             floors_traversed[-1] + abs(self.direction)
         )  # wish there was a better way to do this. can mutate?
         self.simulate_delays(door_open_in, door_open_out)
-        print(self.log)
+        # print(self.log)
 
     def check_for_new_riders(  # should be refactored out of Elevator and into ElevatorBank
         self, rider_list_csv, elevator_bank, floor_dict, rider_list

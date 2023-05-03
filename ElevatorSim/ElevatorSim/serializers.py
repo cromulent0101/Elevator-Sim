@@ -31,14 +31,12 @@ class SimulationRequestSerializer(serializers.ModelSerializer):
             "elevate_type",
             "rider_list",
             "graph_id",
-        )
-        read_only_fields = [
             "step_delays",
             "stop_delays",
             "floors_traversed",
             "log_dict",
             "graph_id",
-        ]
+        )
 
     def create(self, validated_data):
         # hardcode 6 elevs for now with 3 capacity each
