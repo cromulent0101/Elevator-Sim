@@ -6,7 +6,9 @@ from typing import Tuple, List
 class ElevatorBank:
     def __init__(self, elevator_list):
         self.elevators = elevator_list
-        self.queue = set()  # floors that don't have an elevator going to them yet
+        self.queue = (
+            set()
+        )  # set of floors that don't have an elevator going to them yet
 
     def simulate(self, rider_list_csv, floor_dict, time_step, max_time, elevate_type):
         sim_time = 0
@@ -24,7 +26,9 @@ class ElevatorBank:
                     elevator.simulated_time >= sim_time
                     and elevator.simulated_time < sim_time + time_step
                 ):
-                    getattr(elevator, elevate_type)(
+                    getattr(
+                        elevator, elevate_type
+                    )(  # call different methods based on parameter. Should probably use OOP here
                         rider_list,
                         floor_dict,
                         start_stop_delays,
@@ -89,7 +93,7 @@ class Elevator:
             rider.curr_floor = self.floor
 
         door_open_out, rider_names_to_remove = self.let_riders_out_new(
-            rider_list, start_stop_delays, start_step_delays, log_dict
+            rider_list, start_stop_delays, start_step_delays
         )
         self.update_direction_new(floor_dict)
         door_open_in, rider_names_to_add = self.let_riders_in_new(floor_dict, e_bank)
@@ -127,7 +131,7 @@ class Elevator:
 
         self.destination_check(floor_dict)
         door_open_out, rider_names_to_remove = self.let_riders_out_new_floor(
-            rider_list, start_stop_delays, start_step_delays, log_dict
+            rider_list, start_stop_delays, start_step_delays
         )
         self.update_direction_new_floor(e_bank)
         door_open_in, rider_names_to_add = self.let_riders_in_new_floor(
@@ -172,6 +176,13 @@ class Elevator:
                     rider_list_csv.remove(rider)
 
     def simulate_delays(self, door_open_in, door_open_out) -> None:
+        """
+        Increments the simulation timer based on the simulation time step
+        and any delays introduced by opening the elevator door.
+
+        Each time the elevator moves a floor or opens the door,
+        the simulation timer should increment by some amount.
+        """
         if door_open_in or door_open_out:
             self.simulated_time = self.simulated_time + self.door_delay
         self.simulated_time = self.simulated_time + self.elevator_delay
@@ -191,7 +202,7 @@ class Elevator:
         return ";".join([str(log_element) for log_element in log_str])
 
     def let_riders_out_new(
-        self, rider_list, start_stop_delays, start_step_delays, log_dict
+        self, rider_list, start_stop_delays, start_step_delays
     ) -> Tuple[bool, List]:
         """
         Lets riders out of the elevator, and adds a delay if anyone does.
@@ -215,7 +226,7 @@ class Elevator:
         return door_open, rider_names_to_remove
 
     def let_riders_out_new_floor(
-        self, rider_list, start_stop_delays, start_step_delays, log_dict
+        self, rider_list, start_stop_delays, start_step_delays
     ) -> Tuple[bool, List]:
         """
         Lets riders out of the elevator, and adds a delay if anyone does.
@@ -400,7 +411,8 @@ class Elevator:
 
     def destination_check(self, floor_dict) -> None:
         """
-        Performs a sanity check on external destinations. If there is no rider at a Floor that is an external destination,
+        Performs a sanity check on external destinations. If there is no rider
+        at a Floor that is an external destination,
         remove it from the list of external destinations.
         """
         ext_dests_copy = self.external_destinations.copy()
@@ -409,30 +421,8 @@ class Elevator:
                 self.external_destinations.remove(floor)
 
 
-class NormalElevator(Elevator):
-    def __init__(self, capacity: int, floor):
-        self.floor = floor
-        self.capacity = capacity
-        self.direction = 0  # 0 for stationary, 1 for up, -1 for down
-        self.internal_destinations = set(int)  # Set of ints
-        self.door_delay = 1
-        self.elevator_delay = 0.5
-        self.riders = []  # list of Riders
-        self.log = []  # list of strs to log what elevator did
-
-
 # see http://www.facilitiesnet.com/elevators/article/Destination-Dispatch-Machineroomless-Systems-Are-Current-Wave-of-Elevator-Technology--13595?source=previous
 # and https://www.thyssenkruppelevator.com/elevator-products/elevator-destination-dispatch
-class DestinationElevator(Elevator):
-    def __init__(self, capacity: int, floor):
-        self.floor = floor
-        self.capacity = capacity
-        self.direction = 0  # 0 for stationary, 1 for up, -1 for down
-        self.destination = -1  # current dispatched destination
-        self.door_delay = 1
-        self.elevator_delay = 0.5
-        self.riders = []  # list of Riders
-        self.log = []  # list of strs to log what elevator did
 
 
 class Rider:
