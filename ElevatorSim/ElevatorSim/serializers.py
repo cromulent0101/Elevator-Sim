@@ -40,6 +40,7 @@ class SimulationRequestSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         # hardcode 6 elevs for now with 3 capacity each
+        # TODO: Make Elevators customizable
         a = Elevator(3, 1, "a")
         b = Elevator(3, 1, "b")
         c = Elevator(3, 1, "c")

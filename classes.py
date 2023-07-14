@@ -39,6 +39,9 @@ class ElevatorBank:
                         rider_list_csv,
                     )
             sim_time = sim_time + time_step
+        if sim_time > max_time:
+            print(f"Simulation took more time than {max_time} ticks")
+            raise Exception
         return start_step_delays, start_stop_delays, floors_traversed[-1], log_dict
 
 
@@ -92,11 +95,13 @@ class Elevator:
         for rider in self.riders:
             rider.curr_floor = self.floor
 
-        door_open_out, rider_names_to_remove = self.let_riders_out_new(
+        should_door_open_out, rider_names_to_remove = self.let_riders_out_new(
             rider_list, start_stop_delays, start_step_delays
         )
         self.update_direction_new(floor_dict)
-        door_open_in, rider_names_to_add = self.let_riders_in_new(floor_dict, e_bank)
+        should_door_open_in, rider_names_to_add = self.let_riders_in_new(
+            floor_dict, e_bank
+        )
         self.log = self.log_movement(
             rider_names_to_add, rider_names_to_remove, log_dict
         )
@@ -104,7 +109,7 @@ class Elevator:
         floors_traversed.append(
             floors_traversed[-1] + abs(self.direction)
         )  # wish there was a better way to do this. can mutate?
-        self.simulate_delays(door_open_in, door_open_out)
+        self.simulate_delays(should_door_open_in, should_door_open_out)
         # print(self.log)
 
     def elevate_floor(
@@ -129,12 +134,12 @@ class Elevator:
         for rider in self.riders:
             rider.curr_floor = self.floor
 
-        self.destination_check(floor_dict)
-        door_open_out, rider_names_to_remove = self.let_riders_out_new_floor(
+        # self.destination_check(floor_dict)  # this sometimes has a very slight impact on output when not all Riders are added at once. TODO: explain it
+        should_door_open_out, rider_names_to_remove = self.let_riders_out_new_floor(
             rider_list, start_stop_delays, start_step_delays
         )
         self.update_direction_new_floor(e_bank)
-        door_open_in, rider_names_to_add = self.let_riders_in_new_floor(
+        should_door_open_in, rider_names_to_add = self.let_riders_in_new_floor(
             floor_dict, e_bank
         )
         self.log = self.log_movement(
@@ -144,7 +149,7 @@ class Elevator:
         floors_traversed.append(
             floors_traversed[-1] + abs(self.direction)
         )  # wish there was a better way to do this. can mutate?
-        self.simulate_delays(door_open_in, door_open_out)
+        self.simulate_delays(should_door_open_in, should_door_open_out)
         # print(self.log)
 
     def check_for_new_riders(  # should be refactored out of Elevator and into ElevatorBank
@@ -175,7 +180,7 @@ class Elevator:
                     rider.press_button_new_floor(elevator_bank)
                     rider_list_csv.remove(rider)
 
-    def simulate_delays(self, door_open_in, door_open_out) -> None:
+    def simulate_delays(self, should_door_open_in, should_door_open_out) -> None:
         """
         Increments the simulation timer based on the simulation time step
         and any delays introduced by opening the elevator door.
@@ -183,7 +188,7 @@ class Elevator:
         Each time the elevator moves a floor or opens the door,
         the simulation timer should increment by some amount.
         """
-        if door_open_in or door_open_out:
+        if should_door_open_in or should_door_open_out:
             self.simulated_time = self.simulated_time + self.door_delay
         self.simulated_time = self.simulated_time + self.elevator_delay
 
@@ -211,7 +216,7 @@ class Elevator:
         """
         riders_to_remove = []
         rider_names_to_remove = []
-        door_open = False
+        should_door_open = False
         if self.floor in self.internal_destinations:
             self.internal_destinations.remove(self.floor)  # ding, we stop
             for rider in self.riders:  # can we DRY?
@@ -220,23 +225,23 @@ class Elevator:
                     rider_names_to_remove.append(str(rider))
                     rider_list.remove(rider)
                     rider.step_out(self, start_stop_delays, start_step_delays)
-                    door_open = True
+                    should_door_open = True
         for rider in riders_to_remove:
             self.riders.remove(rider)
-        return door_open, rider_names_to_remove
+        return should_door_open, rider_names_to_remove
 
     def let_riders_out_new_floor(
         self, rider_list, start_stop_delays, start_step_delays
     ) -> Tuple[bool, List]:
         """
-        Lets riders out of the elevator, and adds a delay if anyone does.
+        Lets Riders out of the Elevator, and adds a delay if anyone does.
 
-        Also removes the current floor from both external and
+        Also removes the current Floor from both external and
         internal destinations.
         """
         riders_to_remove = []
         rider_names_to_remove = []
-        door_open = False
+        should_door_open = False
         if self.floor in self.external_destinations:  # TODO: see if we need this
             self.external_destinations.remove(self.floor)
         if self.floor in self.internal_destinations:
@@ -247,10 +252,10 @@ class Elevator:
                     rider_names_to_remove.append(str(rider))
                     rider_list.remove(rider)
                     rider.step_out(self, start_stop_delays, start_step_delays)
-                    door_open = True
+                    should_door_open = True
         for rider in riders_to_remove:
             self.riders.remove(rider)
-        return door_open, rider_names_to_remove
+        return should_door_open, rider_names_to_remove
 
     def update_direction_new(self, floor_dict) -> None:
         keep_going_down = False
@@ -324,7 +329,7 @@ class Elevator:
         clear_up_button = False
         clear_down_button = False
         riders_still_waiting = False
-        door_open = False
+        should_door_open = False
         riders_to_step_in = []
         rider_names_to_add = []
         for rider in floor_dict[self.floor].riders:
@@ -336,7 +341,7 @@ class Elevator:
                     clear_up_button = True
                 else:
                     riders_still_waiting = True
-                door_open = True
+                should_door_open = True
             elif self.direction == -1 and rider.destination < self.floor:  # going down
                 if rider.step_in(self):
                     rider_names_to_add.append(str(rider))
@@ -345,7 +350,7 @@ class Elevator:
                     clear_down_button = True
                 else:
                     riders_still_waiting = True
-                door_open = True
+                should_door_open = True
             else:
                 pass
         # remove Rider from Floor if they are going in Elevator
@@ -357,10 +362,10 @@ class Elevator:
                 floor_dict[self.floor].up_request = False
             if clear_down_button:
                 floor_dict[self.floor].down_request = False
-        return door_open, rider_names_to_add
+        return should_door_open, rider_names_to_add
 
     def let_riders_in_new_floor(self, floor_dict, e_bank) -> None:
-        door_open = False
+        should_door_open = False
         riders_to_step_in = []
         rider_names_to_add = []
 
@@ -370,7 +375,7 @@ class Elevator:
                     rider_names_to_add.append(str(rider))
                     self.internal_destinations.add(rider.destination)
                     riders_to_step_in.append(rider)
-                    door_open = True
+                    should_door_open = True
                     try:
                         e_bank.queue.remove(self.floor)
                     except KeyError:
@@ -383,7 +388,7 @@ class Elevator:
                     rider_names_to_add.append(str(rider))
                     self.internal_destinations.add(rider.destination)
                     riders_to_step_in.append(rider)
-                    door_open = True
+                    should_door_open = True
                     try:
                         e_bank.queue.remove(self.floor)
                     except KeyError:
@@ -391,14 +396,14 @@ class Elevator:
                     self.direction = -1
                 else:
                     rider.press_button_new_floor(e_bank)
-            else:  # if there's an elevator at our floor but not in right direction
+            else:  # if there's an Elevator at our Floor but not in right direction
                 rider.press_button_new_floor(e_bank)
 
         # remove Riders from Floor if they are going in Elevator
         floor_dict[self.floor].riders = [
             e for e in floor_dict[self.floor].riders if e not in riders_to_step_in
         ]
-        return door_open, rider_names_to_add
+        return should_door_open, rider_names_to_add
 
     def find_nearest_floor(self, queue) -> int:
         if queue == None:
@@ -411,7 +416,7 @@ class Elevator:
 
     def destination_check(self, floor_dict) -> None:
         """
-        Performs a sanity check on external destinations. If there is no rider
+        Performs a sanity check on external destinations. If there is no Rider
         at a Floor that is an external destination,
         remove it from the list of external destinations.
         """

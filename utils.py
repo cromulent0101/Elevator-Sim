@@ -18,7 +18,7 @@ def find_nearest_available_elevator(rider, elevator_bank: ElevatorBank) -> Eleva
     If two elevators are equidistant then the higher elevator
     gets preference.
 
-    Used for an elevator bank.
+    Used for an ElevatorBank.
     """
     available_elevators = []
     for e in elevator_bank.elevators:

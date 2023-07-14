@@ -6,9 +6,7 @@ import os
 from classes import Elevator, Rider, Floor, ElevatorBank
 from statistics import mean, median
 
-api_key = os.environ["TEST_SECRET"]
-
-SIMULATION_CSV = "sims/100bell.csv"
+SIMULATION_CSV = "sims/edge_cases.csv"
 ELEVATOR_CAPACITY = 1
 NUM_ELEVATORS = 3
 TIME_STEP = 0.01
@@ -79,7 +77,5 @@ if __name__ == "__main__":
     print("")
     print(f"Floors traversed: {floors_traversed}")
     print(f"Floors traversed by dispatch: {floors_traversed_floor}")
-
-    print(api_key)
 
     # utils.test_helper(log_dict)
