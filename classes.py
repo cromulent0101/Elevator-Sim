@@ -17,9 +17,11 @@ class ElevatorBank:
         start_step_delays = []
         floors_traversed = [0]
         log_dict = {}
+        floor_dict["done"] = False  # TODO: move the "done" flag out of the floor_dict
+
         for elevator in self.elevators:
             log_dict[f"Elevator {elevator.name}"] = []
-        floor_dict["done"] = False
+
         while not floor_dict["done"] and sim_time < max_time:
             for elevator in self.elevators:
                 if (
@@ -39,6 +41,7 @@ class ElevatorBank:
                         rider_list_csv,
                     )
             sim_time = sim_time + time_step
+
         if sim_time > max_time:
             print(f"Simulation took more time than {max_time} ticks")
             raise Exception
@@ -53,8 +56,8 @@ class Elevator:
         self.direction = 0  # 0 for stationary, 1 for up, -1 for down
         self.internal_destinations = set()
         self.external_destinations = set()
-        self.door_delay = 1
-        self.elevator_delay = 0.5
+        self.door_opening_delay = 1
+        self.elevator_movement_delay = 0.5
         self.simulated_time = 0
         self.riders = []  # list of Riders
         self.log = []  # list of strs to log what elevator did
@@ -85,34 +88,38 @@ class Elevator:
         rider_list_csv,
     ) -> None:
         """
-        Tells an elevator to pick up and drop off passengers
+        Tells an Elevator to pick up and drop off Riders
         given a rider list.
 
         Prints a string that represents the actions taken by
-        the elevator.
+        the Elevator.
         """
         self.check_for_new_riders(rider_list_csv, e_bank, floor_dict, rider_list)
+
         for rider in self.riders:
             rider.curr_floor = self.floor
 
-        should_door_open_out, rider_names_to_remove = self.let_riders_out_new(
+        should_door_open_out, rider_names_to_remove = self.let_riders_out(
             rider_list, start_stop_delays, start_step_delays
         )
-        self.update_direction_new(floor_dict)
-        should_door_open_in, rider_names_to_add = self.let_riders_in_new(
-            floor_dict, e_bank
-        )
+
+        self.update_direction(floor_dict)
+
+        should_door_open_in, rider_names_to_add = self.let_riders_in(floor_dict, e_bank)
+
         self.log = self.log_movement(
             rider_names_to_add, rider_names_to_remove, log_dict
         )
+
         self.floor += self.direction
+
         floors_traversed.append(
             floors_traversed[-1] + abs(self.direction)
         )  # wish there was a better way to do this. can mutate?
-        self.simulate_delays(should_door_open_in, should_door_open_out)
-        # print(self.log)
 
-    def elevate_floor(
+        self.simulate_delays(should_door_open_in, should_door_open_out)
+
+    def elevate_dc(
         self,
         rider_list,
         floor_dict,
@@ -124,38 +131,47 @@ class Elevator:
         rider_list_csv,
     ) -> None:
         """
-        Tells an elevator to pick up and drop off passengers
+        Tells an Elevator to pick up and drop off Riders
         given a rider list.
 
         Prints a string that represents the actions taken by
-        the elevator.
+        the Elevator.
         """
-        self.check_for_new_riders_floor(rider_list_csv, e_bank, floor_dict, rider_list)
+        self.check_for_new_riders_dc(rider_list_csv, e_bank, floor_dict, rider_list)
+
         for rider in self.riders:
             rider.curr_floor = self.floor
 
-        # self.destination_check(floor_dict)  # this sometimes has a very slight impact on output when not all Riders are added at once. TODO: explain it
-        should_door_open_out, rider_names_to_remove = self.let_riders_out_new_floor(
+        # The following line sometimes has a very slight impact on output when not all Riders are added at once
+        # TODO: explain it!
+        # self.destination_check(floor_dict)
+        should_door_open_out, rider_names_to_remove = self.let_riders_out_dc(
             rider_list, start_stop_delays, start_step_delays
         )
-        self.update_direction_new_floor(e_bank)
-        should_door_open_in, rider_names_to_add = self.let_riders_in_new_floor(
+
+        self.update_direction_dc(e_bank)
+
+        should_door_open_in, rider_names_to_add = self.let_riders_in_dc(
             floor_dict, e_bank
         )
+
         self.log = self.log_movement(
             rider_names_to_add, rider_names_to_remove, log_dict
         )
+
         self.floor += self.direction
+
         floors_traversed.append(
             floors_traversed[-1] + abs(self.direction)
         )  # wish there was a better way to do this. can mutate?
+
         self.simulate_delays(should_door_open_in, should_door_open_out)
-        # print(self.log)
 
     def check_for_new_riders(  # should be refactored out of Elevator and into ElevatorBank
         self, rider_list_csv, elevator_bank, floor_dict, rider_list
     ) -> None:
         rider_list_csv_copy = [] + rider_list_csv
+
         if not rider_list_csv and not rider_list:
             floor_dict["done"] = True
         else:
@@ -166,10 +182,11 @@ class Elevator:
                     rider.press_button_new(floor_dict)
                     rider_list_csv.remove(rider)
 
-    def check_for_new_riders_floor(  # should be refactored out of Elevator and into ElevatorBank
+    def check_for_new_riders_dc(  # should be refactored out of Elevator and into ElevatorBank
         self, rider_list_csv, elevator_bank, floor_dict, rider_list
     ) -> None:
         rider_list_csv_copy = [] + rider_list_csv
+
         if not rider_list_csv and not rider_list:
             floor_dict["done"] = True
         else:
@@ -183,40 +200,44 @@ class Elevator:
     def simulate_delays(self, should_door_open_in, should_door_open_out) -> None:
         """
         Increments the simulation timer based on the simulation time step
-        and any delays introduced by opening the elevator door.
+        and any delays introduced by opening the Elevator door.
 
-        Each time the elevator moves a floor or opens the door,
+        Each time the Elevator moves a floor or opens the door,
         the simulation timer should increment by some amount.
         """
         if should_door_open_in or should_door_open_out:
-            self.simulated_time = self.simulated_time + self.door_delay
-        self.simulated_time = self.simulated_time + self.elevator_delay
+            self.simulated_time = self.simulated_time + self.door_opening_delay
+        self.simulated_time = self.simulated_time + self.elevator_movement_delay
 
     def log_movement(self, rider_names_to_add, rider_names_to_remove, log_dict) -> str:
         log_str = []
+
         rider_names_to_add.sort()
         rider_names_to_remove.sort()
+
         log_str.append(self.floor)
         log_str.append(self.direction)
         log_str.append(",".join(rider_names_to_add))
         log_str.append(",".join(rider_names_to_remove))
         log_str.append(self.simulated_time)
+
         log_dict[f"Elevator {self.name}"].append(
             ";".join([str(log_element) for log_element in log_str])
         )
         return ";".join([str(log_element) for log_element in log_str])
 
-    def let_riders_out_new(
+    def let_riders_out(
         self, rider_list, start_stop_delays, start_step_delays
     ) -> Tuple[bool, List]:
         """
-        Lets riders out of the elevator, and adds a delay if anyone does.
+        Lets Riders out of the Elevator, and adds a delay if anyone does.
 
-        Also removes the current floor from internal destinations.
+        Also removes the current Floor from internal destinations.
         """
         riders_to_remove = []
         rider_names_to_remove = []
         should_door_open = False
+
         if self.floor in self.internal_destinations:
             self.internal_destinations.remove(self.floor)  # ding, we stop
             for rider in self.riders:  # can we DRY?
@@ -230,7 +251,7 @@ class Elevator:
             self.riders.remove(rider)
         return should_door_open, rider_names_to_remove
 
-    def let_riders_out_new_floor(
+    def let_riders_out_dc(
         self, rider_list, start_stop_delays, start_step_delays
     ) -> Tuple[bool, List]:
         """
@@ -242,6 +263,7 @@ class Elevator:
         riders_to_remove = []
         rider_names_to_remove = []
         should_door_open = False
+
         if self.floor in self.external_destinations:  # TODO: see if we need this
             self.external_destinations.remove(self.floor)
         if self.floor in self.internal_destinations:
@@ -257,9 +279,10 @@ class Elevator:
             self.riders.remove(rider)
         return should_door_open, rider_names_to_remove
 
-    def update_direction_new(self, floor_dict) -> None:
+    def update_direction(self, floor_dict) -> None:
         keep_going_down = False
         keep_going_up = False
+
         if self.internal_destinations:
             pass
         else:
@@ -305,7 +328,7 @@ class Elevator:
             else:
                 self.direction = 0
 
-    def update_direction_new_floor(self, e_bank: ElevatorBank) -> None:
+    def update_direction_dc(self, e_bank: ElevatorBank) -> None:
         if self.direction == 0:
             if e_bank.queue:
                 print("went to elev queue")
@@ -325,15 +348,16 @@ class Elevator:
         else:
             self.direction = 0
 
-    def let_riders_in_new(self, floor_dict, e_bank) -> None:
+    def let_riders_in(self, floor_dict, e_bank) -> None:
         clear_up_button = False
         clear_down_button = False
         riders_still_waiting = False
         should_door_open = False
         riders_to_step_in = []
         rider_names_to_add = []
+
         for rider in floor_dict[self.floor].riders:
-            if self.direction == 1 and rider.destination > self.floor:  # going up
+            if self.direction == 1 and rider.destination > self.floor:
                 if rider.step_in(self):
                     rider_names_to_add.append(str(rider))
                     self.internal_destinations.add(rider.destination)
@@ -342,7 +366,7 @@ class Elevator:
                 else:
                     riders_still_waiting = True
                 should_door_open = True
-            elif self.direction == -1 and rider.destination < self.floor:  # going down
+            elif self.direction == -1 and rider.destination < self.floor:
                 if rider.step_in(self):
                     rider_names_to_add.append(str(rider))
                     self.internal_destinations.add(rider.destination)
@@ -353,7 +377,7 @@ class Elevator:
                 should_door_open = True
             else:
                 pass
-        # remove Rider from Floor if they are going in Elevator
+        # remove Rider from Floor if they are getting in Elevator
         floor_dict[self.floor].riders = [
             e for e in floor_dict[self.floor].riders if e not in riders_to_step_in
         ]
@@ -364,7 +388,7 @@ class Elevator:
                 floor_dict[self.floor].down_request = False
         return should_door_open, rider_names_to_add
 
-    def let_riders_in_new_floor(self, floor_dict, e_bank) -> None:
+    def let_riders_in_dc(self, floor_dict, e_bank) -> None:
         should_door_open = False
         riders_to_step_in = []
         rider_names_to_add = []
@@ -448,8 +472,14 @@ class Rider:
         return f"{self.name} began on {self.start_floor}, is now on {self.curr_floor} and wants to go to {self.destination}"
 
     def step_in(self, elev) -> bool:
+        """
+        Adds a Rider to a specific Elevator. First checks if the Elevator
+        has enough capacity to allow the Rider in.
+
+        Returns True if the Rider was successfully added, False otherwise.
+        """
         if elev.capacity == len(elev.riders):
-            print(f"Rider {self.name} can't enter elevator since it is full")
+            print(f"Rider {self.name} can't enter Elevator since it is full")
             return False
         else:
             self.step_in_time = elev.simulated_time
@@ -458,11 +488,16 @@ class Rider:
             return True
 
     def step_out(self, elevator, start_stop_delays, start_step_delays) -> None:
+        """
+        Logs the amount of time between a Rider getting in an Elevator and
+        stepping out of the Elevator. Does not actually remove the Rider.
+        """
         start_stop_delays.append(elevator.simulated_time - self.when_to_add)
         start_step_delays.append(self.step_in_time - self.when_to_add)
 
     def press_button_new(self, floor_dict) -> None:
         self.button_pressed = True
+
         if self.start_floor < self.destination:
             floor_dict[self.start_floor].up_request = True
         else:
@@ -488,6 +523,7 @@ class Rider:
         Used for an elevator bank.
         """
         available_elevators = []
+
         for e in elevator_bank.elevators:
             # if e.direction == 0:
             #     available_elevators.append(e)

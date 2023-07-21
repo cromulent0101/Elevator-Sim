@@ -52,7 +52,7 @@ if __name__ == "__main__":
         floors_traversed_floor,
         log_dict_floor,
     ) = bank_floor.simulate(
-        rider_list_csv_floor, floor_dict_floor, TIME_STEP, MAX_TIME, "elevate_floor"
+        rider_list_csv_floor, floor_dict_floor, TIME_STEP, MAX_TIME, "elevate_dc"
     )
 
     print(log_dict_floor)
