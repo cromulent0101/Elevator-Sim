@@ -17,12 +17,16 @@ class ElevatorBank:
         start_step_delays = []
         floors_traversed = [0]
         log_dict = {}
-        floor_dict["done"] = False  # TODO: move the "done" flag out of the floor_dict
+        floor_dict[
+            "done"
+        ] = False  # TODO: move the "done" flag out of the floor_dict. See below for first step
+        simulation_done = False
 
         for elevator in self.elevators:
             log_dict[f"Elevator {elevator.name}"] = []
 
         while not floor_dict["done"] and sim_time < max_time:
+            # while not simulation_done and sim_time < max_time: # -- to be added once I refactor the floor_dict["done"] thing
             for elevator in self.elevators:
                 if (
                     elevator.simulated_time >= sim_time
@@ -46,6 +50,10 @@ class ElevatorBank:
             print(f"Simulation took more time than {max_time} ticks")
             raise Exception
         return start_step_delays, start_stop_delays, floors_traversed[-1], log_dict
+
+    def check_for_sim_completion(self, rider_list_csv):
+        if not rider_list_csv and not self.rider_list:
+            self.simulation_done = True
 
 
 class Elevator:
@@ -167,12 +175,14 @@ class Elevator:
 
         self.simulate_delays(should_door_open_in, should_door_open_out)
 
-    def check_for_new_riders(  # should be refactored out of Elevator and into ElevatorBank
+    def check_for_new_riders(
         self, rider_list_csv, elevator_bank, floor_dict, rider_list
-    ) -> None:
+    ) -> None:  # should be refactored out of Elevator and into ElevatorBank. needs to know about
+        # whether each Elevator has any Riders left inside
         rider_list_csv_copy = [] + rider_list_csv
 
-        if not rider_list_csv and not rider_list:
+        if not rider_list_csv and not rider_list:  # needs to know about
+            # whether EACH Elevator has any Riders left inside
             floor_dict["done"] = True
         else:
             for rider in rider_list_csv_copy:
@@ -194,7 +204,7 @@ class Elevator:
                 if rider.when_to_add <= self.simulated_time:
                     rider_list.append(rider)
                     floor_dict[rider.start_floor].riders.append(rider)
-                    rider.press_button_new_floor(elevator_bank)
+                    rider.press_button_new_dc(elevator_bank)
                     rider_list_csv.remove(rider)
 
     def simulate_delays(self, should_door_open_in, should_door_open_out) -> None:
@@ -207,7 +217,9 @@ class Elevator:
         """
         if should_door_open_in or should_door_open_out:
             self.simulated_time = self.simulated_time + self.door_opening_delay
-        self.simulated_time = self.simulated_time + self.elevator_movement_delay
+        self.simulated_time = (
+            self.simulated_time + self.elevator_movement_delay
+        )  # we add a delay regardless if in motion
 
     def log_movement(self, rider_names_to_add, rider_names_to_remove, log_dict) -> str:
         log_str = []
@@ -280,6 +292,14 @@ class Elevator:
         return should_door_open, rider_names_to_remove
 
     def update_direction(self, floor_dict) -> None:
+        """
+        Updates the direction the elevator is moving in
+        based on whether there are any buttons pressed on Floors.
+
+        For example, if a Floor above the Elevator has a button pressed,
+        and the Elevator is alredy going up, we'll allow the Elevator to continue
+        moving up.
+        """
         keep_going_down = False
         keep_going_up = False
 
@@ -323,7 +343,7 @@ class Elevator:
                 self.direction = -1
             elif (
                 self.direction == 0 and keep_going_up
-            ):  # would these two lines imply that keep_going_up has priority?
+            ):  # keep_going_down has priority over keep_going_up
                 self.direction = 1
             else:
                 self.direction = 0
@@ -406,7 +426,7 @@ class Elevator:
                         pass
                     self.direction = 1
                 else:
-                    rider.press_button_new_floor(e_bank)
+                    rider.press_button_new_dc(e_bank)
             elif self.direction < 1 and rider.destination < self.floor:  # going down
                 if rider.step_in(self):
                     rider_names_to_add.append(str(rider))
@@ -419,9 +439,9 @@ class Elevator:
                         pass
                     self.direction = -1
                 else:
-                    rider.press_button_new_floor(e_bank)
+                    rider.press_button_new_dc(e_bank)
             else:  # if there's an Elevator at our Floor but not in right direction
-                rider.press_button_new_floor(e_bank)
+                rider.press_button_new_dc(e_bank)
 
         # remove Riders from Floor if they are going in Elevator
         floor_dict[self.floor].riders = [
@@ -503,7 +523,7 @@ class Rider:
         else:
             floor_dict[self.start_floor].down_request = True
 
-    def press_button_new_floor(self, e_bank: ElevatorBank) -> None:
+    def press_button_new_dc(self, e_bank: ElevatorBank) -> None:
         nearest_elevator = self.find_nearest_available_elevator(e_bank)
         if nearest_elevator:
             nearest_elevator.external_destinations.add(self.start_floor)
@@ -550,7 +570,10 @@ class Rider:
             ).floor
             - self.start_floor
         )
-        for e in available_elevators:  # higher elevators win tiebreaker
+        for e in available_elevators:  # higher elevators win tiebreaker.
+            # intentionally choose not to do abs()
+            # because it is better for elevators to go down
+            # back to lobby, in general
             if e.floor - self.start_floor == min_distance:
                 return e
         for e in available_elevators:
