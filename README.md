@@ -60,3 +60,12 @@ Metrics available include:
 ## Notes
 
 The simulation initially used the `sleep()` function for real-time simulations, and threading to simulate multiple elevators at once, but was later modified to a non-real-time approach using a simulated timesteps for scalability.
+
+## Further Reading
+[Disk Scheduling Algorithms](http://www.cs.iit.edu/~cs561/cs450/disksched/disksched.html)
+
+[Understanding the Benefits and Limitations of Destination Control](https://peters-research.com/index.php/papers/understanding-the-benefits-and-limitations-of-destination-control/)
+
+A few scholarly articles on practical elevator scheduling in real-world buildings: [1](https://merl.com/publications/docs/TR2003-61.pdf)
+[2](https://elib.dlr.de/47190/1/strang-context-UCI07-32-CameraReadyVersion-PID360095.pdf)
+[3](https://ieeexplore.ieee.org/abstract/document/4620746)
