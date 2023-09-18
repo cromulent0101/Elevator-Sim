@@ -69,3 +69,5 @@ The simulation initially used the `sleep()` function for real-time simulations, 
 A few scholarly articles on practical elevator scheduling in real-world buildings: [1](https://merl.com/publications/docs/TR2003-61.pdf)
 [2](https://elib.dlr.de/47190/1/strang-context-UCI07-32-CameraReadyVersion-PID360095.pdf)
 [3](https://ieeexplore.ieee.org/abstract/document/4620746)
+
+[Queueing Theory](https://github.com/joelparkerhenderson/queueing-theory)
