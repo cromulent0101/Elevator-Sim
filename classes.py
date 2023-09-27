@@ -351,7 +351,7 @@ class Elevator:
     def update_direction_dc(self, e_bank: ElevatorBank) -> None:
         if self.direction == 0:
             if e_bank.queue:
-                print("went to elev queue")
+                # print("went to elev queue")
                 next_floor = self.find_nearest_floor(list(e_bank.queue))
                 if next_floor > self.floor:
                     self.direction = 1

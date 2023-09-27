@@ -6,30 +6,21 @@
 </head>
 <body>
   <form id="myForm">
-
-    <!-- <label for="name">step_delays:</label>
-    <input type="text" id="step_delays" name="step_delays"><br>
-    <label for="stop_delays">stop_delays:</label>
-    <input type="text" id="stop_delays" name="stop_delays"><br>
-    <label for="floors_traversed">floors_traversed:</label>
-    <input type="text" id="floors_traversed" name="floors_traversed"><br>
-    <label for="log_dict">log_dict:</label>
-    <input type="text" id="log_dict" name="log_dict"><br> -->
-
-    <!-- <label for="rider_list">rider_list:</label>
-    <textarea type="text" id="rider_list" name="rider_list">enter rider things here
-
-    </textarea><br> -->
     <label for="num_elevators">num_elevators:</label>
-    <input type="text" id="num_elevators" name="num_elevators"><br>
+    <input type="text" id="num_elevators" name="num_elevators" required>
+    <br>
     <label for="TIME_STEP">TIME_STEP:</label>
-    <input type="text" id="TIME_STEP" name="TIME_STEP"><br>
-    <label for="elevate_type">elevate_type:</label>
-    <input type="text" id="elevate_type" name="elevate_type"><br>
-
+    <input type="text" id="TIME_STEP" name="TIME_STEP" required>
+    <br>
+    <label for="elevate_type">Choose a type:</label>
+      <select name="elevate_type" id="elevate_type">
+        <option value="elevate_dc">DC</option>
+        <option value="elevate">Regular</option>
+      </select>
+    <br><br>
     <input type="submit" value="Submit">
-
   </form>
+
   <div id="response"></div>
   <div id="my-image"></div>
 
@@ -37,24 +28,22 @@
   <button type="button" id="validateBtn">Validate CSV</button>
 
 <script>
-  // Define a function to check for the image file. THere's gotta be a better way
+  // Define a function to check for the image file. There's gotta be a better way
+  // Will probably move to server-sent events eventually
   function checkForImage(graph_id) {
     // Try to load the image using its file path
-    const fileUrl = `graphs/${graph_id}.png`; // Change this to the path of your image file
+    const fileUrl = `graphs/${graph_id}.png`;
     const http = new XMLHttpRequest();
-    http.open("HEAD", fileUrl, false);
+    http.open('HEAD', fileUrl, true);
+    http.onreadystatechange = () => {
+      if (http.readyState === 4 && http.status === 200) {
+        const foundImg = document.createElement('img');
+        foundImg.src = fileUrl;
+        img.parentNode.replaceChild(foundImg, img);
+        imageFound = true;
+      }
+    };
     http.send();
-    // console.log(http.status)
-    // If the status code is 200, the file exists
-    if (http.status === 200) {
-      // Create a new image element with the found file path
-      const foundImg = document.createElement("img");
-      foundImg.src = fileUrl;
-      
-      // Replace the existing image element in the DOM with the found image element
-      img.parentNode.replaceChild(foundImg, img);
-      imageFound = true;
-    }
   }
 
   async function processCSV(inputElement) {
@@ -77,7 +66,7 @@
 
 
   document.getElementById('myForm').addEventListener('submit', async function(event) {
-    // Prevent default form submission behavior
+    // Prevent default form submission behavior: reloading the page
     event.preventDefault();
   
     const data = new FormData(event.target);
@@ -94,11 +83,11 @@
       },
       body: JSON.stringify(Object.fromEntries(data))
     })
-    .then((response) => response.text())
-    .then((text) => {
+    .then((response) => response.json())
+    .then((json) => {
       // Display response to user
-      jason = JSON.parse(text)
-      document.getElementById('response').innerHTML = text;
+      graph_id = json.graph_id
+      document.getElementById('response').innerHTML = JSON.stringify(json);
     });
     
 
@@ -114,9 +103,8 @@
 
     // Check for the image file every 500 milliseconds (0.5 seconds)
     const intervalId = setInterval(() => {
-      if (!imageFound) {
-        console.log(jason.graph_id)
-        checkForImage(jason.graph_id);
+      if (!imageFound && graph_id) {
+        checkForImage(graph_id);
       } else {
         clearInterval(intervalId);
       }
@@ -131,24 +119,10 @@
   // Get the image element from the DOM
   const img = document.getElementById("my-image");
 
-  // Set a flag to track whether the image has been found
-  let imageFound = false;
 
-
-  // Check for the image file every 500 milliseconds (0.5 seconds)
-  // TODO: find a better way to do this without constant polling
-  const intervalId = setInterval(() => {
-    if (!imageFound) {
-      checkForImage();
-    } else {
-      clearInterval(intervalId);
-    }
-  }, 500);
-
-  // Give up after 10 seconds
-  setTimeout(() => {
-    clearInterval(intervalId);
-  }, 10000);
+  ////////////////////
+  // CSV Stuff
+  ////////////////////
 
   let file;
 
@@ -158,10 +132,6 @@
           document.getElementById('validateBtn').disabled = false;
       }
   });
-
-
-
-
 
   document.getElementById('validateBtn').addEventListener('click', function () {
     if (!file) {
