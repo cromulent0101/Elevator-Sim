@@ -8,10 +8,10 @@ matplotlib.use("agg")  # used to allow savefig to work
 
 # can we cache inputs to prevent excessive storage of graphs?
 def generate_histogram(data: List) -> str:
-    name = str(hash(str(data)))[
-        0:10
-    ]  # ok this won't work because Python changes the seed each time
+    name = abs(int(str(hash(str(data)))[0:10]))
     plt.clf()
     plt.hist(data)
-    plt.savefig(f"../graphs/{abs(int(name))}.png")  # needs to go somewhere else async
-    return abs(int(name))
+    plt.xlabel("Travel times")
+    plt.ylabel("Number of Riders")
+    plt.savefig(f"../graphs/{name}.png")  # needs should be async
+    return name
