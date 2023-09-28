@@ -59,3 +59,13 @@ def test_find_nearest_elevator_none(down_rider_9, elevator_bank_down):
     elev = down_rider_9.find_nearest_available_elevator(elevator_bank_down)
     assert None == elev
     assert down_rider_9.start_floor == elevator_bank_down.queue.get()
+
+
+def test_csv_import(csv_file):  # pass in a CSV with 3 riders and ensure 3 get created
+    pass
+
+
+def test_empty_csv_import(
+    csv_file,
+):  # pass in a CSV with just headers and make sure no riders get created but also not error
+    pass
