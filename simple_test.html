@@ -2,27 +2,59 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Paste Data</title>
+  <title>Paste Data</title>
+
+  <!-- /* following is from https://www.educative.io/answers/how-to-create-columns-in-html */ -->
+  <style>
+    /* {
+        box-sizing: border-box;
+    } */
+    /* Set additional styling options for the columns*/
+    .column {
+    float: left;
+    width: 50%;
+    }
+
+    .row:after {
+    content: "";
+    display: table;
+    clear: both;
+    }
+    </style>
 </head>
 <body>
-  <form id="myForm">
-    <label for="num_elevators">num_elevators:</label>
-    <input type="text" id="num_elevators" name="num_elevators" required>
-    <br>
-    <label for="TIME_STEP">TIME_STEP:</label>
-    <input type="text" id="TIME_STEP" name="TIME_STEP" required>
-    <br>
-    <label for="elevate_type">Choose a type:</label>
-      <select name="elevate_type" id="elevate_type">
-        <option value="elevate_dc">DC</option>
-        <option value="elevate">Regular</option>
-      </select>
-    <br><br>
-    <input type="submit" value="Submit">
-  </form>
+  <div class="row">
+    <div class="column" style="background-color:#FFB695;">
+      <form id="myForm">
+        <label for="num_elevators">Number of Elevators:</label>
+        <select name="num_elevators" id="num_elevators">
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="3">4</option>
+        </select>
+        <br>
+        <label for="TIME_STEP" id="timeStepLabel">Simulation time step:</label>
+        <input type="range" name="TIME_STEP" min="0.1" max="0.9" value="0.5" step="0.1" class="TIME_STEP" id="TIME_STEP">
+        <p>Value: <output id="value"></output></p>
+        <br>
+        <label for="elevate_type">Choose an Elevator type:</label>
+          <select name="elevate_type" id="elevate_type">
+            <option value="elevate_dc">Destination Control</option>
+            <option value="elevate">Regular</option>
+          </select>
+        <br><br>
+        <input type="submit" value="Submit">
+      </form>
+    </div>
 
-  <div id="response"></div>
-  <div id="my-image"></div>
+    <div class="column" style="background-color:#96D1CD;">
+      <div id="response"></div>
+      <div id="my-image"></div>
+    </div>
+  </div>
+
+  
 
   <input type="file" id="csvfile" accept=".csv">
   <button type="button" id="validateBtn">Validate CSV</button>
@@ -87,7 +119,7 @@
     .then((json) => {
       // Display response to user
       graph_id = json.graph_id
-      document.getElementById('response').innerHTML = JSON.stringify(json);
+      // document.getElementById('response').innerHTML = JSON.stringify(json);
     });
     
 
@@ -182,6 +214,14 @@
 
       reader.readAsText(file);
   });
+  
+  const value = document.querySelector("#value");
+  const input = document.querySelector("#TIME_STEP");
+  value.textContent = input.value;
+  input.addEventListener("input", (event) => {
+    value.textContent = event.target.value;
+  });
+  
   </script>
 </body>
 </html>
