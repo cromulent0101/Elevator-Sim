@@ -314,6 +314,7 @@ class Elevator:
         """
         keep_going_down = False
         keep_going_up = False
+        more_requests = False
 
         if self.internal_destinations:
             pass
@@ -342,6 +343,8 @@ class Elevator:
                         self.direction < 1 and floor.down_request
                     ):
                         keep_going_down = True
+                    elif floor.down_request or floor.up_request:
+                        more_requests = True
                     else:
                         continue
 
@@ -359,6 +362,12 @@ class Elevator:
                 self.direction == 0 and keep_going_up
             ):  # keep_going_down has priority over keep_going_up
                 self.direction = 1
+            elif (
+                more_requests
+            ):  # this should prevent case where we have one person in and one person out at the top/bottom floor.
+                # on edge_cases.csv, this strictly improves waiting time.
+                self.direction = self.direction * -1
+                pass
             else:
                 self.direction = 0
         print(
