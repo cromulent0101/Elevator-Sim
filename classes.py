@@ -1,16 +1,25 @@
 from time import sleep
 from sys import maxsize
-from typing import Tuple, List
+from typing import Tuple, List, Dict
 
 
 class ElevatorBank:
-    def __init__(self, elevator_list):
+    def __init__(
+        self, elevator_list: List["Elevator"]
+    ):  # TODO: upgrade to Python >3.10
         self.elevators = elevator_list
         self.queue = (
             set()
         )  # set of floors that don't have an elevator going to them yet
 
-    def simulate(self, rider_list_csv, floor_dict, time_step, max_time, elevate_type):
+    def simulate(
+        self,
+        rider_list_csv: List["Rider"],
+        floor_dict: Dict[int, "Floor"],
+        time_step: float,
+        max_time: int,
+        elevate_type: str,
+    ):
         sim_time = 0
         rider_list = []
         start_stop_delays = []
@@ -20,6 +29,7 @@ class ElevatorBank:
         floor_dict[
             "done"
         ] = False  # TODO: move the "done" flag out of the floor_dict. See below for first step
+        # also TODO: rename rider_list_csv because it's confusing.
         simulation_done = False
 
         for elevator in self.elevators:
@@ -46,7 +56,9 @@ class ElevatorBank:
                     )
             sim_time = sim_time + time_step
 
-        if sim_time > max_time:
+        if (
+            sim_time > max_time
+        ):  # TODO: figure out why 0.6+ tick sizes cause sim to run forever
             print(f"Simulation took more time than {max_time} ticks")
             raise Exception
         return start_step_delays, start_stop_delays, floors_traversed[-1], log_dict
@@ -312,6 +324,7 @@ class Elevator:
                 ):  # there is a value in the floor_dict that is not a Floor but rather a Boolean
                     if keep_going_down and keep_going_up:
                         break
+
                     if floor.number > self.floor and (
                         floor.up_request or floor.down_request
                     ):
@@ -320,6 +333,7 @@ class Elevator:
                         floor.up_request or floor.down_request
                     ):
                         keep_going_down = True
+
                     elif floor.number == self.floor and (
                         self.direction > -1 and floor.up_request
                     ):
@@ -347,6 +361,10 @@ class Elevator:
                 self.direction = 1
             else:
                 self.direction = 0
+        print(
+            f"at floor {self.floor} I updated direction to {self.direction}. keep going up is {keep_going_up} and keep_going_down is {keep_going_down}"
+        )
+        """ because this floor has a {floor.up_request} up request and {floor.down_request} down request')"""
 
     def update_direction_dc(self, e_bank: ElevatorBank) -> None:
         if self.direction == 0:
@@ -368,7 +386,9 @@ class Elevator:
         else:
             self.direction = 0
 
-    def let_riders_in(self, floor_dict, e_bank) -> None:
+    def let_riders_in(
+        self, floor_dict: Dict[int, "Floor"], e_bank: ElevatorBank
+    ) -> None:
         clear_up_button = False
         clear_down_button = False
         riders_still_waiting = False
@@ -408,7 +428,9 @@ class Elevator:
                 floor_dict[self.floor].down_request = False
         return should_door_open, rider_names_to_add
 
-    def let_riders_in_dc(self, floor_dict, e_bank) -> None:
+    def let_riders_in_dc(
+        self, floor_dict: Dict[int, "Floor"], e_bank: ElevatorBank
+    ) -> None:
         should_door_open = False
         riders_to_step_in = []
         rider_names_to_add = []
@@ -458,7 +480,7 @@ class Elevator:
                 nearest_floor = floor
         return nearest_floor
 
-    def destination_check(self, floor_dict) -> None:
+    def destination_check(self, floor_dict: Dict[int, "Floor"]) -> None:
         """
         Performs a sanity check on external destinations. If there is no Rider
         at a Floor that is an external destination,
@@ -499,7 +521,7 @@ class Rider:
         Returns True if the Rider was successfully added, False otherwise.
         """
         if elev.capacity == len(elev.riders):
-            print(f"Rider {self.name} can't enter Elevator since it is full")
+            # print(f"Rider {self.name} can't enter Elevator since it is full")
             return False
         else:
             self.step_in_time = elev.simulated_time
