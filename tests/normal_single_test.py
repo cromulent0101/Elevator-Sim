@@ -142,22 +142,29 @@ def test_middle_classic(middle_floor_elevator, classic_riders):
 
 
 def test_middle_multiple(middle_floor_elevator, multiple_riders_multiple_floors):
-    floor_dict = utils.create_floors(multiple_riders_multiple_floors)
-    assert middle_floor_elevator.run(multiple_riders_multiple_floors, floor_dict) == [
-        "3;1;;",
-        "4;1;;",
-        "5;1;Jill;",
-        "6;1;;",
-        "7;1;;",
-        "8;1;;",
-        "9;1;Jimmy,Joe;Jill",
-        "8;-1;;",
-        "7;-1;;",
-        "6;-1;;",
-        "5;-1;Bob,Jane;Jimmy",
-        "4;-1;;",
-        "3;-1;;Jane",
-        "2;-1;;Bob,Joe",
+    floor_dict = utils.create_floors(
+        multiple_riders_multiple_floors, [middle_floor_elevator]
+    )
+    elevator_bank = ElevatorBank([middle_floor_elevator])
+    _, _, _, log_dict = elevator_bank.simulate(
+        multiple_riders_multiple_floors, floor_dict, 0.5, 10000, "elevate"
+    )
+    assert log_dict[f"Elevator {middle_floor_elevator.name}"] == [
+        "3;1;;;0",
+        "4;1;;;0.5",
+        "5;1;Jill;;1.0",
+        "6;1;;;2.5",
+        "7;1;;;3.0",
+        "8;1;;;3.5",
+        "9;-1;Jimmy,Joe;Jill;4.0",
+        "8;-1;;;5.5",
+        "7;-1;;;6.0",
+        "6;-1;;;6.5",
+        "5;-1;Bob,Jane;Jimmy;7.0",
+        "4;-1;;;8.5",
+        "3;-1;;Jane;9.0",
+        "2;0;;Bob,Joe;10.5",
+        "2;0;;;12.0",
     ]
 
 
