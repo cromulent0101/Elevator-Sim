@@ -53,11 +53,15 @@ def multiple_riders_multiple_floors():
 
 
 def test_first_classic(first_floor_elevator, classic_riders):
+    classic_riders_copy = classic_riders.copy()
     floor_dict = utils.create_floors(classic_riders, [first_floor_elevator])
     elevator_bank = ElevatorBank([first_floor_elevator])
     _, _, _, log_dict = elevator_bank.simulate(
         classic_riders, floor_dict, 0.5, 10000, "elevate"
     )
+    assert (
+        "".join(list(log_dict.values())[0]).count(classic_riders_copy[0].name) == 2
+    )  # Counts that the first Rider got on and also got off.
     assert log_dict[f"Elevator {first_floor_elevator.name}"] == [
         "1;1;;;0",
         "2;1;Joe;;0.5",
@@ -81,11 +85,15 @@ def test_first_classic(first_floor_elevator, classic_riders):
 
 
 def test_first_descending(first_floor_elevator, descending_riders):
+    descending_riders_copy = descending_riders.copy()
     floor_dict = utils.create_floors(descending_riders, [first_floor_elevator])
     elevator_bank = ElevatorBank([first_floor_elevator])
     _, _, _, log_dict = elevator_bank.simulate(
         descending_riders, floor_dict, 0.5, 10000, "elevate"
     )
+    assert (
+        "".join(list(log_dict.values())[0]).count(descending_riders_copy[0].name) == 2
+    )  # Counts that the first Rider got on and also got off.
     assert log_dict[f"Elevator {first_floor_elevator.name}"] == [
         "1;1;;;0",
         "2;1;;;0.5",
