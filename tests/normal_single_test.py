@@ -27,6 +27,13 @@ def top_floor_elevator():
 
 
 @pytest.fixture
+def middle_floor_stationary_elevator():
+    e = Elevator(3, 3, "middle_floor_elevator_stationary")
+    e.direction = 0
+    return e
+
+
+@pytest.fixture
 def classic_riders():
     return [Rider("Joe", 9, 2), Rider("Bob", 5, 4), Rider("Jane", 1, 9)]
 
@@ -176,5 +183,38 @@ def test_middle_multiple(middle_floor_elevator, multiple_riders_multiple_floors)
     ]
 
 
-def test_middle_stationary_up():  # stationary elevator with
+# stationary elevator with Riders equidistant above and below. should prefer going down first
+def test_middle_stationary(middle_floor_stationary_elevator, classic_riders):
+    classic_riders_copy = classic_riders.copy()
+    floor_dict = utils.create_floors(classic_riders, [middle_floor_stationary_elevator])
+    elevator_bank = ElevatorBank([middle_floor_stationary_elevator])
+    _, _, _, log_dict = elevator_bank.simulate(
+        classic_riders, floor_dict, 0.5, 10000, "elevate"
+    )
+    assert (
+        "".join(list(log_dict.values())[0]).count(classic_riders_copy[0].name) == 2
+    )  # Counts that the first Rider got on and also got off.
+    assert log_dict[f"Elevator {middle_floor_stationary_elevator.name}"] == [
+        "3;-1;;;0",
+        "2;1;Joe;;0.5",
+        "3;1;;;2.0",
+        "4;1;Bob;;2.5",
+        "5;1;;Bob;4.0",
+        "6;1;;;5.5",
+        "7;1;;;6.0",
+        "8;1;;;6.5",
+        "9;-1;Jane;Joe;7.0",
+        "8;-1;;;8.5",
+        "7;-1;;;9.0",
+        "6;-1;;;9.5",
+        "5;-1;;;10.0",
+        "4;-1;;;10.5",
+        "3;-1;;;11.0",
+        "2;-1;;;11.5",
+        "1;0;;Jane;12.0",
+        "1;0;;;13.5",
+    ]
+
+
+def test_full_elevator():
     pass
