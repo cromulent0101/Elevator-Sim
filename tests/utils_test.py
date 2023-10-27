@@ -89,10 +89,34 @@ def test_csv_import(
         assert repr(utils.get_riders_from_csv(csv_file_classic)[i]) == repr(
             classic_riders[i]
         )
-        # classic_riders
 
 
 def test_empty_csv_import(
     csv_file_empty,
-):  # pass in a CSV with just headers and make sure no riders get created but also not error
+):  # pass in a CSV with just headers and make sure no riders get created, but also not error
     assert len(utils.get_riders_from_csv(csv_file_empty)) == 0
+
+
+def test_create_floors(classic_riders, elevator_bank_mixed):
+    # e bank goes from 1 to 10
+    # riders go from 1 to 9
+    # therefore, floors should go from 0 to 11
+    # min_start_floor = min([rider.start_floor for rider in classic_riders])
+    # min_destination = min([rider.destination for rider in classic_riders])
+    # max_start_floor = max([rider.start_floor for rider in classic_riders])
+    # max_destination = max([rider.destination for rider in classic_riders])
+    # min_elevator = min([elevator.floor for elevator in elevator_bank_mixed.elevators])
+    # max_elevator = max([elevator.floor for elevator in elevator_bank_mixed.elevators])
+    # min_floor = min([min_start_floor, min_destination, min_elevator])
+    # max_floor = max([max_start_floor, max_destination, max_elevator])
+    # print(min_start_floor)
+    # print(min_destination)
+    # print(max_start_floor)
+    # print(max_destination)
+    # print(min_elevator)
+    # print(max_elevator)
+    # print(min_floor)
+    # print(max_floor)
+    floors = utils.create_floors(classic_riders, elevator_bank_mixed.elevators)
+
+    assert len(floors) == 12
