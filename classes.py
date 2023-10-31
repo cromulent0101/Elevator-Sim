@@ -6,7 +6,7 @@ from typing import Tuple, List, Dict
 class ElevatorBank:
     def __init__(
         self, elevator_list: List["Elevator"]
-    ):  # TODO: upgrade to Python >3.10
+    ):  # TODO: upgrade to Python >3.10 to get better type hints
         self.elevators = elevator_list
         self.queue = (
             set()
@@ -209,7 +209,9 @@ class Elevator:
     ) -> None:
         rider_list_csv_copy = [] + rider_list_csv
 
-        if not rider_list_csv and not rider_list:
+        if (
+            not rider_list_csv and not rider_list
+        ):  # no more Riders waiting and no more Riders in this Elev
             floor_dict["done"] = True
         else:
             for rider in rider_list_csv_copy:
@@ -264,7 +266,7 @@ class Elevator:
 
         if self.floor in self.internal_destinations:
             self.internal_destinations.remove(self.floor)  # ding, we stop
-            for rider in self.riders:  # can we DRY?
+            for rider in self.riders:
                 if rider.destination == self.floor:
                     riders_to_remove.append(rider)
                     rider_names_to_remove.append(str(rider))
@@ -292,7 +294,7 @@ class Elevator:
             self.external_destinations.remove(self.floor)
         if self.floor in self.internal_destinations:
             self.internal_destinations.remove(self.floor)  # ding, we stop
-            for rider in self.riders:  # can we DRY?
+            for rider in self.riders:
                 if rider.destination == self.floor:
                     riders_to_remove.append(rider)
                     rider_names_to_remove.append(str(rider))
@@ -356,11 +358,11 @@ class Elevator:
                 keep_going_up and self.direction == -1
             ):
                 self.direction = self.direction * -1
-            elif self.direction == 0 and keep_going_down:
-                self.direction = -1
             elif (
-                self.direction == 0 and keep_going_up
+                self.direction == 0 and keep_going_down
             ):  # keep_going_down has priority over keep_going_up
+                self.direction = -1
+            elif self.direction == 0 and keep_going_up:
                 self.direction = 1
             elif (
                 more_requests
@@ -378,7 +380,7 @@ class Elevator:
     def update_direction_dc(self, e_bank: ElevatorBank) -> None:
         if self.direction == 0:
             if e_bank.queue:
-                # print("went to elev queue")
+                print(f"went to elev queue at floor {self.floor}")
                 next_floor = self.find_nearest_floor(list(e_bank.queue))
                 if next_floor > self.floor:
                     self.direction = 1
@@ -592,6 +594,7 @@ class Rider:
                 available_elevators.append(e)
 
         if not available_elevators:
+            print(f"Rider {self.name} added to elevator queue, for Floor {self.floor}")
             elevator_bank.queue.add(self.start_floor)
             return
 

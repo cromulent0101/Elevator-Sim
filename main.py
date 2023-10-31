@@ -6,9 +6,9 @@ import os
 from classes import Elevator, Rider, Floor, ElevatorBank
 from statistics import mean, median
 
-SIMULATION_CSV = "sims/edge_cases.csv"
-ELEVATOR_CAPACITY = 1
-NUM_ELEVATORS = 3
+SIMULATION_CSV = "sims/classic.csv"
+ELEVATOR_CAPACITY = 3
+NUM_ELEVATORS = 2
 TIME_STEP = 0.01
 MAX_TIME = 10000
 
@@ -17,7 +17,7 @@ rider_list_csv_floor = utils.get_riders_from_csv(SIMULATION_CSV)
 
 
 a = Elevator(ELEVATOR_CAPACITY, 1, "a")
-b = Elevator(ELEVATOR_CAPACITY, 1, "b")
+b = Elevator(ELEVATOR_CAPACITY, 3, "b")
 c = Elevator(ELEVATOR_CAPACITY, 1, "c")
 d = Elevator(ELEVATOR_CAPACITY, 1, "d")
 e = Elevator(ELEVATOR_CAPACITY, 1, "e")

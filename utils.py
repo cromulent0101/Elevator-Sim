@@ -151,13 +151,3 @@ def create_floors(
     for floor_num in range(min_floor - 1, max_floor + 2):
         floor_dict[floor_num] = Floor(floor_num)
     return floor_dict
-
-
-# def test_helper(log_dict: dict) -> List[bool]:
-#     for elev in log_dict.values():
-#         split_elev = [row.split(";") for row in elev]
-#         df = pd.DataFrame(
-#             split_elev,
-#             columns=["floor", "direction", "riders_in", "riders_out", "time"],
-#         )
-#         print(df)
