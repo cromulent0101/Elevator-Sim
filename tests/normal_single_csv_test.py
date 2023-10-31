@@ -22,7 +22,7 @@ def simulation_settings_normal():
 def simulation_settings_dispatch():
     TIME_STEP = 0.01
     MAX_TIME = 10000
-    SIM_TYPE = "elevate_floor"
+    SIM_TYPE = "elevate_dc"
     return [TIME_STEP, MAX_TIME, SIM_TYPE]
 
 
@@ -75,7 +75,7 @@ def test_first_classic(
     bank = ElevatorBank(e_bank)
     floor_dict = utils.create_floors(classic_riders, e_bank)
 
-    start_step_delays, start_stop_delays, floors_traversed, log_dict = bank.simulate(
+    _, _, _, log_dict = bank.simulate(
         classic_riders,
         floor_dict,
         simulation_settings_normal[0],
@@ -85,7 +85,8 @@ def test_first_classic(
 
     assert (
         "".join(list(log_dict.values())[0]).count(classic_riders_copy[0].name) == 2
-    )  # assumes Rider names are prefix-free
+    )  # Counts that the first Rider got on and also got off.
+    # assumes Rider names are prefix-free
 
 
 def test_random100(
@@ -96,7 +97,7 @@ def test_random100(
     bank = ElevatorBank(e_bank)
     floor_dict = utils.create_floors(random100_at_once_riders, e_bank)
 
-    start_step_delays, start_stop_delays, floors_traversed, log_dict = bank.simulate(
+    _, _, _, log_dict = bank.simulate(
         random100_at_once_riders,
         floor_dict,
         simulation_settings_normal[0],
@@ -107,4 +108,5 @@ def test_random100(
     assert (
         "".join(list(log_dict.values())[0]).count(random100_at_once_riders_copy[0].name)
         == 2
-    )  # assumes Rider names are prefix-free
+    )  # Counts that the first Rider got on and also got off.
+    # assumes Rider names are prefix-free
