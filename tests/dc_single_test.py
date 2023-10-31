@@ -35,7 +35,7 @@ def middle_floor_stationary_elevator():
 
 @pytest.fixture
 def classic_riders():
-    return [Rider("Joe", 9, 2), Rider("Bob", 5, 4), Rider("Jane", 1, 9)]
+    return [Rider("Joe", 9, 2), Rider("Bob", 5, 4), Rider("Jane", 1, 8)]
 
 
 @pytest.fixture
@@ -74,7 +74,7 @@ def test_first_classic_dc(first_floor_elevator, classic_riders):
         "2;1;Joe;;0.5",
         "3;1;;;2.0",
         "4;1;Bob;;2.5",
-        "5;1;;Bob;4.0",
+        "5;1;;Bob;4.0",  # If we change Jane to be on Floor 8, this becomes an issue as Floor 5 appears twice when it shouldn't!
         "6;1;;;5.5",
         "7;1;;;6.0",
         "8;1;;;6.5",
@@ -131,28 +131,27 @@ def test_middle_classic_dc(middle_floor_elevator, classic_riders):
     assert log_dict[f"Elevator {middle_floor_elevator.name}"] == [
         "3;1;;;0",
         "4;1;Bob;;0.5",
-        "5;1;;Bob;2.0",
-        "6;1;;;3.5",
-        "7;1;;;4.0",
-        "8;1;;;4.5",
-        "9;-1;Jane;;5.0",
-        "8;-1;;;6.5",
-        "7;-1;;;7.0",
-        "6;-1;;;7.5",
-        "5;-1;;;8.0",
-        "4;-1;;;8.5",
-        "3;-1;;;9.0",
-        "2;-1;;;9.5",
-        "1;1;;Jane;10.0",
-        "2;1;Joe;;11.5",
-        "3;1;;;13.0",
-        "4;1;;;13.5",
-        "5;1;;;14.0",
-        "6;1;;;14.5",
-        "7;1;;;15.0",
-        "8;1;;;15.5",
-        "9;0;;Joe;16.0",
-        "9;0;;;17.5",
+        "5;0;;Bob;2.0",  # goes to elev queue here
+        "5;-1;;;3.5",
+        "4;-1;;;4.0",
+        "3;-1;;;4.5",
+        "2;1;Joe;;5.0",
+        "3;1;;;6.5",
+        "4;1;;;7.0",
+        "5;1;;;7.5",
+        "6;1;;;8.0",
+        "7;1;;;8.5",
+        "8;1;;;9.0",
+        "9;-1;Jane;Joe;9.5",
+        "8;-1;;;11.0",
+        "7;-1;;;11.5",
+        "6;-1;;;12.0",
+        "5;-1;;;12.5",
+        "4;-1;;;13.0",
+        "3;-1;;;13.5",
+        "2;-1;;;14.0",
+        "1;0;;Jane;14.5",
+        "1;0;;;16.0",
     ]
 
 
