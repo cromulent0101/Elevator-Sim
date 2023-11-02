@@ -59,7 +59,7 @@ def multiple_riders_multiple_floors():
     ]
 
 
-def test_first_classic(first_floor_elevator, classic_riders):
+def test_first_classic(first_floor_elevator: Elevator, classic_riders: list[Rider]):
     classic_riders_copy = classic_riders.copy()
     floor_dict = utils.create_floors(classic_riders, [first_floor_elevator])
     elevator_bank = ElevatorBank([first_floor_elevator])
@@ -91,7 +91,9 @@ def test_first_classic(first_floor_elevator, classic_riders):
     ]
 
 
-def test_first_descending(first_floor_elevator, descending_riders):
+def test_first_descending(
+    first_floor_elevator: Elevator, descending_riders: list[Rider]
+):
     descending_riders_copy = descending_riders.copy()
     floor_dict = utils.create_floors(descending_riders, [first_floor_elevator])
     elevator_bank = ElevatorBank([first_floor_elevator])
@@ -122,7 +124,7 @@ def test_first_descending(first_floor_elevator, descending_riders):
     ]
 
 
-def test_middle_classic(middle_floor_elevator, classic_riders):
+def test_middle_classic(middle_floor_elevator: Elevator, classic_riders: list[Rider]):
     floor_dict = utils.create_floors(classic_riders, [middle_floor_elevator])
     elevator_bank = ElevatorBank([middle_floor_elevator])
     _, _, _, log_dict = elevator_bank.simulate(
@@ -156,7 +158,9 @@ def test_middle_classic(middle_floor_elevator, classic_riders):
     ]
 
 
-def test_middle_multiple(middle_floor_elevator, multiple_riders_multiple_floors):
+def test_middle_multiple(
+    middle_floor_elevator: Elevator, multiple_riders_multiple_floors: list[Rider]
+):
     floor_dict = utils.create_floors(
         multiple_riders_multiple_floors, [middle_floor_elevator]
     )
@@ -184,7 +188,9 @@ def test_middle_multiple(middle_floor_elevator, multiple_riders_multiple_floors)
 
 
 # stationary elevator with Riders equidistant above and below. should prefer going down first
-def test_middle_stationary(middle_floor_stationary_elevator, classic_riders):
+def test_middle_stationary(
+    middle_floor_stationary_elevator: Elevator, classic_riders: list[Rider]
+):
     classic_riders_copy = classic_riders.copy()
     floor_dict = utils.create_floors(classic_riders, [middle_floor_stationary_elevator])
     elevator_bank = ElevatorBank([middle_floor_stationary_elevator])

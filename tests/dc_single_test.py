@@ -59,7 +59,7 @@ def multiple_riders_multiple_floors():
     ]
 
 
-def test_first_classic_dc(first_floor_elevator, classic_riders):
+def test_first_classic_dc(first_floor_elevator: Elevator, classic_riders: list[Rider]):
     classic_riders_copy = classic_riders.copy()
     floor_dict = utils.create_floors(classic_riders, [first_floor_elevator])
     elevator_bank = ElevatorBank([first_floor_elevator])
@@ -74,7 +74,7 @@ def test_first_classic_dc(first_floor_elevator, classic_riders):
         "2;1;Joe;;0.5",
         "3;1;;;2.0",
         "4;1;Bob;;2.5",
-        "5;1;;Bob;4.0",  # If we change Jane to be on Floor 8, this becomes an issue as Floor 5 appears twice when it shouldn't!
+        "5;1;;Bob;4.0",  # TODO: If we change Jane to be on Floor 8, this becomes an issue as Floor 5 appears twice when it shouldn't!
         "6;1;;;5.5",
         "7;1;;;6.0",
         "8;1;;;6.5",
@@ -91,7 +91,9 @@ def test_first_classic_dc(first_floor_elevator, classic_riders):
     ]
 
 
-def test_first_descending_dc(first_floor_elevator, descending_riders):
+def test_first_descending_dc(
+    first_floor_elevator: Elevator, descending_riders: list[Rider]
+):
     descending_riders_copy = descending_riders.copy()
     floor_dict = utils.create_floors(descending_riders, [first_floor_elevator])
     elevator_bank = ElevatorBank([first_floor_elevator])
@@ -122,7 +124,9 @@ def test_first_descending_dc(first_floor_elevator, descending_riders):
     ]
 
 
-def test_middle_classic_dc(middle_floor_elevator, classic_riders):
+def test_middle_classic_dc(
+    middle_floor_elevator: Elevator, classic_riders: list[Rider]
+):
     floor_dict = utils.create_floors(classic_riders, [middle_floor_elevator])
     elevator_bank = ElevatorBank([middle_floor_elevator])
     _, _, _, log_dict = elevator_bank.simulate(
@@ -155,7 +159,9 @@ def test_middle_classic_dc(middle_floor_elevator, classic_riders):
     ]
 
 
-def test_middle_multiple_dc(middle_floor_elevator, multiple_riders_multiple_floors):
+def test_middle_multiple_dc(
+    middle_floor_elevator: Elevator, multiple_riders_multiple_floors: list[Rider]
+):
     floor_dict = utils.create_floors(
         multiple_riders_multiple_floors, [middle_floor_elevator]
     )
@@ -183,7 +189,9 @@ def test_middle_multiple_dc(middle_floor_elevator, multiple_riders_multiple_floo
 
 
 # stationary elevator with Riders equidistant above and below. should prefer going down first
-def test_middle_stationary_dc(middle_floor_stationary_elevator, classic_riders):
+def test_middle_stationary_dc(
+    middle_floor_stationary_elevator: Elevator, classic_riders: list[Rider]
+):
     classic_riders_copy = classic_riders.copy()
     floor_dict = utils.create_floors(classic_riders, [middle_floor_stationary_elevator])
     elevator_bank = ElevatorBank([middle_floor_stationary_elevator])

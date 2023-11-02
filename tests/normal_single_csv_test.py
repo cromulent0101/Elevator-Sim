@@ -1,5 +1,6 @@
 # pylint: disable=import-error
 # pylint: disable=wrong-import-position
+from typing import List
 import pytest
 import sys
 
@@ -67,7 +68,9 @@ def random100_at_once_riders():
 
 
 def test_first_classic(
-    first_floor_elevator, classic_riders, simulation_settings_normal
+    first_floor_elevator: Elevator,
+    classic_riders: List[Rider],
+    simulation_settings_normal: list,
 ):
 
     classic_riders_copy = classic_riders.copy()
@@ -90,7 +93,9 @@ def test_first_classic(
 
 
 def test_random100(
-    first_floor_elevator, random100_at_once_riders, simulation_settings_normal
+    first_floor_elevator: Elevator,
+    random100_at_once_riders: List[Rider],
+    simulation_settings_normal: list,
 ):
     random100_at_once_riders_copy = random100_at_once_riders.copy()
     e_bank = [first_floor_elevator]

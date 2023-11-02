@@ -92,12 +92,12 @@ def test_csv_import(
 
 
 def test_empty_csv_import(
-    csv_file_empty,
+    csv_file_empty: str,
 ):  # pass in a CSV with just headers and make sure no riders get created, but also not error
     assert len(utils.get_riders_from_csv(csv_file_empty)) == 0
 
 
-def test_create_floors(classic_riders, elevator_bank_mixed):
+def test_create_floors(classic_riders: list[Rider], elevator_bank_mixed: ElevatorBank):
     # e bank goes from 1 to 10
     # riders go from 1 to 9
     # therefore, floors should go from 0 to 11
