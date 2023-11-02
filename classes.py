@@ -204,7 +204,7 @@ class Elevator:
                     rider.press_button_new(floor_dict)
                     rider_list_csv.remove(rider)
 
-    def check_for_new_riders_dc(  # should be refactored out of Elevator and into ElevatorBank
+    def check_for_new_riders_dc(  # TODO: should be refactored out of Elevator and into ElevatorBank
         self, rider_list_csv, elevator_bank, floor_dict, rider_list
     ) -> None:
         rider_list_csv_copy = [] + rider_list_csv
@@ -594,7 +594,9 @@ class Rider:
                 available_elevators.append(e)
 
         if not available_elevators:
-            print(f"Rider {self.name} added to elevator queue, for Floor {self.floor}")
+            print(
+                f"Rider {self.name} added to elevator queue, for Floor {self.start_floor}"
+            )
             elevator_bank.queue.add(self.start_floor)
             return
 
