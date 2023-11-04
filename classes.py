@@ -77,7 +77,9 @@ class Elevator:
         self.internal_destinations = set()
         self.external_destinations = set()
         self.door_opening_delay = 1
-        self.elevator_movement_delay = 0.5
+        self.elevator_movement_delay = (
+            0.5  # TODO: add acceleration s.t. subsequent movements become faster
+        )
         self.simulated_time = 0
         self.riders = []  # list of Riders
         self.log = []  # list of strs to log what elevator did
@@ -378,24 +380,35 @@ class Elevator:
         """ because this floor has a {floor.up_request} up request and {floor.down_request} down request')"""
 
     def update_direction_dc(self, e_bank: ElevatorBank) -> None:
-        if self.direction == 0:
+        if not self.internal_destinations and not self.external_destinations:
             if e_bank.queue:
                 print(f"went to elev queue at floor {self.floor}")
-                next_floor = self.find_nearest_floor(list(e_bank.queue))
+                next_floor = self.find_nearest_floor(
+                    list(e_bank.queue)
+                )  # shouldn't ElevBank dispatch the Elevator closest to the Rider, not have the Elev dispatch itself?
                 if next_floor > self.floor:
                     self.direction = 1
                     self.external_destinations.add(next_floor)
+                    print(
+                        f"adding external dest for {next_floor}. setting dir to {self.direction}"
+                    )
                 elif next_floor < self.floor:
                     self.direction = -1
                     self.external_destinations.add(next_floor)
+                    print(
+                        f"adding external dest for {next_floor}. setting dir to {self.direction}"
+                    )
+                elif next_floor == self.floor:
+                    self.direction = 0
                 try:
                     e_bank.queue.remove(next_floor)
                 except KeyError:
                     pass
-        elif self.internal_destinations or self.external_destinations:
+            else:
+                print("no one is in the queue, so setting dir = 0")
+                self.direction = 0
+        else:  # continue in the same direction
             pass
-        else:
-            self.direction = 0
 
     def let_riders_in(
         self, floor_dict: Dict[int, "Floor"], e_bank: ElevatorBank
@@ -489,6 +502,8 @@ class Elevator:
         for floor in queue:
             if abs(floor - self.floor) < abs(nearest_floor - self.floor):
                 nearest_floor = floor
+            elif floor - self.floor == 0:
+                return self.floor
         return nearest_floor
 
     def destination_check(self, floor_dict: Dict[int, "Floor"]) -> None:

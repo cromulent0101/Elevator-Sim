@@ -35,6 +35,11 @@ def middle_floor_stationary_elevator():
 
 @pytest.fixture
 def classic_riders():
+    return [Rider("Joe", 9, 2), Rider("Bob", 5, 4), Rider("Jane", 1, 9)]
+
+
+@pytest.fixture
+def alternate_classic_riders():
     return [Rider("Joe", 9, 2), Rider("Bob", 5, 4), Rider("Jane", 1, 8)]
 
 
@@ -59,6 +64,41 @@ def multiple_riders_multiple_floors():
     ]
 
 
+def test_first_alternate_dc(
+    first_floor_elevator: Elevator, alternate_classic_riders: list[Rider]
+):
+    alternate_classic_riders_copy = alternate_classic_riders.copy()
+    floor_dict = utils.create_floors(alternate_classic_riders, [first_floor_elevator])
+    elevator_bank = ElevatorBank([first_floor_elevator])
+    _, _, _, log_dict = elevator_bank.simulate(
+        alternate_classic_riders, floor_dict, 0.5, 10000, "elevate_dc"
+    )
+    assert (
+        "".join(list(log_dict.values())[0]).count(alternate_classic_riders_copy[0].name)
+        == 2
+    )  # Counts that the first Rider got on and also got off.
+    assert log_dict[f"Elevator {first_floor_elevator.name}"] == [
+        "1;1;;;0",
+        "2;1;Joe;;0.5",
+        "3;1;;;2.0",
+        "4;1;Bob;;2.5",
+        "5;1;;Bob;4.0",
+        "6;1;;;5.5",
+        "7;1;;;6.0",
+        "8;1;;;6.5",
+        "9;-1;;Joe;7.0",
+        "8;-1;Jane;;8.5",
+        "7;-1;;;10.0",
+        "6;-1;;;10.5",
+        "5;-1;;;11.0",
+        "4;-1;;;11.5",
+        "3;-1;;;12.0",
+        "2;-1;;;12.5",
+        "1;0;;Jane;13.0",
+        "1;0;;;14.5",
+    ]
+
+
 def test_first_classic_dc(first_floor_elevator: Elevator, classic_riders: list[Rider]):
     classic_riders_copy = classic_riders.copy()
     floor_dict = utils.create_floors(classic_riders, [first_floor_elevator])
@@ -74,7 +114,7 @@ def test_first_classic_dc(first_floor_elevator: Elevator, classic_riders: list[R
         "2;1;Joe;;0.5",
         "3;1;;;2.0",
         "4;1;Bob;;2.5",
-        "5;1;;Bob;4.0",  # TODO: If we change Jane to be on Floor 8, this becomes an issue as Floor 5 appears twice when it shouldn't!
+        "5;1;;Bob;4.0",
         "6;1;;;5.5",
         "7;1;;;6.0",
         "8;1;;;6.5",
@@ -133,29 +173,49 @@ def test_middle_classic_dc(
         classic_riders, floor_dict, 0.5, 10000, "elevate_dc"
     )
     assert log_dict[f"Elevator {middle_floor_elevator.name}"] == [
+        # "3;1;;;0",
+        # "4;1;Bob;;0.5",
+        # "5;0;;Bob;2.0",  # goes to elev queue here
+        # "5;-1;;;3.5",
+        # "4;-1;;;4.0",
+        # "3;-1;;;4.5",
+        # "2;1;Joe;;5.0",
+        # "3;1;;;6.5",
+        # "4;1;;;7.0",
+        # "5;1;;;7.5",
+        # "6;1;;;8.0",
+        # "7;1;;;8.5",
+        # "8;1;;;9.0",
+        # "9;-1;Jane;Joe;9.5",
+        # "8;-1;;;11.0",
+        # "7;-1;;;11.5",
+        # "6;-1;;;12.0",
+        # "5;-1;;;12.5",
+        # "4;-1;;;13.0",
+        # "3;-1;;;13.5",
+        # "2;-1;;;14.0",
+        # "1;0;;Jane;14.5",
+        # "1;0;;;16.0",
         "3;1;;;0",
-        "4;1;Bob;;0.5",
-        "5;0;;Bob;2.0",  # goes to elev queue here
-        "5;-1;;;3.5",
-        "4;-1;;;4.0",
-        "3;-1;;;4.5",
-        "2;1;Joe;;5.0",
-        "3;1;;;6.5",
-        "4;1;;;7.0",
-        "5;1;;;7.5",
-        "6;1;;;8.0",
-        "7;1;;;8.5",
-        "8;1;;;9.0",
-        "9;-1;Jane;Joe;9.5",
-        "8;-1;;;11.0",
-        "7;-1;;;11.5",
-        "6;-1;;;12.0",
-        "5;-1;;;12.5",
-        "4;-1;;;13.0",
-        "3;-1;;;13.5",
-        "2;-1;;;14.0",
-        "1;0;;Jane;14.5",
-        "1;0;;;16.0",
+        "4;-1;;;0.5",
+        "3;-1;;;1.0",
+        "2;1;Joe;;1.5",
+        "3;1;;;3.0",
+        "4;1;Bob;;3.5",
+        "5;1;;Bob;5.0",
+        "6;1;;;6.5",
+        "7;1;;;7.0",
+        "8;1;;;7.5",
+        "9;-1;Jane;Joe;8.0",
+        "8;-1;;;9.5",
+        "7;-1;;;10.0",
+        "6;-1;;;10.5",
+        "5;-1;;;11.0",
+        "4;-1;;;11.5",
+        "3;-1;;;12.0",
+        "2;-1;;;12.5",
+        "1;0;;Jane;13.0",
+        "1;0;;;14.5",
     ]
 
 
@@ -172,19 +232,25 @@ def test_middle_multiple_dc(
     assert log_dict[f"Elevator {middle_floor_elevator.name}"] == [
         "3;1;;;0",
         "4;1;;;0.5",
-        "5;1;Jill;;1.0",
-        "6;1;;;2.5",
-        "7;1;;;3.0",
-        "8;1;;;3.5",
-        "9;-1;Jimmy,Joe;Jill;4.0",
-        "8;-1;;;5.5",
-        "7;-1;;;6.0",
-        "6;-1;;;6.5",
-        "5;-1;Bob,Jane;Jimmy;7.0",
-        "4;-1;;;8.5",
-        "3;-1;;Jane;9.0",
-        "2;0;;Bob,Joe;10.5",
-        "2;0;;;12.0",
+        "5;-1;Bob,Jane;;1.0",
+        "4;-1;;;2.5",
+        "3;-1;;Jane;3.0",
+        "2;1;;Bob;4.5",
+        "3;1;;;6.0",
+        "4;1;;;6.5",
+        "5;1;Jill;;7.0",
+        "6;1;;;8.5",
+        "7;1;;;9.0",
+        "8;1;;;9.5",
+        "9;-1;Jimmy,Joe;Jill;10.0",
+        "8;-1;;;11.5",
+        "7;-1;;;12.0",
+        "6;-1;;;12.5",
+        "5;-1;;Jimmy;13.0",
+        "4;-1;;;14.5",
+        "3;-1;;;15.0",
+        "2;0;;Joe;15.5",
+        "2;0;;;17.0",
     ]
 
 
