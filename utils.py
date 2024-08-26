@@ -151,3 +151,33 @@ def create_floors(
     for floor_num in range(min_floor - 1, max_floor + 2):
         floor_dict[floor_num] = Floor(floor_num)
     return floor_dict
+
+
+def create_text_table(data):
+    # Parse the data into a list of lists
+    parsed_data = [row.split(';') for row in data]
+    
+    # Extract indices
+    indices = [row[-1] for row in parsed_data]
+    
+    # Determine the width of columns
+    col_widths = [max(len(row[i]) for row in parsed_data) for i in range(len(parsed_data[0]))]
+    
+    # Create header based on the longest column widths
+    header = ['Floor', 'Direction', 'Name in', 'Name out', 'Time']
+    header_line = " | ".join(header[i].ljust(col_widths[i]) for i in range(len(header)))
+    
+    # Create separator
+    separator = "-+-".join('-' * col_widths[i] for i in range(len(header)))
+    
+    # Create table lines
+    table_lines = [
+        f"{indices[i]:<{max(len(idx) for idx in indices)}} | " + " | ".join(
+            parsed_data[i][j].ljust(col_widths[j]) for j in range(len(parsed_data[i]))
+        )
+        for i in range(len(parsed_data))
+    ]
+    
+    # Combine header, separator, and table lines
+    table = "\n".join([header_line, separator] + table_lines)
+    return table
