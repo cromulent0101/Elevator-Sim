@@ -4,13 +4,11 @@ from typing import Tuple, List, Dict
 
 
 class ElevatorBank:
-    def __init__(
-        self, elevator_list: List["Elevator"]
-    ):  # TODO: upgrade to Python >3.10 to get better type hints
+    def __init__(self, elevator_list: List["Elevator"]):
         self.elevators = elevator_list
         self.queue = (
             set()
-        )  # set of floors that don't have an elevator going to them yet
+        )  # set of Floors that have Rider requests but don't have an Elevator going to them yet
 
     def simulate(
         self,
@@ -22,13 +20,17 @@ class ElevatorBank:
     ):
         sim_time = 0
         rider_list = []
-        start_stop_delays = []
-        start_step_delays = []
-        floors_traversed = [0]
+        start_stop_delays = (
+            []
+        )  # List of all Riders' delays between when they were created and when they got INTO Elevator
+        start_step_delays = (
+            []
+        )  # List of all Riders' delays between when they were created and when they got OUT OF  Elevator
+        floors_traversed = [0]  # TODO: Why make this a list?
         log_dict = {}
-        floor_dict[
-            "done"
-        ] = False  # TODO: move the "done" flag out of the floor_dict. See below for first step
+        floor_dict["done"] = (
+            False  # TODO: move the "done" flag out of the floor_dict. See below for first step
+        )
         # also TODO: rename rider_list_csv because it's confusing.
         simulation_done = False
 
@@ -44,7 +46,7 @@ class ElevatorBank:
                 ):
                     getattr(
                         elevator, elevate_type
-                    )(  # call different methods based on parameter. Should probably use OOP here
+                    )(  # This calls different "elevate" methods based on parameter. Should probably use OOP here
                         rider_list,
                         floor_dict,
                         start_stop_delays,
@@ -58,7 +60,7 @@ class ElevatorBank:
 
         if (
             sim_time > max_time
-        ):  # TODO: figure out why 0.6+ tick sizes cause sim to run forever
+        ):  # TODO: figure out why tick sizes 0.5 - 0.999... cause sim to run forever
             print(f"Simulation took more time than {max_time} ticks")
             raise Exception
         return start_step_delays, start_stop_delays, floors_traversed[-1], log_dict
@@ -72,17 +74,21 @@ class Elevator:
     def __init__(self, capacity: int, floor: int, name: str):
         self.floor = floor
         self.name = name
-        self.capacity = capacity
+        self.capacity = capacity  # how many Riders can fit in at one time
         self.direction = 0  # 0 for stationary, 1 for up, -1 for down
-        self.internal_destinations = set()
-        self.external_destinations = set()
-        self.door_opening_delay = 1
-        self.elevator_movement_delay = (
-            0.5  # TODO: add acceleration s.t. subsequent movements become faster
+        self.internal_destinations = (
+            set()
+        )  # Floors the Elevator should go to when the Rider presses the button inside
+        self.external_destinations = (
+            set()
+        )  # Floors the Elevator should go to when an up/down request is made at a Floor
+        self.door_opening_delay = (
+            1  # How long it takes for the door to open/close when a Rider gets in/out
         )
+        self.elevator_movement_delay = 0.5  # how long it takes the elevator to move a floor  # TODO: add Elevator acceleration s.t. subsequent movements in same direction become faster
         self.simulated_time = 0
-        self.riders = []  # list of Riders
-        self.log = []  # list of strs to log what elevator did
+        self.riders = []  # list of Riders in the Elevator
+        self.log = []  # list of strings to log what elevator did
 
     def __eq__(
         self, other
@@ -98,20 +104,19 @@ class Elevator:
     def __repr__(self):
         return f"Elevator is on {self.floor} and direction {self.direction}"
 
-    def elevate(
+    def elevate_normal(
         self,
-        rider_list,
-        floor_dict,
-        start_stop_delays,
-        start_step_delays,
+        rider_list,  # List of Riders this Elevator could pick up
+        floor_dict,  # List of Floors this Elevator can travel to
+        start_stop_delays,  # List of all Riders' delays between when they were created and when they got INTO Elevator
+        start_step_delays,  # List of all Riders' delays between when they were created and when they got OUT OF Elevator
         floors_traversed,
-        e_bank,
+        e_bank,  # The ElevatorBank this Elevator is associated with
         log_dict,
         rider_list_csv,
     ) -> None:
         """
-        Tells an Elevator to pick up and drop off Riders
-        given a rider list.
+        Tells an Elevator to pick up and drop off Riders.
 
         Prints a string that represents the actions taken by
         the Elevator.
@@ -191,11 +196,20 @@ class Elevator:
 
     def check_for_new_riders(
         self, rider_list_csv, elevator_bank, floor_dict, rider_list
-    ) -> None:  # should be refactored out of Elevator and into ElevatorBank. needs to know about
+    ) -> None:
+        """
+        Given a CSV file of Riders, checks if any new Rider is ready to be added to the sim.
+
+        If so, adds them to rider_list which is modified in-place. Also has the
+        Rider push up/down request at their starting Floor. Then,
+        removes the Rider from the in-memory CSV.
+        """
+        # should be refactored out of Elevator and into ElevatorBank. Will need to know about
         # whether each Elevator has any Riders left inside
         rider_list_csv_copy = [] + rider_list_csv
 
-        if not rider_list_csv and not rider_list:  # needs to know about
+        if not rider_list_csv and not rider_list:
+            # When refactored out of here, this function needs to know about
             # whether EACH Elevator has any Riders left inside
             floor_dict["done"] = True
         else:
@@ -232,10 +246,10 @@ class Elevator:
         the simulation timer should increment by some amount.
         """
         if should_door_open_in or should_door_open_out:
-            self.simulated_time = self.simulated_time + self.door_opening_delay
-        self.simulated_time = (
-            self.simulated_time + self.elevator_movement_delay
-        )  # we add a delay regardless if in motion
+            self.simulated_time = (
+                self.simulated_time + self.door_opening_delay
+            )  # door opening and closing takes time
+        self.simulated_time = self.simulated_time + self.elevator_movement_delay
 
     def log_movement(self, rider_names_to_add, rider_names_to_remove, log_dict) -> str:
         log_str = []
@@ -329,7 +343,6 @@ class Elevator:
                 ):  # there is a value in the floor_dict that is not a Floor but rather a Boolean
                     if keep_going_down and keep_going_up:
                         break
-
                     if floor.number > self.floor and (
                         floor.up_request or floor.down_request
                     ):
@@ -369,7 +382,7 @@ class Elevator:
             elif (
                 more_requests
             ):  # this should prevent case where we have one person in and one person out at the top/bottom floor.
-                # on edge_cases.csv, this strictly improves waiting time.
+                # On edge_cases.csv, this strictly improves waiting time.
                 self.direction = self.direction * -1
                 pass
             else:
@@ -558,7 +571,7 @@ class Rider:
     def step_out(self, elevator, start_stop_delays, start_step_delays) -> None:
         """
         Logs the amount of time between a Rider getting in an Elevator and
-        stepping out of the Elevator. Does not actually remove the Rider.
+        stepping out of the Elevator. Does not actually remove the Rider!
         """
         start_stop_delays.append(elevator.simulated_time - self.when_to_add)
         start_step_delays.append(self.step_in_time - self.when_to_add)

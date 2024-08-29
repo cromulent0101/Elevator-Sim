@@ -22,11 +22,19 @@ Clone the repository:
 
 Navigate to the directory:
 
-    cd elevator-simulator
+    cd Elevator-Sim
+
+(Optional) Create a new virtual environment and activate it:
+
+    python -m venv .venv
+    source .venv/bin/activate
+
 
 Install the required packages:
 
     pip install -r requirements.txt
+
+Yes, I know `poetry` exists and is probably better than this method.
 
 ## Usage
 

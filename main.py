@@ -3,13 +3,13 @@ import utils
 import csv
 import random
 import os
-from classes import Elevator, Rider, Floor, ElevatorBank
+from classes import Elevator, ElevatorBank
 from statistics import mean, median
 
-SIMULATION_CSV = "sims/classic.csv"
+SIMULATION_CSV = "sims/100random.csv"
 ELEVATOR_CAPACITY = 3
 NUM_ELEVATORS = 2
-TIME_STEP = 0.01
+TIME_STEP = 0.1
 MAX_TIME = 10000
 
 rider_list_csv = utils.get_riders_from_csv(SIMULATION_CSV)
@@ -43,7 +43,7 @@ floor_dict_floor = utils.create_floors(
 if __name__ == "__main__":
 
     start_step_delays, start_stop_delays, floors_traversed, log_dict = bank.simulate(
-        rider_list_csv, floor_dict, TIME_STEP, MAX_TIME, "elevate"
+        rider_list_csv, floor_dict, TIME_STEP, MAX_TIME, "elevate_normal"
     )
 
     (
@@ -78,4 +78,4 @@ if __name__ == "__main__":
     print(f"Floors traversed: {floors_traversed}")
     print(f"Floors traversed by dispatch: {floors_traversed_floor}")
 
-    # utils.test_helper(log_dict)
+    print(utils.create_text_table(log_dict["Elevator b"]))

@@ -4,8 +4,6 @@ from typing import List, Dict
 import csv
 import logging
 
-# import pandas as pd
-
 
 def find_nearest_available_elevator(rider, elevator_bank: ElevatorBank) -> Elevator:
     """
@@ -155,29 +153,32 @@ def create_floors(
 
 def create_text_table(data):
     # Parse the data into a list of lists
-    parsed_data = [row.split(';') for row in data]
-    
+    parsed_data = [row.split(";") for row in data]
+
     # Extract indices
     indices = [row[-1] for row in parsed_data]
-    
+
     # Determine the width of columns
-    col_widths = [max(len(row[i]) for row in parsed_data) for i in range(len(parsed_data[0]))]
-    
+    col_widths = [
+        max(len(row[i]) for row in parsed_data) for i in range(len(parsed_data[0]))
+    ]
+
     # Create header based on the longest column widths
-    header = ['Floor', 'Direction', 'Name in', 'Name out', 'Time']
+    header = ["Floor", "Direction", "Name in", "Name out", "Time"]
     header_line = " | ".join(header[i].ljust(col_widths[i]) for i in range(len(header)))
-    
+
     # Create separator
-    separator = "-+-".join('-' * col_widths[i] for i in range(len(header)))
-    
+    separator = "-+-".join("-" * col_widths[i] for i in range(len(header)))
+
     # Create table lines
     table_lines = [
-        f"{indices[i]:<{max(len(idx) for idx in indices)}} | " + " | ".join(
+        f"{indices[i]:<{max(len(idx) for idx in indices)}} | "
+        + " | ".join(
             parsed_data[i][j].ljust(col_widths[j]) for j in range(len(parsed_data[i]))
         )
         for i in range(len(parsed_data))
     ]
-    
+
     # Combine header, separator, and table lines
     table = "\n".join([header_line, separator] + table_lines)
     return table
