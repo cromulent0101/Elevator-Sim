@@ -196,7 +196,7 @@ class Elevator:
 
     def check_for_new_riders(
         self, rider_list_csv, elevator_bank, floor_dict, rider_list
-    ) -> None:
+    ) -> None:  # Keeping elevator_bank arg until I refactor
         """
         Given a CSV file of Riders, checks if any new Rider is ready to be added to the sim.
 
@@ -206,7 +206,7 @@ class Elevator:
         """
         # should be refactored out of Elevator and into ElevatorBank. Will need to know about
         # whether each Elevator has any Riders left inside
-        rider_list_csv_copy = [] + rider_list_csv
+        rider_list_csv_copy = rider_list_csv[:]  # shallow copy
 
         if not rider_list_csv and not rider_list:
             # When refactored out of here, this function needs to know about
@@ -336,7 +336,7 @@ class Elevator:
 
         if self.internal_destinations:
             pass
-        else:
+        else:  # TODO: how could we make this a state machine
             for floor in floor_dict.values():
                 if isinstance(
                     floor, Floor
@@ -435,29 +435,35 @@ class Elevator:
 
         for rider in floor_dict[self.floor].riders:
             if self.direction == 1 and rider.destination > self.floor:
-                if rider.step_in(self):
+                should_door_open = True
+                if rider.step_in(
+                    self
+                ):  # if Rider gets in Elevator (can fit due to space constraint)
                     rider_names_to_add.append(str(rider))
                     self.internal_destinations.add(rider.destination)
                     riders_to_step_in.append(rider)
                     clear_up_button = True
                 else:
                     riders_still_waiting = True
-                should_door_open = True
             elif self.direction == -1 and rider.destination < self.floor:
-                if rider.step_in(self):
+                should_door_open = True
+                if rider.step_in(
+                    self
+                ):  # if Rider gets in Elevator (can fit due to space constraint)
                     rider_names_to_add.append(str(rider))
                     self.internal_destinations.add(rider.destination)
                     riders_to_step_in.append(rider)
                     clear_down_button = True
                 else:
                     riders_still_waiting = True
-                should_door_open = True
             else:
                 pass
+
         # remove Rider from Floor if they are getting in Elevator
         floor_dict[self.floor].riders = [
             e for e in floor_dict[self.floor].riders if e not in riders_to_step_in
         ]
+
         if not riders_still_waiting:
             if clear_up_button:
                 floor_dict[self.floor].up_request = False
