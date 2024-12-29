@@ -15,7 +15,7 @@ from classes import Elevator, Rider, ElevatorBank
 def simulation_settings_normal():
     TIME_STEP = 0.01
     MAX_TIME = 10000
-    SIM_TYPE = "elevate"
+    SIM_TYPE = "elevate_normal"
     return [TIME_STEP, MAX_TIME, SIM_TYPE]
 
 

@@ -64,7 +64,7 @@ def test_first_classic(first_floor_elevator: Elevator, classic_riders: list[Ride
     floor_dict = utils.create_floors(classic_riders, [first_floor_elevator])
     elevator_bank = ElevatorBank([first_floor_elevator])
     _, _, _, log_dict = elevator_bank.simulate(
-        classic_riders, floor_dict, 0.5, 10000, "elevate"
+        classic_riders, floor_dict, 0.5, 10000, "elevate_normal"
     )
     assert (
         "".join(list(log_dict.values())[0]).count(classic_riders_copy[0].name) == 2
@@ -98,7 +98,7 @@ def test_first_descending(
     floor_dict = utils.create_floors(descending_riders, [first_floor_elevator])
     elevator_bank = ElevatorBank([first_floor_elevator])
     _, _, _, log_dict = elevator_bank.simulate(
-        descending_riders, floor_dict, 0.5, 10000, "elevate"
+        descending_riders, floor_dict, 0.5, 10000, "elevate_normal"
     )
     assert (
         "".join(list(log_dict.values())[0]).count(descending_riders_copy[0].name) == 2
@@ -128,7 +128,7 @@ def test_middle_classic(middle_floor_elevator: Elevator, classic_riders: list[Ri
     floor_dict = utils.create_floors(classic_riders, [middle_floor_elevator])
     elevator_bank = ElevatorBank([middle_floor_elevator])
     _, _, _, log_dict = elevator_bank.simulate(
-        classic_riders, floor_dict, 0.5, 10000, "elevate"
+        classic_riders, floor_dict, 0.5, 10000, "elevate_normal"
     )
     assert log_dict[f"Elevator {middle_floor_elevator.name}"] == [
         "3;1;;;0",
@@ -166,7 +166,7 @@ def test_middle_multiple(
     )
     elevator_bank = ElevatorBank([middle_floor_elevator])
     _, _, _, log_dict = elevator_bank.simulate(
-        multiple_riders_multiple_floors, floor_dict, 0.5, 10000, "elevate"
+        multiple_riders_multiple_floors, floor_dict, 0.5, 10000, "elevate_normal"
     )
     assert log_dict[f"Elevator {middle_floor_elevator.name}"] == [
         "3;1;;;0",
@@ -195,7 +195,7 @@ def test_middle_stationary(
     floor_dict = utils.create_floors(classic_riders, [middle_floor_stationary_elevator])
     elevator_bank = ElevatorBank([middle_floor_stationary_elevator])
     _, _, _, log_dict = elevator_bank.simulate(
-        classic_riders, floor_dict, 0.5, 10000, "elevate"
+        classic_riders, floor_dict, 0.5, 10000, "elevate_normal"
     )
     assert (
         "".join(list(log_dict.values())[0]).count(classic_riders_copy[0].name) == 2
