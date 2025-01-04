@@ -337,32 +337,29 @@ class Elevator:
             pass
         else:  # TODO: how could we make this a state machine
             for floor in floor_dict.values():
-                if isinstance(
-                    floor, Floor
-                ):  # there is a value in the floor_dict that is not a Floor but rather a Boolean
-                    if keep_going_down and keep_going_up:
-                        break
-                    if floor.number > self.floor and (
-                        floor.up_request or floor.down_request
-                    ):
-                        keep_going_up = True
-                    elif floor.number < self.floor and (
-                        floor.up_request or floor.down_request
-                    ):
-                        keep_going_down = True
+                if keep_going_down and keep_going_up:
+                    break
+                if floor.number > self.floor and (
+                    floor.up_request or floor.down_request
+                ):
+                    keep_going_up = True
+                elif floor.number < self.floor and (
+                    floor.up_request or floor.down_request
+                ):
+                    keep_going_down = True
 
-                    elif floor.number == self.floor and (
-                        self.direction > -1 and floor.up_request
-                    ):
-                        keep_going_up = True
-                    elif floor.number == self.floor and (
-                        self.direction < 1 and floor.down_request
-                    ):
-                        keep_going_down = True
-                    elif floor.down_request or floor.up_request:
-                        more_requests = True
-                    else:
-                        continue
+                elif floor.number == self.floor and (
+                    self.direction > -1 and floor.up_request
+                ):
+                    keep_going_up = True
+                elif floor.number == self.floor and (
+                    self.direction < 1 and floor.down_request
+                ):
+                    keep_going_down = True
+                elif floor.down_request or floor.up_request:
+                    more_requests = True
+                else:
+                    continue
 
             if (keep_going_down and self.direction == -1) or (
                 keep_going_up and self.direction == 1
