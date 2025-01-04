@@ -9,6 +9,7 @@ class ElevatorBank:
         self.queue = (
             set()
         )  # set of Floors that have Rider requests but don't have an Elevator going to them yet
+        self.simulation_done = False  # New flag here
 
     def simulate(
         self,
@@ -28,16 +29,14 @@ class ElevatorBank:
         )  # List of all Riders' delays between when they were created and when they got OUT OF  Elevator
         floors_traversed = [0]  # TODO: Why make this a list?
         log_dict = {}
-        floor_dict["done"] = (
-            False  # TODO: move the "done" flag out of the floor_dict. See below for first step
-        )
+
         # also TODO: rename rider_list_csv because it's confusing.
         simulation_done = False
 
         for elevator in self.elevators:
             log_dict[f"Elevator {elevator.name}"] = []
 
-        while not floor_dict["done"] and sim_time < max_time:
+        while not self.simulation_done and sim_time < max_time:
             # while not simulation_done and sim_time < max_time: # -- to be added once I refactor the floor_dict["done"] thing
             for elevator in self.elevators:
                 if (
@@ -211,7 +210,7 @@ class Elevator:
         if not rider_list_csv and not rider_list:
             # When refactored out of here, this function needs to know about
             # whether EACH Elevator has any Riders left inside
-            floor_dict["done"] = True
+            elevator_bank.simulation_done = True
         else:
             for rider in rider_list_csv_copy:
                 if rider.when_to_add <= self.simulated_time:
@@ -228,7 +227,7 @@ class Elevator:
         if (
             not rider_list_csv and not rider_list
         ):  # no more Riders waiting and no more Riders in this Elev
-            floor_dict["done"] = True
+            elevator_bank.simulation_done = True
         else:
             for rider in rider_list_csv_copy:
                 if rider.when_to_add <= self.simulated_time:
