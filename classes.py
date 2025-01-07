@@ -13,7 +13,7 @@ class ElevatorBank:
 
     def simulate(
         self,
-        rider_list_csv: List["Rider"],
+        pending_riders: List["Rider"],
         floor_dict: Dict[int, "Floor"],
         time_step: float,
         max_time: int,
@@ -30,7 +30,6 @@ class ElevatorBank:
         floors_traversed = [0]  # TODO: Why make this a list?
         log_dict = {}
 
-        # also TODO: rename rider_list_csv because it's confusing.
         simulation_done = False
 
         for elevator in self.elevators:
@@ -53,7 +52,7 @@ class ElevatorBank:
                         floors_traversed,
                         self,
                         log_dict,
-                        rider_list_csv,
+                        pending_riders,
                     )
             sim_time = sim_time + time_step
 
@@ -64,8 +63,8 @@ class ElevatorBank:
             raise Exception
         return start_step_delays, start_stop_delays, floors_traversed[-1], log_dict
 
-    def check_for_sim_completion(self, rider_list_csv):
-        if not rider_list_csv and not self.rider_list:
+    def check_for_sim_completion(self, pending_riders):
+        if not pending_riders and not self.rider_list:
             self.simulation_done = True
 
 
@@ -112,7 +111,7 @@ class Elevator:
         floors_traversed,
         e_bank,  # The ElevatorBank this Elevator is associated with
         log_dict,
-        rider_list_csv,
+        pending_riders,
     ) -> None:
         """
         Tells an Elevator to pick up and drop off Riders.
@@ -120,7 +119,7 @@ class Elevator:
         Prints a string that represents the actions taken by
         the Elevator.
         """
-        self.check_for_new_riders(rider_list_csv, e_bank, floor_dict, rider_list)
+        self.check_for_new_riders(pending_riders, e_bank, floor_dict, rider_list)
 
         for rider in self.riders:
             rider.curr_floor = self.floor
@@ -154,7 +153,7 @@ class Elevator:
         floors_traversed,
         e_bank,
         log_dict,
-        rider_list_csv,
+        pending_riders,
     ) -> None:
         """
         Tells an Elevator to pick up and drop off Riders
@@ -163,7 +162,7 @@ class Elevator:
         Prints a string that represents the actions taken by
         the Elevator.
         """
-        self.check_for_new_riders_dc(rider_list_csv, e_bank, floor_dict, rider_list)
+        self.check_for_new_riders_dc(pending_riders, e_bank, floor_dict, rider_list)
 
         for rider in self.riders:
             rider.curr_floor = self.floor
@@ -194,7 +193,7 @@ class Elevator:
         self.simulate_delays(should_door_open_in, should_door_open_out)
 
     def check_for_new_riders(
-        self, rider_list_csv, elevator_bank, floor_dict, rider_list
+        self, pending_riders, elevator_bank, floor_dict, rider_list
     ) -> None:  # Keeping elevator_bank arg until I refactor
         """
         Given a CSV file of Riders, checks if any new Rider is ready to be added to the sim.
@@ -205,36 +204,36 @@ class Elevator:
         """
         # should be refactored out of Elevator and into ElevatorBank. Will need to know about
         # whether each Elevator has any Riders left inside
-        rider_list_csv_copy = rider_list_csv[:]  # shallow copy
+        pending_riders_copy = pending_riders[:]  # shallow copy
 
-        if not rider_list_csv and not rider_list:
+        if not pending_riders and not rider_list:
             # When refactored out of here, this function needs to know about
             # whether EACH Elevator has any Riders left inside
             elevator_bank.simulation_done = True
         else:
-            for rider in rider_list_csv_copy:
+            for rider in pending_riders_copy:
                 if rider.when_to_add <= self.simulated_time:
                     rider_list.append(rider)
                     floor_dict[rider.start_floor].riders.append(rider)
                     rider.press_button_new(floor_dict)
-                    rider_list_csv.remove(rider)
+                    pending_riders.remove(rider)
 
     def check_for_new_riders_dc(  # TODO: should be refactored out of Elevator and into ElevatorBank
-        self, rider_list_csv, elevator_bank, floor_dict, rider_list
+        self, pending_riders, elevator_bank, floor_dict, rider_list
     ) -> None:
-        rider_list_csv_copy = [] + rider_list_csv
+        pending_riders_copy = [] + pending_riders
 
         if (
-            not rider_list_csv and not rider_list
+            not pending_riders and not rider_list
         ):  # no more Riders waiting and no more Riders in this Elev
             elevator_bank.simulation_done = True
         else:
-            for rider in rider_list_csv_copy:
+            for rider in pending_riders_copy:
                 if rider.when_to_add <= self.simulated_time:
                     rider_list.append(rider)
                     floor_dict[rider.start_floor].riders.append(rider)
                     rider.press_button_new_dc(elevator_bank)
-                    rider_list_csv.remove(rider)
+                    pending_riders.remove(rider)
 
     def simulate_delays(self, should_door_open_in, should_door_open_out) -> None:
         """

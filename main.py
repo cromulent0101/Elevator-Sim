@@ -12,8 +12,8 @@ NUM_ELEVATORS = 2
 TIME_STEP = 0.1
 MAX_TIME = 10000
 
-rider_list_csv = utils.get_riders_from_csv(SIMULATION_CSV)
-rider_list_csv_floor = utils.get_riders_from_csv(SIMULATION_CSV)
+pending_riders = utils.get_riders_from_csv(SIMULATION_CSV)
+pending_riders_floor = utils.get_riders_from_csv(SIMULATION_CSV)
 
 
 a = Elevator(ELEVATOR_CAPACITY, 1, "a")
@@ -35,15 +35,15 @@ e_bank_floor = [a_floor, b_floor, c_floor, d_floor, e_floor, f_floor]
 
 bank = ElevatorBank(e_bank[:NUM_ELEVATORS])
 bank_floor = ElevatorBank(e_bank_floor[:NUM_ELEVATORS])
-floor_dict = utils.create_floors(rider_list_csv, e_bank[:NUM_ELEVATORS])
+floor_dict = utils.create_floors(pending_riders, e_bank[:NUM_ELEVATORS])
 floor_dict_floor = utils.create_floors(
-    rider_list_csv_floor, e_bank_floor[:NUM_ELEVATORS]
+    pending_riders_floor, e_bank_floor[:NUM_ELEVATORS]
 )
 
 if __name__ == "__main__":
 
     start_step_delays, start_stop_delays, floors_traversed, log_dict = bank.simulate(
-        rider_list_csv, floor_dict, TIME_STEP, MAX_TIME, "elevate_normal"
+        pending_riders, floor_dict, TIME_STEP, MAX_TIME, "elevate_normal"
     )
 
     (
@@ -52,7 +52,7 @@ if __name__ == "__main__":
         floors_traversed_floor,
         log_dict_floor,
     ) = bank_floor.simulate(
-        rider_list_csv_floor, floor_dict_floor, TIME_STEP, MAX_TIME, "elevate_dc"
+        pending_riders_floor, floor_dict_floor, TIME_STEP, MAX_TIME, "elevate_dc"
     )
 
     print(log_dict_floor)
