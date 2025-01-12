@@ -8,7 +8,7 @@ from statistics import mean, median
 
 SIMULATION_CSV = "sims/100random.csv"
 ELEVATOR_CAPACITY = 3
-NUM_ELEVATORS = 2
+NUM_ELEVATORS = 3
 TIME_STEP = 0.1
 MAX_TIME = 10000
 
